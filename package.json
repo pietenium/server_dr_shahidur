@@ -22,7 +22,10 @@
   "type": "module",
   "main": "server.ts",
   "scripts": {
-    "test": "node"
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@imagekit/nodejs": "^7.5.0",
