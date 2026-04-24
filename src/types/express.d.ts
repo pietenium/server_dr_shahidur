@@ -1,11 +1,15 @@
 import { AuthenticatedUser } from "./global.types";
 
-declare module "express-serve-static-core" {
-  interface Request {
-    user?: AuthenticatedUser;
-    files?: {
-      [fieldname: string]: Express.Multer.File[];
-    } & { file?: Express.Multer.File[] };
+declare global {
+  namespace Express {
+    interface Request {
+      user?: AuthenticatedUser;
+      file?: Express.Multer.File;
+      files?: {
+        [fieldname: string]: Express.Multer.File[];
+      };
+    }
   }
 }
+
 export {};
