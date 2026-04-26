@@ -1,20 +1,23 @@
-import { Document, Types, Model } from "mongoose";
-import { PaginateResult } from "mongoose-paginate-v2";
+import { Document, Types } from "mongoose";
 import { IUser } from "@modules/auth/auth.interface";
 
 export interface IActivityLog extends Document {
   user: Types.ObjectId | IUser;
-  module: string;
   action: string;
+  module: string;
   description: string;
-  timestamp: Date;
+  ipAddress: string;
+  userAgent: string;
+  createdAt: Date;
 }
 
 export interface CreateLogPayload {
   user: string;
-  module: string;
   action: string;
+  module: string;
   description: string;
+  ipAddress: string;
+  userAgent: string;
 }
 
 export interface LogFilterQuery {
@@ -29,10 +32,3 @@ export interface LogFilterQuery {
 export interface BulkDeletePayload {
   ids: string[];
 }
-
-export type ActivityLogModel = Model<IActivityLog> & {
-  paginate: (
-    filter: object,
-    options: object,
-  ) => Promise<PaginateResult<IActivityLog>>;
-};

@@ -1,46 +1,43 @@
-import { Document, Types, Model } from "mongoose";
-import { PaginateResult } from "mongoose-paginate-v2";
-import { UploadType, ContentStatus } from "@constants/status.constant";
-import { OgImage } from "@types-app/global.types";
+import { Document } from "mongoose";
 
 export interface IResearch extends Document {
   title: string;
   slug: string;
-  abstract: string;
-  uploadType: UploadType;
+  description?: string;
+  uploadType: "PDF" | "DOI";
   pdfFile?: {
     url: string;
     fileId: string;
   };
-  doiLink?: string;
-  status: ContentStatus;
-  category?: string;
-  ogImage?: OgImage;
+  doiUrl?: string;
+  doiNumber?: string;
+  thumbnailImage?: {
+    url: string;
+    fileId: string;
+  };
+  status: "DRAFT" | "PUBLISHED";
+  publishedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
+
+export type UploadType = "PDF" | "DOI";
 
 export interface CreateResearchPayload {
   title: string;
-  abstract: string;
-  uploadType: UploadType;
-  doiLink?: string;
-  status: ContentStatus;
-  category?: string;
+  description?: string;
+  uploadType: "PDF" | "DOI";
+  doiUrl?: string;
+  status?: "DRAFT" | "PUBLISHED";
+  publishedAt?: string;
 }
 
 export interface UpdateResearchPayload extends Partial<CreateResearchPayload> {}
 
 export interface ResearchFilterQuery {
-  status?: ContentStatus;
-  uploadType?: UploadType;
-  category?: string;
+  status?: string;
+  uploadType?: string;
   search?: string;
   page?: number;
   limit?: number;
 }
-
-export type ResearchModel = Model<IResearch> & {
-  paginate: (
-    filter: object,
-    options: object,
-  ) => Promise<PaginateResult<IResearch>>;
-};

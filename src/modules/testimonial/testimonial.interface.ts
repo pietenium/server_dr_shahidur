@@ -1,27 +1,31 @@
-import { Document, Model } from "mongoose";
-import { PaginateResult } from "mongoose-paginate-v2";
+import { Document } from "mongoose";
 
 export interface ITestimonial extends Document {
-  text: string;
-  authorName: string;
-  authorDesignation: string;
-  imageUrl?: string;
+  name: string;
+  designation?: string;
+  company?: string;
+  content: string;
+  image?: {
+    url: string;
+    fileId: string;
+  };
+  video?: {
+    url: string;
+    fileId: string;
+  };
   rating: number;
+  isVisible: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface CreateTestimonialPayload {
-  text: string;
-  authorName: string;
-  authorDesignation: string;
-  imageUrl?: string;
+  name: string;
+  designation?: string;
+  company?: string;
+  content: string;
   rating: number;
+  isVisible?: boolean;
 }
 
 export interface UpdateTestimonialPayload extends Partial<CreateTestimonialPayload> {}
-
-export type TestimonialModel = Model<ITestimonial> & {
-  paginate: (
-    filter: object,
-    options: object,
-  ) => Promise<PaginateResult<ITestimonial>>;
-};
