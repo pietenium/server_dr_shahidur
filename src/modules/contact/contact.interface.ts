@@ -1,36 +1,35 @@
-import { Document, Model } from "mongoose";
-import { PaginateResult } from "mongoose-paginate-v2";
+import { Document } from "mongoose";
+import { GeoLocation } from "@types-app/global.types";
 
 export type ContactReason = "medical-inquiry" | "general" | "media" | "other";
 
 export interface IContact extends Document {
   name: string;
   email: string;
-  phone: string;
-  reason: ContactReason;
+  phone?: string;
+  subject: string;
   message: string;
-  recaptchaToken: string;
+  reason: ContactReason;
+  ipAddress: string;
+  location: GeoLocation;
+  isRead: boolean;
+  telegramMessageId?: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface CreateContactPayload {
   name: string;
   email: string;
-  phone: string;
-  reason: ContactReason;
+  phone?: string;
+  subject: string;
   message: string;
-  recaptchaToken: string;
+  reason: ContactReason;
 }
 
 export interface ContactFilterQuery {
+  isRead?: boolean;
   reason?: ContactReason;
-  search?: string;
   page?: number;
   limit?: number;
 }
-
-export type ContactModel = Model<IContact> & {
-  paginate: (
-    filter: object,
-    options: object,
-  ) => Promise<PaginateResult<IContact>>;
-};
