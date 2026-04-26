@@ -1,0 +1,38 @@
+import axios from "axios";
+import { GeoLocation } from "@types-app/global.types";
+
+export const getGeoLocation = async (ip: string): Promise<GeoLocation> => {
+  try {
+    if (ip === "::1" || ip === "127.0.0.1" || ip === "localhost") {
+      return {
+        country: "Unknown",
+        region: "Unknown",
+        city: "Unknown",
+        lat: 0,
+        lon: 0,
+        ip,
+      };
+    }
+
+    const response = await axios.get(`https://ipwho.is/${ip}`);
+    const data = response.data;
+
+    return {
+      country: data.country || "Unknown",
+      region: data.region || "Unknown",
+      city: data.city || "Unknown",
+      lat: data.latitude || 0,
+      lon: data.longitude || 0,
+      ip: data.ip || ip,
+    };
+  } catch (error) {
+    return {
+      country: "Unknown",
+      region: "Unknown",
+      city: "Unknown",
+      lat: 0,
+      lon: 0,
+      ip,
+    };
+  }
+};

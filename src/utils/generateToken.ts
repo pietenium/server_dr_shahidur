@@ -12,13 +12,13 @@ export const generateTokenJti = (): string => {
 
 export const generateAccessToken = (payload: JwtAccessPayload): string => {
   return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
-    expiresIn: env.JWT_ACCESS_EXPIRY,
+    expiresIn: "15m",
   });
 };
 
 export const generateRefreshToken = (payload: JwtRefreshPayload): string => {
   return jwt.sign(payload, env.JWT_REFRESH_SECRET, {
-    expiresIn: env.JWT_REFRESH_EXPIRY,
+    expiresIn: "7d",
     jwtid: payload.jti,
   });
 };
