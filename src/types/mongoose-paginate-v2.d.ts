@@ -33,8 +33,20 @@ declare module "mongoose-paginate-v2" {
     nextPage?: number | null;
   }
 
+  // The PaginateModel interface that combines Model with paginate method
+  interface PaginateModel<
+    T extends Document,
+    TQueryHelpers = Record<string, unknown>,
+    TMethods = Record<string, unknown>,
+  > extends Model<T, TQueryHelpers, TMethods> {
+    paginate(
+      filter?: FilterQuery<T>,
+      options?: PaginateOptions,
+    ): Promise<PaginateResult<T>>;
+  }
+
   function paginate<T extends Document>(schema: Schema<T>): void;
 
   export default paginate;
-  export { PaginateResult, PaginateOptions };
+  export { PaginateResult, PaginateOptions, PaginateModel };
 }

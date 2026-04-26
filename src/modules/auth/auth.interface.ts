@@ -1,28 +1,28 @@
-import { Document, Model, Types } from "mongoose";
-import { Role } from "../../constants/roles.constant";
-import { PaginateResult } from "mongoose-paginate-v2";
+import { Document, Types } from "mongoose";
+import { PaginateModel } from "mongoose-paginate-v2";
+
+export interface IUserMethods {
+  comparePassword(candidatePassword: string): Promise<boolean>;
+}
 
 export interface IUser extends Document {
   _id: Types.ObjectId;
   name: string;
   email: string;
   password: string;
-  role: Role;
+  role: "ADMIN" | "MODERATOR";
   isActive: boolean;
-  otpCode?: string;
-  otpExpiry?: Date;
-  magicLoginToken?: string;
-  magicLoginExpiry?: Date;
   lastLogin?: Date;
-  comparePassword(candidatePassword: string): Promise<boolean>;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export type UserModel = Model<IUser> & {
-  paginate: (
-    query?: object,
-    options?: object,
-  ) => Promise<PaginateResult<IUser>>;
-};
+// Corrected type - now properly using PaginateModel with generics
+export type UserModel = PaginateModel<
+  IUser,
+  Record<string, never>,
+  IUserMethods
+>;
 
 export interface LoginPayload {
   email: string;
@@ -47,6 +47,16 @@ export interface ResetPasswordPayload {
   email: string;
   magicToken: string;
   newPassword: string;
+}
+
+export interface JwtAccessPayload {
+  _id: string;
+  role: "ADMIN" | "MODERATOR";
+}
+
+export interface JwtRefreshPayload {
+  _id: string;
+  jti: string;
 }
 
 export interface AuthTokens {

@@ -1,28 +1,31 @@
-import { Document, Model } from "mongoose";
-import { AppointmentStatus } from "@constants/status.constant";
-import { SmsLogEntry } from "@types-app/global.types";
-import { PaginateResult } from "mongoose-paginate-v2";
+import { Document } from "mongoose";
+import { GeoLocation } from "@types-app/global.types";
 
 export interface IAppointment extends Document {
   name: string;
   phone: string;
-  email: string;
-  reason: string;
+  email?: string;
+  message?: string;
   preferredDate: Date;
-  status: AppointmentStatus;
-  smsLog: SmsLogEntry[];
+  preferredTime: string;
+  status: "PENDING" | "CONFIRMED" | "CANCELLED";
+  ipAddress: string;
+  location: GeoLocation;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface CreateAppointmentPayload {
   name: string;
   phone: string;
-  email: string;
-  reason: string;
+  email?: string;
+  message?: string;
   preferredDate: string;
+  preferredTime: string;
 }
 
 export interface AppointmentFilterQuery {
-  status?: AppointmentStatus;
+  status?: string;
   startDate?: string;
   endDate?: string;
   search?: string;
@@ -31,17 +34,8 @@ export interface AppointmentFilterQuery {
 }
 
 export interface AppointmentChartData {
-  _id: string;
-  count: number;
+  dailyCounts: Array<{ _id: string; count: number }>;
+  monthlyCounts: Array<{ _id: string; count: number }>;
+  totalCount: number;
+  statusDistribution: Array<{ _id: string; count: number }>;
 }
-
-export interface SendSmsPayload {
-  message: string;
-}
-
-export type AppointmentModel = Model<IAppointment> & {
-  paginate: (
-    filter: object,
-    options: object,
-  ) => Promise<PaginateResult<IAppointment>>;
-};
