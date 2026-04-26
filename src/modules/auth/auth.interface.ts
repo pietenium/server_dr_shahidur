@@ -1,5 +1,6 @@
 import { Document, Model, Types } from "mongoose";
-import { Role } from "@constants/roles.constant";
+import { Role } from "../../constants/roles.constant";
+import { PaginateResult } from "mongoose-paginate-v2";
 
 export interface IUser extends Document {
   _id: Types.ObjectId;
@@ -13,17 +14,15 @@ export interface IUser extends Document {
   magicLoginToken?: string;
   magicLoginExpiry?: Date;
   lastLogin?: Date;
+  comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-export interface IUserMethods {
-  comparePassword(candidate: string): Promise<boolean>;
-}
-
-export type UserModel = Model<IUser, {}, IUserMethods> & {
-  paginate: (query: object, options: object) => Promise<PaginateResult<IUser>>;
+export type UserModel = Model<IUser> & {
+  paginate: (
+    query?: object,
+    options?: object,
+  ) => Promise<PaginateResult<IUser>>;
 };
-
-import { PaginateResult } from "mongoose-paginate-v2";
 
 export interface LoginPayload {
   email: string;
@@ -48,15 +47,6 @@ export interface ResetPasswordPayload {
   email: string;
   magicToken: string;
   newPassword: string;
-}
-
-export interface JwtAccessPayload {
-  _id: string;
-  role: Role;
-}
-
-export interface JwtRefreshPayload {
-  _id: string;
 }
 
 export interface AuthTokens {

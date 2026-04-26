@@ -1,10 +1,3 @@
-export interface AuthenticatedUser {
-  _id: string;
-  email: string;
-  name: string;
-  role: "ADMIN" | "MODERATOR";
-}
-
 export interface GeoLocation {
   country: string;
   region: string;
@@ -42,13 +35,15 @@ export interface ApiErrorResponse {
   errors: Array<{ field?: string; message: string }>;
 }
 
-export interface SmsLogEntry {
-  sentAt: Date;
-  message: string;
-  status: "sent" | "failed";
-}
-
 export interface OgImage {
   url: string;
   fileId: string;
 }
+
+export type RedisCacheKey =
+  | "app-info"
+  | "articles-list"
+  | "research-list"
+  | "article-slug"
+  | "research-slug"
+  | "testimonials-list";

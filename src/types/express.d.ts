@@ -1,15 +1,18 @@
-import { AuthenticatedUser } from "./global.types";
+declare namespace Express {
+  interface AuthenticatedUser {
+    _id: string;
+    email: string;
+    name: string;
+    role: "ADMIN" | "MODERATOR";
+  }
 
-declare global {
-  namespace Express {
-    interface Request {
-      user?: AuthenticatedUser;
-      file?: Express.Multer.File;
-      files?: {
-        [fieldname: string]: Express.Multer.File[];
-      };
-    }
+  interface Request {
+    user?: AuthenticatedUser;
+    file?: Express.Multer.File;
+    files?:
+      | {
+          [fieldname: string]: Express.Multer.File[];
+        }
+      | Express.Multer.File[];
   }
 }
-
-export {};
