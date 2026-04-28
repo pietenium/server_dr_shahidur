@@ -1,0 +1,27 @@
+import { Request, Response, NextFunction, RequestHandler } from "express";
+import { ActivityLogService } from "@modules/activity-log/activity-log.service";
+import { CreateLogPayload } from "@modules/activity-log/activity-log.interface";
+
+const activityLogService = new ActivityLogService();
+
+export const logActivity = (module: string): RequestHandler => {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    res.on("finish", () => {
+      const statusCode = res.statusCode;
+      if (statusCode < 400 && req.user) {
+        const payload: CreateLogPayload = {
+          user: req.user._id,
+          action: `${req.method} ${req.path}`,
+          module,
+          description: `${req.method} request to ${req.originalUrl}`,
+          ipAddress: req.ip || "unknown",
+          userAgent: req.get("user-agent") || "unknown",
+        };
+        activityLogService.create(payload).catch(() => {
+          // Fire and forget - log failure is non-critical
+        });
+      }
+    });
+    next();
+  };
+};
