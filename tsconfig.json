@@ -2,7 +2,9 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "commonjs",
-    "lib": ["ES2020"],
+    "lib": [
+      "ES2020"
+    ],
     "rootDir": "./src",
     "outDir": "./dist",
     "strict": true,
@@ -16,18 +18,35 @@
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "baseUrl": "./src",
     "paths": {
-      "@modules/*": ["modules/*"],
-      "@middlewares/*": ["middlewares/*"],
-      "@utils/*": ["utils/*"],
-      "@config/*": ["config/*"],
-      "@constants/*": ["constants/*"],
-      "@emails/*": ["emails/*"],
-      "@types-app/*": ["types/*"]
-    },
-    "ignoreDeprecations": "6.0"
+      "@modules/*": [
+        "./src/modules/*"
+      ],
+      "@middlewares/*": [
+        "./src/middlewares/*"
+      ],
+      "@utils/*": [
+        "./src/utils/*"
+      ],
+      "@config/*": [
+        "./src/config/*"
+      ],
+      "@constants/*": [
+        "./src/constants/*"
+      ],
+      "@emails/*": [
+        "./src/emails/*"
+      ],
+      "@types-app/*": [
+        "./src/types/*"
+      ]
+    }
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
