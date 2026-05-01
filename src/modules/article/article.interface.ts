@@ -44,7 +44,7 @@ export interface CreateArticlePayload {
   publishedAt?: string;
 }
 
-export interface UpdateArticlePayload extends Partial<CreateArticlePayload> {}
+export type UpdateArticlePayload = Partial<CreateArticlePayload>;
 
 export interface ArticleFilterQuery {
   status?: string;

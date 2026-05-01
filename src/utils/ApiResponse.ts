@@ -1,7 +1,7 @@
 import { Response } from "express";
 
 export class ApiResponse<T> {
-  public readonly success: true = true;
+  public readonly success = true as const;
   public readonly statusCode: number;
   public readonly message: string;
   public readonly data: T;

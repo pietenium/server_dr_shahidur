@@ -32,7 +32,7 @@ export interface CreateResearchPayload {
   publishedAt?: string;
 }
 
-export interface UpdateResearchPayload extends Partial<CreateResearchPayload> {}
+export type UpdateResearchPayload = Partial<CreateResearchPayload>;
 
 export interface ResearchFilterQuery {
   status?: string;

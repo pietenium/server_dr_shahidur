@@ -25,7 +25,7 @@ export const getGeoLocation = async (ip: string): Promise<GeoLocation> => {
       lon: data.longitude || 0,
       ip: data.ip || ip,
     };
-  } catch (error) {
+  } catch (_error) {
     return {
       country: "Unknown",
       region: "Unknown",

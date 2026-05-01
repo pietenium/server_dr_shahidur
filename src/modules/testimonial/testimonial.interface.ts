@@ -28,4 +28,4 @@ export interface CreateTestimonialPayload {
   isVisible?: boolean;
 }
 
-export interface UpdateTestimonialPayload extends Partial<CreateTestimonialPayload> {}
+export type UpdateTestimonialPayload = Partial<CreateTestimonialPayload>;
