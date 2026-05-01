@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import { logger } from "./logger";
 import { getRedisClient, isRedisReady } from "@config/redis";
 
 export const getCache = async <T>(key: string): Promise<T | null> => {
@@ -13,7 +14,7 @@ export const getCache = async <T>(key: string): Promise<T | null> => {
     }
     return null;
   } catch (error) {
-    console.log(
+    logger.warn(
       chalk.yellow(
         `Cache get error for key ${key}: ${(error as Error).message}`,
       ),
@@ -34,7 +35,7 @@ export const setCache = async <T>(
     const redisClient = getRedisClient();
     await redisClient.set(key, JSON.stringify(data), "EX", ttlSeconds);
   } catch (error) {
-    console.log(
+    logger.warn(
       chalk.yellow(
         `Cache set error for key ${key}: ${(error as Error).message}`,
       ),
@@ -50,7 +51,7 @@ export const deleteCache = async (key: string): Promise<void> => {
     const redisClient = getRedisClient();
     await redisClient.del(key);
   } catch (error) {
-    console.log(
+    logger.warn(
       chalk.yellow(
         `Cache delete error for key ${key}: ${(error as Error).message}`,
       ),
@@ -75,7 +76,7 @@ export const deleteCachePattern = async (pattern: string): Promise<void> => {
       await pipeline.exec();
     }
   } catch (error) {
-    console.log(
+    logger.warn(
       chalk.yellow(
         `Cache pattern delete error for ${pattern}: ${(error as Error).message}`,
       ),

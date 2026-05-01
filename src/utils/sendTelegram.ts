@@ -1,5 +1,6 @@
 import TelegramBot from "node-telegram-bot-api";
 import chalk from "chalk";
+import { logger } from "./logger";
 import dayjs from "dayjs";
 import { env } from "@config/env";
 import type { IAppointment } from "@modules/appointment/appointment.interface";
@@ -36,7 +37,7 @@ export const sendTelegramMessage = async (
     };
   } catch (error) {
     const errorMessage = (error as Error).message;
-    console.log(chalk.yellow(`Telegram send error: ${errorMessage}`));
+    logger.warn(chalk.yellow(`Telegram send error: ${errorMessage}`));
     return {
       success: false,
       error: errorMessage,

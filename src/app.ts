@@ -78,6 +78,7 @@ if (env.NODE_ENV === "development") {
 }
 
 // 8. Routes - mounted under /api/v1
+// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 app.use("/api/v1/auth", authRoutes);
 // app.use('/api/v1/analytics', analyticsRoutes);
 // app.use('/api/v1/appointments', appointmentRoutes);

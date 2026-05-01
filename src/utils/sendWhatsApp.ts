@@ -1,6 +1,7 @@
 import { Client, LocalAuth } from "whatsapp-web.js";
 import qrcode from "qrcode-terminal";
 import chalk from "chalk";
+import { logger } from "./logger";
 import { env } from "@config/env";
 
 let client: Client | null = null;
@@ -19,7 +20,7 @@ export const initWhatsApp = (): void => {
     });
 
     client.on("qr", (qr: string) => {
-      console.log(
+      logger.info(
         chalk.blue("WhatsApp QR Code received. Scan with your phone:"),
       );
       qrcode.generate(qr, { small: true });
@@ -27,13 +28,13 @@ export const initWhatsApp = (): void => {
 
     client.on("ready", () => {
       isReady = true;
-      console.log(chalk.green("WhatsApp client is ready."));
+      logger.info(chalk.green("WhatsApp client is ready."));
     });
 
     client.on("disconnected", (reason: string) => {
       isReady = false;
-      console.log(chalk.yellow(`WhatsApp disconnected: ${reason}`));
-      console.log(
+      logger.warn(chalk.yellow(`WhatsApp disconnected: ${reason}`));
+      logger.warn(
         chalk.yellow("Attempting to re-initialize WhatsApp in 5 seconds..."),
       );
       setTimeout(() => {
@@ -43,16 +44,16 @@ export const initWhatsApp = (): void => {
 
     client.on("auth_failure", (message: string) => {
       isReady = false;
-      console.log(chalk.red(`WhatsApp authentication failure: ${message}`));
+      logger.error(chalk.red(`WhatsApp authentication failure: ${message}`));
     });
 
     client.initialize().catch((error: Error) => {
-      console.log(
+      logger.warn(
         chalk.yellow(`WhatsApp initialization error: ${error.message}`),
       );
     });
   } catch (error) {
-    console.log(
+    logger.warn(
       chalk.yellow(`WhatsApp setup error: ${(error as Error).message}`),
     );
   }
@@ -64,14 +65,14 @@ export const sendWhatsAppMessage = async (
 ): Promise<void> => {
   try {
     if (!client || !isReady) {
-      console.log(chalk.yellow("WhatsApp client not ready. Message not sent."));
+      logger.warn(chalk.yellow("WhatsApp client not ready. Message not sent."));
       return;
     }
 
     const chatId = `${phone}@c.us`;
     await client.sendMessage(chatId, message);
   } catch (error) {
-    console.log(
+    logger.warn(
       chalk.yellow(`WhatsApp send error: ${(error as Error).message}`),
     );
   }

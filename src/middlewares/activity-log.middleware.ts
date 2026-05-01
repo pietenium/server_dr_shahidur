@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction, RequestHandler } from "express";
 import { ActivityLogService } from "@modules/activity-log/activity-log.service";
 import type { CreateLogPayload } from "@modules/activity-log/activity-log.interface";
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
 const activityLogService = new ActivityLogService();
 
 export const logActivity = (module: string): RequestHandler => {
@@ -17,6 +18,7 @@ export const logActivity = (module: string): RequestHandler => {
           ipAddress: req.ip || "unknown",
           userAgent: req.get("user-agent") || "unknown",
         };
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         activityLogService.create(payload).catch(() => {
           // Fire and forget - log failure is non-critical
         });

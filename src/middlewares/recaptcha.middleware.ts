@@ -12,13 +12,19 @@ interface RecaptchaVerifyResponse {
   "error-codes"?: string[];
 }
 
+interface RecaptchaRequestBody {
+  recaptchaToken?: string;
+}
+
 export const verifyRecaptcha: RequestHandler = async (
   req: Request,
   _res: Response,
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const token = req.body.recaptchaToken || req.headers["x-recaptcha-token"];
+    const body = req.body as RecaptchaRequestBody;
+    const token =
+      body.recaptchaToken ?? (req.headers["x-recaptcha-token"] as string | undefined);
 
     if (!token) {
       throw new ApiError(400, "reCAPTCHA token is required");

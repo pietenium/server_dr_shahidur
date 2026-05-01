@@ -5,11 +5,11 @@ import { ApiError } from "@utils/ApiError";
 import type { JwtAccessPayload } from "@modules/auth/auth.interface";
 import { AUTH_MESSAGES } from "@constants/messages.constant";
 
-export const authenticate: RequestHandler = async (
+export const authenticate: RequestHandler = (
   req: Request,
   _res: Response,
   next: NextFunction,
-): Promise<void> => {
+): void => {
   try {
     const authHeader = req.headers.authorization;
 
