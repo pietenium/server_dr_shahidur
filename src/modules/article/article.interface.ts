@@ -36,7 +36,7 @@ export interface CreateArticlePayload {
   title: string;
   content: string;
   excerpt?: string;
-  category: string;
+  category: string | Types.ObjectId;
   articleType: "MEDICAL" | "POLITICAL";
   status?: "DRAFT" | "PUBLISHED";
   author?: string;

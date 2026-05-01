@@ -11,18 +11,18 @@ import { corsOptions } from "@config/cors";
 import { errorHandler } from "@middlewares/error.middleware";
 import { ApiError } from "@utils/ApiError";
 
-// Import route modules (will be added as modules are built)
+// Import route modules
 import authRoutes from "@modules/auth/auth.routes";
 import { env } from "./config/env";
-// import analyticsRoutes from '@modules/analytics/analytics.routes';
-// import appointmentRoutes from '@modules/appointment/appointment.routes';
-// import articleRoutes from '@modules/article/article.routes';
-// import researchRoutes from '@modules/research/research.routes';
-// import testimonialRoutes from '@modules/testimonial/testimonial.routes';
-// import activityLogRoutes from '@modules/activity-log/activity-log.routes';
-// import appInfoRoutes from '@modules/app-info/app-info.routes';
-// import contactRoutes from '@modules/contact/contact.routes';
-// import searchRoutes from '@modules/search/search.routes';
+import analyticsRoutes from "@modules/analytics/analytics.routes";
+import appointmentRoutes from "@modules/appointment/appointment.routes";
+import articleRoutes from "@modules/article/article.routes";
+import researchRoutes from "@modules/research/research.routes";
+import testimonialRoutes from "@modules/testimonial/testimonial.routes";
+import activityLogRoutes from "@modules/activity-log/activity-log.routes";
+import appInfoRoutes from "@modules/app-info/app-info.routes";
+import contactRoutes from "@modules/contact/contact.routes";
+import searchRoutes from "@modules/search/search.routes";
 
 const app = express();
 
@@ -78,17 +78,17 @@ if (env.NODE_ENV === "development") {
 }
 
 // 8. Routes - mounted under /api/v1
-// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+ 
 app.use("/api/v1/auth", authRoutes);
-// app.use('/api/v1/analytics', analyticsRoutes);
-// app.use('/api/v1/appointments', appointmentRoutes);
-// app.use('/api/v1/articles', articleRoutes);
-// app.use('/api/v1/research', researchRoutes);
-// app.use('/api/v1/testimonials', testimonialRoutes);
-// app.use('/api/v1/activity-logs', activityLogRoutes);
-// app.use('/api/v1/app-info', appInfoRoutes);
-// app.use('/api/v1/contact', contactRoutes);
-// app.use('/api/v1/search', searchRoutes);
+app.use("/api/v1/analytics", analyticsRoutes);
+app.use("/api/v1/appointments", appointmentRoutes);
+app.use("/api/v1/articles", articleRoutes);
+app.use("/api/v1/research", researchRoutes);
+app.use("/api/v1/testimonials", testimonialRoutes);
+app.use("/api/v1/activity-logs", activityLogRoutes);
+app.use("/api/v1/app-info", appInfoRoutes);
+app.use("/api/v1/contact", contactRoutes);
+app.use("/api/v1/search", searchRoutes);
 
 // 9. 404 handler
 app.use((_req, _res, next) => {

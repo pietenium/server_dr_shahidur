@@ -1,7 +1,7 @@
 import Redis from "ioredis";
 import chalk from "chalk";
-import { logger } from "./logger";
 import { env } from "./env";
+import { logger } from "@utils/logger";
 
 let redisClient: Redis;
 

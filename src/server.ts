@@ -1,22 +1,19 @@
 import chalk from "chalk";
-import { logger } from "./src/utils/logger";
-// import { validateEnv } from "./src/config/env"; // This runs zod validation on import
-import { connectDB } from "./src/config/db";
-import { connectRedis } from "./src/config/redis";
-import { env } from "./src/config/env";
-import { initWhatsApp } from "./src/utils/sendWhatsApp";
-import app from "./src/app";
+import { logger } from "@utils/logger";
+import { connectDB } from "@config/db";
+import { connectRedis } from "@config/redis";
+import { env } from "@config/env";
+import { initWhatsApp } from "@utils/sendWhatsApp";
+import app from "./app";
 
 const seedAdmin = async (): Promise<void> => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const { User } = await import("./src/modules/auth/auth.model");
+  const { User } = await import("@modules/auth/auth.model");
   const bcrypt = await import("bcrypt");
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
   const existingAdmin = await User.findOne({ email: env.ADMIN_SEED_EMAIL });
   if (!existingAdmin) {
     const hashedPassword = await bcrypt.hash(env.ADMIN_SEED_PASSWORD, 12);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+
     await User.create({
       name: "Dr. Sahidur Rahman Khan",
       email: env.ADMIN_SEED_EMAIL,

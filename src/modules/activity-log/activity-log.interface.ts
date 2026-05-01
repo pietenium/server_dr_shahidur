@@ -12,7 +12,7 @@ export interface IActivityLog extends Document {
 }
 
 export interface CreateLogPayload {
-  user: string;
+  user: string | Types.ObjectId;
   action: string;
   module: string;
   description: string;
