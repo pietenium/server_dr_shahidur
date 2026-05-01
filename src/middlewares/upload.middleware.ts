@@ -2,6 +2,7 @@ import type { FileFilterCallback } from "multer";
 import multer from "multer";
 import type { Request } from "express";
 import { ApiError } from "@utils/ApiError";
+import { StatusCodes } from "http-status-codes";
 
 const ALLOWED_IMAGE_TYPES: readonly string[] = [
   "image/jpeg",
@@ -28,7 +29,7 @@ const imageFilter = (
   if (ALLOWED_IMAGE_TYPES.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new ApiError(400, `Invalid image type: ${file.mimetype}`));
+    cb(new ApiError(StatusCodes.BAD_REQUEST, `Invalid image type: ${file.mimetype}`));
   }
 };
 
@@ -42,7 +43,7 @@ const pdfFilter = (
   } else {
     cb(
       new ApiError(
-        400,
+        StatusCodes.BAD_REQUEST,
         `Invalid file type: ${file.mimetype}. Only PDF allowed.`,
       ),
     );
@@ -57,7 +58,7 @@ const videoFilter = (
   if (ALLOWED_VIDEO_TYPES.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new ApiError(400, `Invalid video type: ${file.mimetype}`));
+    cb(new ApiError(StatusCodes.BAD_REQUEST, `Invalid video type: ${file.mimetype}`));
   }
 };
 
@@ -71,7 +72,7 @@ const imageAndVideoFilter = (
   } else if (file.fieldname === "video") {
     videoFilter(req, file, cb);
   } else {
-    cb(new ApiError(400, "Unexpected field"));
+    cb(new ApiError(StatusCodes.BAD_REQUEST, "Unexpected field"));
   }
 };
 

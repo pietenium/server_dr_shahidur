@@ -17,7 +17,7 @@ export const logActivity = (module: string): RequestHandler => {
           ipAddress: req.ip || "unknown",
           userAgent: req.get("user-agent") || "unknown",
         };
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+         
         activityLogService.create(payload).catch(() => {
           // Fire and forget - log failure is non-critical
         });

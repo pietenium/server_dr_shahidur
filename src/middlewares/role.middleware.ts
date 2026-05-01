@@ -2,16 +2,17 @@ import type { Request, Response, NextFunction, RequestHandler } from "express";
 import { ApiError } from "@utils/ApiError";
 import type { Role } from "@constants/roles.constant";
 import { AUTH_MESSAGES } from "@constants/messages.constant";
+import { StatusCodes } from "http-status-codes";
 
 export const authorize = (...roles: Role[]): RequestHandler => {
   return (req: Request, _res: Response, next: NextFunction): void => {
     if (!req.user) {
-      next(new ApiError(401, AUTH_MESSAGES.UNAUTHORIZED));
+      next(new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED));
       return;
     }
 
     if (!roles.includes(req.user.role)) {
-      next(new ApiError(403, AUTH_MESSAGES.FORBIDDEN));
+      next(new ApiError(StatusCodes.FORBIDDEN, AUTH_MESSAGES.FORBIDDEN));
       return;
     }
 

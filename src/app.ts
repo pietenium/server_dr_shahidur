@@ -10,6 +10,7 @@ import { corsOptions } from "@config/cors";
 
 import { errorHandler } from "@middlewares/error.middleware";
 import { ApiError } from "@utils/ApiError";
+import { StatusCodes } from "http-status-codes";
 
 // Import route modules
 import authRoutes from "@modules/auth/auth.routes";
@@ -92,7 +93,7 @@ app.use("/api/v1/search", searchRoutes);
 
 // 9. 404 handler
 app.use((_req, _res, next) => {
-  next(new ApiError(404, "Route not found"));
+  next(new ApiError(StatusCodes.NOT_FOUND, "Route not found"));
 });
 
 // 10. Global error handler
