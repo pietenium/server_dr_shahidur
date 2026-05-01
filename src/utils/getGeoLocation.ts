@@ -1,5 +1,5 @@
 import axios from "axios";
-import { GeoLocation } from "@types-app/global.types";
+import type { GeoLocation } from "@types-app/global.types";
 
 export const getGeoLocation = async (ip: string): Promise<GeoLocation> => {
   try {

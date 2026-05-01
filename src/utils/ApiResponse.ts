@@ -1,4 +1,4 @@
-import { Response } from "express";
+import type { Response } from "express";
 
 export class ApiResponse<T> {
   public readonly success = true as const;

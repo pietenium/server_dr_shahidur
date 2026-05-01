@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction, RequestHandler } from "express";
+import type { Request, Response, NextFunction, RequestHandler } from "express";
 import { ApiError } from "@utils/ApiError";
-import { Role } from "@constants/roles.constant";
+import type { Role } from "@constants/roles.constant";
 import { AUTH_MESSAGES } from "@constants/messages.constant";
 
 export const authorize = (...roles: Role[]): RequestHandler => {

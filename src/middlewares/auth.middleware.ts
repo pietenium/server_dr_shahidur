@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction, RequestHandler } from "express";
+import type { Request, Response, NextFunction, RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 import { env } from "@config/env";
 import { ApiError } from "@utils/ApiError";
-import { JwtAccessPayload } from "@modules/auth/auth.interface";
+import type { JwtAccessPayload } from "@modules/auth/auth.interface";
 import { AUTH_MESSAGES } from "@constants/messages.constant";
 
 export const authenticate: RequestHandler = async (

@@ -1,5 +1,6 @@
-import multer, { FileFilterCallback } from "multer";
-import { Request } from "express";
+import type { FileFilterCallback } from "multer";
+import multer from "multer";
+import type { Request } from "express";
 import { ApiError } from "@utils/ApiError";
 
 const ALLOWED_IMAGE_TYPES: readonly string[] = [

@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction, ErrorRequestHandler } from "express";
+import type { Request, Response, NextFunction, ErrorRequestHandler } from "express";
 import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import mongoose from "mongoose";
 import { ApiError } from "@utils/ApiError";

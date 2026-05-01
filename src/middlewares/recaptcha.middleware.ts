@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction, RequestHandler } from "express";
+import type { Request, Response, NextFunction, RequestHandler } from "express";
 import axios from "axios";
 import { env } from "@config/env";
 import { ApiError } from "@utils/ApiError";

@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import { env } from "@config/env";
-import {
+import type {
   JwtAccessPayload,
   JwtRefreshPayload,
 } from "@modules/auth/auth.interface";

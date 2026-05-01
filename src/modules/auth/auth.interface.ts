@@ -1,5 +1,5 @@
-import { Document, Types } from "mongoose";
-import { PaginateModel } from "mongoose-paginate-v2";
+import type { Document, Types } from "mongoose";
+import type { PaginateModel } from "mongoose-paginate-v2";
 
 export interface IUserMethods {
   comparePassword(candidatePassword: string): Promise<boolean>;

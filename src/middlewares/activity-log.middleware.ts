@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction, RequestHandler } from "express";
+import type { Request, Response, NextFunction, RequestHandler } from "express";
 import { ActivityLogService } from "@modules/activity-log/activity-log.service";
-import { CreateLogPayload } from "@modules/activity-log/activity-log.interface";
+import type { CreateLogPayload } from "@modules/activity-log/activity-log.interface";
 
 const activityLogService = new ActivityLogService();
 

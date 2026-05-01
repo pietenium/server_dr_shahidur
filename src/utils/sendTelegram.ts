@@ -2,8 +2,8 @@ import TelegramBot from "node-telegram-bot-api";
 import chalk from "chalk";
 import dayjs from "dayjs";
 import { env } from "@config/env";
-import { IAppointment } from "@modules/appointment/appointment.interface";
-import { IContact } from "@modules/contact/contact.interface";
+import type { IAppointment } from "@modules/appointment/appointment.interface";
+import type { IContact } from "@modules/contact/contact.interface";
 
 let bot: TelegramBot;
 

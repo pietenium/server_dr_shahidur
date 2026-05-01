@@ -1,4 +1,4 @@
-import cors from "cors";
+import type cors from "cors";
 import chalk from "chalk";
 import { env } from "./env";
 
