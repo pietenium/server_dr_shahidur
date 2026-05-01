@@ -1,5 +1,14 @@
 import axios from "axios";
-import { GeoLocation } from "@types-app/global.types";
+import type { GeoLocation } from "@types-app/global.types";
+
+interface IpWhoResponse {
+  ip: string;
+  country: string;
+  region: string;
+  city: string;
+  latitude: number;
+  longitude: number;
+}
 
 export const getGeoLocation = async (ip: string): Promise<GeoLocation> => {
   try {
@@ -14,7 +23,7 @@ export const getGeoLocation = async (ip: string): Promise<GeoLocation> => {
       };
     }
 
-    const response = await axios.get(`https://ipwho.is/${ip}`);
+    const response = await axios.get<IpWhoResponse>(`https://ipwho.is/${ip}`);
     const data = response.data;
 
     return {
@@ -25,7 +34,7 @@ export const getGeoLocation = async (ip: string): Promise<GeoLocation> => {
       lon: data.longitude || 0,
       ip: data.ip || ip,
     };
-  } catch (error) {
+  } catch (_error) {
     return {
       country: "Unknown",
       region: "Unknown",

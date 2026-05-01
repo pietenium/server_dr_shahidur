@@ -1,7 +1,8 @@
-import { Request, Response, NextFunction, RequestHandler } from "express";
+import type { Request, Response, NextFunction, RequestHandler } from "express";
 import axios from "axios";
 import { env } from "@config/env";
 import { ApiError } from "@utils/ApiError";
+import { StatusCodes } from "http-status-codes";
 
 interface RecaptchaVerifyResponse {
   success: boolean;
@@ -12,16 +13,22 @@ interface RecaptchaVerifyResponse {
   "error-codes"?: string[];
 }
 
+interface RecaptchaRequestBody {
+  recaptchaToken?: string;
+}
+
 export const verifyRecaptcha: RequestHandler = async (
   req: Request,
   _res: Response,
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const token = req.body.recaptchaToken || req.headers["x-recaptcha-token"];
+    const body = req.body as RecaptchaRequestBody;
+    const token =
+      body.recaptchaToken ?? (req.headers["x-recaptcha-token"] as string | undefined);
 
     if (!token) {
-      throw new ApiError(400, "reCAPTCHA token is required");
+      throw new ApiError(StatusCodes.BAD_REQUEST, "reCAPTCHA token is required");
     }
 
     const response = await axios.post<RecaptchaVerifyResponse>(
@@ -39,7 +46,7 @@ export const verifyRecaptcha: RequestHandler = async (
 
     if (!data.success || data.score < 0.5) {
       throw new ApiError(
-        400,
+        StatusCodes.BAD_REQUEST,
         "reCAPTCHA verification failed. Please try again.",
       );
     }
@@ -49,7 +56,7 @@ export const verifyRecaptcha: RequestHandler = async (
     if (error instanceof ApiError) {
       next(error);
     } else {
-      next(new ApiError(400, "reCAPTCHA verification failed"));
+      next(new ApiError(StatusCodes.BAD_REQUEST, "reCAPTCHA verification failed"));
     }
   }
 };

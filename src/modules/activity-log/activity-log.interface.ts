@@ -1,5 +1,5 @@
-import { Document, Types } from "mongoose";
-import { IUser } from "@modules/auth/auth.interface";
+import type { Document, Types } from "mongoose";
+import type { IUser } from "@modules/auth/auth.interface";
 
 export interface IActivityLog extends Document {
   user: Types.ObjectId | IUser;
@@ -12,7 +12,7 @@ export interface IActivityLog extends Document {
 }
 
 export interface CreateLogPayload {
-  user: string;
+  user: string | Types.ObjectId;
   action: string;
   module: string;
   description: string;

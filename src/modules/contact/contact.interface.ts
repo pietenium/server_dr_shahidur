@@ -1,5 +1,5 @@
-import { Document } from "mongoose";
-import { GeoLocation } from "@types-app/global.types";
+import type { Document } from "mongoose";
+import type { GeoLocation } from "@types-app/global.types";
 
 export type ContactReason = "medical-inquiry" | "general" | "media" | "other";
 

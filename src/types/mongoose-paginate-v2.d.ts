@@ -1,5 +1,5 @@
 declare module "mongoose-paginate-v2" {
-  import { Schema, Model, Document, FilterQuery, QueryOptions } from "mongoose";
+  import type { Schema, Model, Document, FilterQuery, QueryOptions } from "mongoose";
 
   interface PaginateOptions {
     select?: object | string;

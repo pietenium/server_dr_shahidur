@@ -1,6 +1,7 @@
 import Redis from "ioredis";
 import chalk from "chalk";
 import { env } from "./env";
+import { logger } from "@utils/logger";
 
 let redisClient: Redis;
 
@@ -20,26 +21,26 @@ export const connectRedis = async (): Promise<void> => {
     });
 
     redisClient.on("connect", () => {
-      console.log(chalk.green("Redis connected successfully."));
+      logger.info(chalk.green("Redis connected successfully."));
     });
 
     redisClient.on("error", (error: Error) => {
-      console.log(chalk.red(`Redis error: ${error.message}`));
+      logger.error(chalk.red(`Redis error: ${error.message}`));
     });
 
     redisClient.on("close", () => {
-      console.log(chalk.yellow("Redis connection closed."));
+      logger.warn(chalk.yellow("Redis connection closed."));
     });
 
     // Test connection
     await redisClient.ping();
   } catch (error) {
-    console.log(
+    logger.warn(
       chalk.yellow(
         "Warning: Redis connection failed. Continuing without cache.",
       ),
     );
-    console.log(chalk.yellow(`Redis error: ${(error as Error).message}`));
+    logger.warn(chalk.yellow(`Redis error: ${(error as Error).message}`));
   }
 };
 

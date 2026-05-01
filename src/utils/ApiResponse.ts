@@ -1,23 +1,25 @@
-import { Response } from "express";
+import type { Response } from "express";
 
-export class ApiResponse<T> {
-  public readonly success: true = true;
-  public readonly statusCode: number;
-  public readonly message: string;
-  public readonly data: T;
-
-  constructor(statusCode: number, message: string, data: T) {
-    this.statusCode = statusCode;
-    this.message = message;
-    this.data = data;
-  }
-
-  public send(res: Response): void {
-    res.status(this.statusCode).json({
-      success: this.success,
-      statusCode: this.statusCode,
-      message: this.message,
-      data: this.data,
-    });
-  }
+interface IMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPage: number;
 }
+
+interface IApiResponse<T> {
+  statusCode: number;
+  success: boolean;
+  message: string;
+  data: T;
+  meta?: IMeta;
+}
+
+export const ApiResponse = <T>(res: Response, data: IApiResponse<T>): void => {
+  res.status(data.statusCode).json({
+    success: data.success,
+    message: data.message,
+    data: data.data,
+    meta: data.meta,
+  });
+};

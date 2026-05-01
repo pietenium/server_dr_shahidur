@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import type { Document } from "mongoose";
 
 export interface ITestimonial extends Document {
   name: string;
@@ -28,4 +28,4 @@ export interface CreateTestimonialPayload {
   isVisible?: boolean;
 }
 
-export interface UpdateTestimonialPayload extends Partial<CreateTestimonialPayload> {}
+export type UpdateTestimonialPayload = Partial<CreateTestimonialPayload>;

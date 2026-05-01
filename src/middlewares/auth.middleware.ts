@@ -1,20 +1,21 @@
-import { Request, Response, NextFunction, RequestHandler } from "express";
+import type { Request, Response, NextFunction, RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 import { env } from "@config/env";
 import { ApiError } from "@utils/ApiError";
-import { JwtAccessPayload } from "@modules/auth/auth.interface";
+import type { JwtAccessPayload } from "@modules/auth/auth.interface";
 import { AUTH_MESSAGES } from "@constants/messages.constant";
+import { StatusCodes } from "http-status-codes";
 
-export const authenticate: RequestHandler = async (
+export const authenticate: RequestHandler = (
   req: Request,
   _res: Response,
   next: NextFunction,
-): Promise<void> => {
+): void => {
   try {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      throw new ApiError(401, AUTH_MESSAGES.UNAUTHORIZED);
+      throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
     }
 
     const token = authHeader.split(" ")[1];
@@ -35,7 +36,7 @@ export const authenticate: RequestHandler = async (
     if (error instanceof ApiError) {
       next(error);
     } else {
-      next(new ApiError(401, AUTH_MESSAGES.UNAUTHORIZED));
+      next(new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED));
     }
   }
 };

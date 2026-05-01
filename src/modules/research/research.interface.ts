@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import type { Document } from "mongoose";
 
 export interface IResearch extends Document {
   title: string;
@@ -32,7 +32,7 @@ export interface CreateResearchPayload {
   publishedAt?: string;
 }
 
-export interface UpdateResearchPayload extends Partial<CreateResearchPayload> {}
+export type UpdateResearchPayload = Partial<CreateResearchPayload>;
 
 export interface ResearchFilterQuery {
   status?: string;

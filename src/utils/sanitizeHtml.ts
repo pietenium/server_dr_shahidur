@@ -1,4 +1,5 @@
-import xss, { IFilterXSSOptions } from "xss";
+import type { IFilterXSSOptions } from "xss";
+import xss from "xss";
 
 const whiteList: IFilterXSSOptions = {
   whiteList: {

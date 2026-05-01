@@ -1,4 +1,4 @@
-import { Document, Types } from "mongoose";
+import type { Document, Types } from "mongoose";
 
 export interface IArticleCategory extends Document {
   name: string;
@@ -36,7 +36,7 @@ export interface CreateArticlePayload {
   title: string;
   content: string;
   excerpt?: string;
-  category: string;
+  category: string | Types.ObjectId;
   articleType: "MEDICAL" | "POLITICAL";
   status?: "DRAFT" | "PUBLISHED";
   author?: string;
@@ -44,7 +44,7 @@ export interface CreateArticlePayload {
   publishedAt?: string;
 }
 
-export interface UpdateArticlePayload extends Partial<CreateArticlePayload> {}
+export type UpdateArticlePayload = Partial<CreateArticlePayload>;
 
 export interface ArticleFilterQuery {
   status?: string;

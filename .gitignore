@@ -3,3 +3,5 @@ dist/
 .env
 whatsapp-session/
 *.log
+
+backend-completion-plan.md
