@@ -41,17 +41,17 @@ export const articleService = {
     id: string,
     payload: { name?: string; description?: string },
   ): Promise<IArticleCategory> => {
-    const updateData: Record<string, unknown> = {};
+    const setData: Record<string, string | undefined> = {};
     if (typeof payload.name === "string") {
-      updateData.name = payload.name;
-      updateData.slug = generateSlug(payload.name);
+      setData.name = payload.name;
+      setData.slug = generateSlug(payload.name);
     }
 
     if (typeof payload.description === "string" || payload.description === undefined) {
-      updateData.description = payload.description;
+      setData.description = payload.description;
     }
 
-    const category = await ArticleCategory.findByIdAndUpdate(id, updateData, {
+    const category = await ArticleCategory.findByIdAndUpdate(id, { $set: setData }, {
       new: true,
       runValidators: true,
     });
@@ -199,28 +199,57 @@ export const articleService = {
     const updateData: UpdateQuery<IArticle> = {};
 
     if (payload.title !== undefined) {
+      if (typeof payload.title !== "string") {
+        throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid title");
+      }
       updateData.title = payload.title;
     }
     if (payload.excerpt !== undefined) {
+      if (typeof payload.excerpt !== "string") {
+        throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid excerpt");
+      }
       updateData.excerpt = payload.excerpt;
     }
     if (payload.category !== undefined) {
+      if (typeof payload.category !== "string") {
+        throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid category");
+      }
       updateData.category = payload.category;
     }
     if (payload.tags !== undefined) {
+      if (!Array.isArray(payload.tags) || !payload.tags.every((tag) => typeof tag === "string")) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid tags");
+      }
       updateData.tags = payload.tags;
     }
     if (payload.status !== undefined) {
+      if (
+        payload.status !== "DRAFT" &&
+        payload.status !== "PUBLISHED" &&
+        payload.status !== "ARCHIVED"
+      ) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid status");
+      }
       updateData.status = payload.status;
     }
     if (payload.publishedAt !== undefined) {
-      updateData.publishedAt = payload.publishedAt;
+      const publishedAt =
+        (payload.publishedAt as unknown) instanceof Date
+          ? (payload.publishedAt as unknown as Date)
+          : new Date(payload.publishedAt);
+      if (Number.isNaN(publishedAt.getTime())) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid publishedAt");
+      }
+      updateData.publishedAt = publishedAt;
     }
 
     if (payload.title) {
       updateData.slug = generateSlug(payload.title);
     }
     if (payload.content !== undefined) {
+      if (typeof payload.content !== "string") {
+        throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid content");
+      }
       updateData.content = sanitizeContent(payload.content);
     }
 
