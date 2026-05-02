@@ -14,6 +14,7 @@ router.get("/categories", articleController.getCategories);
 
 router.post(
   "/categories",
+  globalLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   articleValidator.createCategory,
@@ -23,6 +24,7 @@ router.post(
 
 router.patch(
   "/categories/:id",
+  globalLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   articleValidator.updateCategory,
@@ -32,6 +34,7 @@ router.patch(
 
 router.delete(
   "/categories/:id",
+  globalLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   logActivity("article-category"),
@@ -48,6 +51,7 @@ router.get("/slug/:slug", globalLimiter, optionalAuthenticate, articleController
 router.get(
   "/admin",
   authenticate,
+  globalLimiter,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   articleValidator.query,
   articleController.getArticles,
@@ -56,6 +60,7 @@ router.get(
 router.post(
   "/",
   authenticate,
+  globalLimiter,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   articleValidator.create,
   logActivity("article"),
@@ -64,6 +69,7 @@ router.post(
 
 router.patch(
   "/:id",
+  globalLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   articleValidator.update,
@@ -73,6 +79,7 @@ router.patch(
 
 router.delete(
   "/:id",
+  globalLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   logActivity("article"),
