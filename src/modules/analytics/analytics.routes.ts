@@ -1,8 +1,34 @@
 import { Router } from "express";
 import { analyticsController } from "./analytics.controller";
+import { analyticsValidator } from "./analytics.validator";
+import { analyticsLimiter } from "@middlewares/rate-limiter.middleware";
+import { authenticate } from "@middlewares/auth.middleware";
+import { authorize } from "@middlewares/role.middleware";
+import { ROLES } from "@constants/roles.constant";
 
 const router = Router();
 
-router.post("/track", analyticsController.track);
+// Public route to track page views with rate limiting (60/min)
+router.post(
+  "/track",
+  analyticsLimiter,
+  analyticsValidator.track,
+  analyticsController.track,
+);
+
+// Protected routes for admin/moderator to view stats
+router.get(
+  "/geo",
+  authenticate,
+  authorize(ROLES.ADMIN, ROLES.MODERATOR),
+  analyticsController.getGeoStats,
+);
+
+router.get(
+  "/pages",
+  authenticate,
+  authorize(ROLES.ADMIN, ROLES.MODERATOR),
+  analyticsController.getPageStats,
+);
 
 export default router;
