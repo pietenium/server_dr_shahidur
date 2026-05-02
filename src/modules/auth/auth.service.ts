@@ -60,9 +60,14 @@ export const authService = {
   },
 
   forgotPassword: async (payload: ForgotPasswordPayload): Promise<void> => {
-    const user = await User.findOne({ email: payload.email });
+    if (typeof payload.email !== "string") {
+      return;
+    }
+
+    const normalizedEmail = payload.email.trim().toLowerCase();
+    const user = await User.findOne({ email: { $eq: normalizedEmail } });
+
     if (!user) {
-      // Return generic success to avoid leaking user existence
       return;
     }
 
@@ -88,7 +93,13 @@ export const authService = {
   verifyOtp: async (
     payload: VerifyOtpPayload,
   ): Promise<{ magicToken: string }> => {
-    const user = await User.findOne({ email: payload.email });
+    if (typeof payload.email !== "string") {
+      throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid OTP or email");
+    }
+
+    const email = payload.email.trim().toLowerCase();
+    const user = await User.findOne({ email: { $eq: email } });
+
     if (!user) {
       throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid OTP or email");
     }
@@ -121,7 +132,13 @@ export const authService = {
   magicLogin: async (
     payload: MagicLoginPayload,
   ): Promise<{ user: IUser; tokens: AuthTokens }> => {
-    const user = await User.findOne({ email: payload.email });
+    if (typeof payload.email !== "string" || payload.email.trim() === "") {
+      throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid email");
+    }
+
+    const email = payload.email.trim().toLowerCase();
+    const user = await User.findOne({ email });
+
     if (!user) {
       throw new ApiError(StatusCodes.UNAUTHORIZED, "Invalid request");
     }
@@ -165,7 +182,12 @@ export const authService = {
   },
 
   resetPassword: async (payload: ResetPasswordPayload): Promise<void> => {
-    const user = await User.findOne({ email: payload.email });
+
+    if (typeof payload.email !== "string") {
+      throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid request");
+    }
+    const user = await User.findOne({ email: { $eq: payload.email } });
+
     if (!user) {
       throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid request");
     }
