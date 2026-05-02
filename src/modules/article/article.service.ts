@@ -41,9 +41,14 @@ export const articleService = {
     id: string,
     payload: { name?: string; description?: string },
   ): Promise<IArticleCategory> => {
-    const updateData: Record<string, unknown> = { ...payload };
-    if (payload.name) {
+    const updateData: Record<string, unknown> = {};
+    if (typeof payload.name === "string") {
+      updateData.name = payload.name;
       updateData.slug = generateSlug(payload.name);
+    }
+
+    if (typeof payload.description === "string" || payload.description === undefined) {
+      updateData.description = payload.description;
     }
 
     const category = await ArticleCategory.findByIdAndUpdate(id, updateData, {
@@ -84,7 +89,7 @@ export const articleService = {
     }
 
     const content = sanitizeContent(payload.content);
-    
+
     const articleData = {
       ...payload,
       slug,
@@ -102,7 +107,7 @@ export const articleService = {
 
   getArticles: async (query: ArticleFilterQuery, isAdmin = false): Promise<unknown> => {
     const { status, category, articleType, search, tag, page = 1, limit = 10, sort = "-createdAt" } = query;
-    
+
     // For public users, only show published articles
     const filter: Record<string, unknown> = {};
     if (!isAdmin) {
@@ -120,7 +125,7 @@ export const articleService = {
     if (tag) {
       filter.tags = tag;
     }
-    
+
     if (search) {
       filter.$or = [
         { title: { $regex: search, $options: "i" } },
@@ -191,11 +196,31 @@ export const articleService = {
       throw new ApiError(StatusCodes.NOT_FOUND, "Article not found");
     }
 
-    const updateData: UpdateQuery<IArticle> = { ...payload };
+    const updateData: UpdateQuery<IArticle> = {};
+
+    if (payload.title !== undefined) {
+      updateData.title = payload.title;
+    }
+    if (payload.excerpt !== undefined) {
+      updateData.excerpt = payload.excerpt;
+    }
+    if (payload.category !== undefined) {
+      updateData.category = payload.category;
+    }
+    if (payload.tags !== undefined) {
+      updateData.tags = payload.tags;
+    }
+    if (payload.status !== undefined) {
+      updateData.status = payload.status;
+    }
+    if (payload.publishedAt !== undefined) {
+      updateData.publishedAt = payload.publishedAt;
+    }
+
     if (payload.title) {
       updateData.slug = generateSlug(payload.title);
     }
-    if (payload.content) {
+    if (payload.content !== undefined) {
       updateData.content = sanitizeContent(payload.content);
     }
 

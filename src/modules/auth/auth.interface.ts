@@ -52,6 +52,7 @@ export interface ResetPasswordPayload {
 export interface JwtAccessPayload {
   _id: string;
   role: "ADMIN" | "MODERATOR";
+  jti: string;
 }
 
 export interface JwtRefreshPayload {

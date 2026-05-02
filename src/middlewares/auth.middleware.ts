@@ -5,6 +5,7 @@ import { ApiError } from "@utils/ApiError";
 import type { JwtAccessPayload } from "@modules/auth/auth.interface";
 import { AUTH_MESSAGES } from "@constants/messages.constant";
 import { StatusCodes } from "http-status-codes";
+import { getRedisClient } from "@config/redis";
 
 export const authenticate: RequestHandler = (
   req: Request,
@@ -24,14 +25,31 @@ export const authenticate: RequestHandler = (
       env.JWT_ACCESS_SECRET,
     ) as JwtAccessPayload;
 
-    req.user = {
-      _id: decoded._id,
-      role: decoded.role,
-      email: "",
-      name: "",
-    };
+    // Check Redis blacklist for JTI
+    const redis = getRedisClient();
+    void redis.get(`blacklist:jti:${decoded.jti}`).then((isBlacklisted) => {
+      if (isBlacklisted) {
+        return next(new ApiError(StatusCodes.UNAUTHORIZED, "Session has been invalidated. Please log in again."));
+      }
 
-    next();
+      req.user = {
+        _id: decoded._id,
+        role: decoded.role,
+        email: "",
+        name: "",
+      };
+
+      next();
+    }).catch(() => {
+      // Redis error should not block authentication
+      req.user = {
+        _id: decoded._id,
+        role: decoded.role,
+        email: "",
+        name: "",
+      };
+      next();
+    });
   } catch (error) {
     if (error instanceof ApiError) {
       next(error);
@@ -46,28 +64,48 @@ export const optionalAuthenticate: RequestHandler = (
   _res: Response,
   next: NextFunction,
 ): void => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || typeof authHeader !== "string" || !authHeader.startsWith("Bearer ")) {
+    return next();
+  }
+
   try {
-    const authHeader = req.headers.authorization;
+    const token = authHeader.split(" ")[1];
+    if (!token) {
+      return next();
+    }
 
-    if (authHeader && authHeader.startsWith("Bearer ")) {
-      const token = authHeader.split(" ")[1];
-      const decoded = jwt.verify(
-        token,
-        env.JWT_ACCESS_SECRET,
-      ) as JwtAccessPayload;
+    const decoded = jwt.verify(
+      token,
+      env.JWT_ACCESS_SECRET,
+    ) as JwtAccessPayload;
 
+    const redis = getRedisClient();
+    void redis.get(`blacklist:jti:${decoded.jti}`).then((isBlacklisted) => {
+      if (!isBlacklisted) {
+        req.user = {
+          _id: decoded._id,
+          role: decoded.role,
+          email: "",
+          name: "",
+        };
+      }
+      next();
+    }).catch(() => {
+      // Redis error should not block optional identity
       req.user = {
         _id: decoded._id,
         role: decoded.role,
         email: "",
         name: "",
       };
-    }
-
-    next();
+      next();
+    });
   } catch (_error) {
-    // If token is invalid, just proceed as unauthenticated instead of throwing error
+    // If token is invalid, just proceed as unauthenticated
     next();
   }
 };
+
 

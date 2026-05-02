@@ -50,6 +50,7 @@ export const authService = {
     const accessToken = generateAccessToken({
       _id: user._id.toString(),
       role: user.role,
+      jti,
     });
     const refreshToken = generateRefreshToken({
       _id: user._id.toString(),
@@ -172,6 +173,7 @@ export const authService = {
     const accessToken = generateAccessToken({
       _id: user._id.toString(),
       role: user.role,
+      jti,
     });
     const refreshToken = generateRefreshToken({
       _id: user._id.toString(),
@@ -263,6 +265,7 @@ export const authService = {
     const accessToken = generateAccessToken({
       _id: user._id.toString(),
       role: user.role,
+      jti,
     });
     const refreshToken = generateRefreshToken({
       _id: user._id.toString(),
