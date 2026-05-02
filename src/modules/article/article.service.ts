@@ -191,7 +191,10 @@ export const articleService = {
   },
 
   update: async (id: string, payload: UpdateArticlePayload): Promise<IArticle> => {
-    const existingArticle = await Article.findById(id);
+    if (typeof id !== "string") {
+      throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid article id");
+    }
+    const existingArticle = await Article.findOne({ _id: { $eq: id } });
     if (!existingArticle) {
       throw new ApiError(StatusCodes.NOT_FOUND, "Article not found");
     }
@@ -253,7 +256,7 @@ export const articleService = {
       updateData.content = sanitizeContent(payload.content);
     }
 
-    const article = await Article.findByIdAndUpdate(id, updateData, {
+    const article = await Article.findOneAndUpdate({ _id: { $eq: id } }, updateData, {
       new: true,
       runValidators: true,
     }).populate("category");
