@@ -21,9 +21,25 @@ const researchSchema = new Schema<IResearch>(
     status: { type: String, enum: ["DRAFT", "PUBLISHED"], default: "DRAFT" },
     publishedAt: { type: Date },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    toJSON: {
+      transform: (_, ret) => {
+        delete (ret as Record<string, unknown>).__v;
+        return ret;
+      },
+    },
+  },
 );
 
 researchSchema.plugin(mongoosePaginate);
 
-export const Research = mongoose.model<IResearch>("Research", researchSchema);
+// Indexes
+researchSchema.index({ status: 1 });
+researchSchema.index({ uploadType: 1 });
+researchSchema.index({ title: "text", description: "text" });
+
+export const Research = mongoose.model<
+  IResearch,
+  mongoose.PaginateModel<IResearch>
+>("Research", researchSchema);
