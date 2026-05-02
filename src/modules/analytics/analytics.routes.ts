@@ -19,6 +19,7 @@ router.post(
 // Protected routes for admin/moderator to view stats
 router.get(
   "/geo",
+  analyticsLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   analyticsController.getGeoStats,
@@ -26,6 +27,7 @@ router.get(
 
 router.get(
   "/pages",
+  analyticsLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   analyticsController.getPageStats,
