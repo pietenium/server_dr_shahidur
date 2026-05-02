@@ -1,8 +1,248 @@
 import { Article } from "./article.model";
-import type { IArticle, CreateArticlePayload } from "./article.interface";
+import { ArticleCategory } from "./article-category.model";
+import type {
+  IArticle,
+  IArticleCategory,
+  CreateArticlePayload,
+  UpdateArticlePayload,
+  ArticleFilterQuery,
+} from "./article.interface";
+import { generateSlug } from "@utils/slugify";
+import { sanitizeContent } from "@utils/sanitizeHtml";
+import { getCache, setCache, deleteCache, deleteCachePattern } from "@utils/cache";
+import { ApiError } from "@utils/ApiError";
+import { StatusCodes } from "http-status-codes";
+import { imagekit } from "@config/imagekit";
+import { logger } from "@utils/logger";
+import type { PaginateModel, UpdateQuery } from "mongoose";
+
+const CACHE_TTL_LIST = 300; // 5 minutes
+const CACHE_TTL_DETAIL = 600; // 10 minutes
 
 export const articleService = {
+  // --- Category Methods ---
+
+  createCategory: async (name: string, description?: string): Promise<IArticleCategory> => {
+    const slug = generateSlug(name);
+    const existing = await ArticleCategory.findOne({ slug });
+    if (existing) {
+      throw new ApiError(StatusCodes.CONFLICT, "Category with this name/slug already exists");
+    }
+
+    const category = await ArticleCategory.create({ name, slug, description });
+    return category;
+  },
+
+  getCategories: async (): Promise<IArticleCategory[]> => {
+    return ArticleCategory.find().sort({ name: 1 });
+  },
+
+  updateCategory: async (
+    id: string,
+    payload: { name?: string; description?: string },
+  ): Promise<IArticleCategory> => {
+    const updateData: Record<string, unknown> = { ...payload };
+    if (payload.name) {
+      updateData.slug = generateSlug(payload.name);
+    }
+
+    const category = await ArticleCategory.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!category) {
+      throw new ApiError(StatusCodes.NOT_FOUND, "Category not found");
+    }
+
+    return category;
+  },
+
+  deleteCategory: async (id: string): Promise<void> => {
+    // Check if any articles reference this category
+    const articleCount = await Article.countDocuments({ category: id });
+    if (articleCount > 0) {
+      throw new ApiError(
+        StatusCodes.CONFLICT,
+        "Cannot delete category that is referenced by articles",
+      );
+    }
+
+    const category = await ArticleCategory.findByIdAndDelete(id);
+    if (!category) {
+      throw new ApiError(StatusCodes.NOT_FOUND, "Category not found");
+    }
+  },
+
+  // --- Article Methods ---
+
   create: async (payload: CreateArticlePayload): Promise<IArticle> => {
-    return Article.create(payload as unknown as Partial<IArticle>);
+    const slug = generateSlug(payload.title);
+    const existing = await Article.findOne({ slug });
+    if (existing) {
+      throw new ApiError(StatusCodes.CONFLICT, "Article with this title already exists");
+    }
+
+    const content = sanitizeContent(payload.content);
+    
+    const articleData = {
+      ...payload,
+      slug,
+      content,
+    };
+
+    // @ts-expect-error - Mongoose create has complex type requirements for spread payloads
+    const article = await Article.create(articleData);
+
+    // Invalidate caches
+    void deleteCachePattern("cache:articles:*");
+
+    return article;
+  },
+
+  getArticles: async (query: ArticleFilterQuery, isAdmin = false): Promise<unknown> => {
+    const { status, category, articleType, search, tag, page = 1, limit = 10, sort = "-createdAt" } = query;
+    
+    // For public users, only show published articles
+    const filter: Record<string, unknown> = {};
+    if (!isAdmin) {
+      filter.status = "PUBLISHED";
+    } else if (status) {
+      filter.status = status.toUpperCase();
+    }
+
+    if (category) {
+      filter.category = category;
+    }
+    if (articleType) {
+      filter.articleType = articleType.toUpperCase();
+    }
+    if (tag) {
+      filter.tags = tag;
+    }
+    
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { excerpt: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const cacheKey = `cache:articles:${JSON.stringify({ filter, page, limit, sort })}`;
+
+    // Try cache if not admin
+    if (!isAdmin) {
+      const cached = await getCache<unknown>(cacheKey);
+      if (cached) {
+        return cached;
+      }
+    }
+
+    const options = {
+      page,
+      limit,
+      sort,
+      populate: "category",
+    };
+
+    const model = Article as unknown as PaginateModel<IArticle>;
+    const results = await model.paginate(filter, options);
+
+    if (!isAdmin) {
+      void setCache(cacheKey, results, CACHE_TTL_LIST);
+    }
+
+    return results;
+  },
+
+  getBySlug: async (slug: string, isPublic = true): Promise<IArticle> => {
+    const cacheKey = `cache:article:${slug}`;
+
+    if (isPublic) {
+      const cached = await getCache<IArticle>(cacheKey);
+      if (cached) {
+        // Atomic increment of impressions even on cache hit
+        void Article.updateOne({ slug }, { $inc: { impressions: 1 } });
+        return cached;
+      }
+    }
+
+    const article = await Article.findOne({ slug }).populate("category");
+    if (!article) {
+      throw new ApiError(StatusCodes.NOT_FOUND, "Article not found");
+    }
+
+    if (isPublic && article.status !== "PUBLISHED") {
+      throw new ApiError(StatusCodes.FORBIDDEN, "This article is not published");
+    }
+
+    if (isPublic) {
+      article.impressions += 1;
+      await article.save();
+      void setCache(cacheKey, article, CACHE_TTL_DETAIL);
+    }
+
+    return article;
+  },
+
+  update: async (id: string, payload: UpdateArticlePayload): Promise<IArticle> => {
+    const existingArticle = await Article.findById(id);
+    if (!existingArticle) {
+      throw new ApiError(StatusCodes.NOT_FOUND, "Article not found");
+    }
+
+    const updateData: UpdateQuery<IArticle> = { ...payload };
+    if (payload.title) {
+      updateData.slug = generateSlug(payload.title);
+    }
+    if (payload.content) {
+      updateData.content = sanitizeContent(payload.content);
+    }
+
+    const article = await Article.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    }).populate("category");
+
+    if (!article) {
+      throw new ApiError(StatusCodes.NOT_FOUND, "Article not found");
+    }
+
+    // Invalidate caches
+    void deleteCachePattern("cache:articles:*");
+    void deleteCache(`cache:article:${article.slug}`);
+    if (existingArticle.slug !== article.slug) {
+      void deleteCache(`cache:article:${existingArticle.slug}`);
+    }
+
+    return article;
+  },
+
+  delete: async (id: string): Promise<void> => {
+    const article = await Article.findById(id);
+    if (!article) {
+      throw new ApiError(StatusCodes.NOT_FOUND, "Article not found");
+    }
+
+    // Delete images from ImageKit
+    const deletePromises: Promise<unknown>[] = [];
+    if (article.featuredImage?.fileId) {
+      deletePromises.push(imagekit.files.delete(article.featuredImage.fileId));
+    }
+    if (article.ogImage?.fileId) {
+      deletePromises.push(imagekit.files.delete(article.ogImage.fileId));
+    }
+
+    try {
+      await Promise.all(deletePromises);
+    } catch (err) {
+      logger.error("Error deleting Article images from ImageKit:", err);
+    }
+
+    await Article.findByIdAndDelete(id);
+
+    // Invalidate caches
+    void deleteCachePattern("cache:articles:*");
+    void deleteCache(`cache:article:${article.slug}`);
   },
 };

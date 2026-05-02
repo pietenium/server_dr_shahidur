@@ -40,3 +40,34 @@ export const authenticate: RequestHandler = (
     }
   }
 };
+
+export const optionalAuthenticate: RequestHandler = (
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+): void => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      const token = authHeader.split(" ")[1];
+      const decoded = jwt.verify(
+        token,
+        env.JWT_ACCESS_SECRET,
+      ) as JwtAccessPayload;
+
+      req.user = {
+        _id: decoded._id,
+        role: decoded.role,
+        email: "",
+        name: "",
+      };
+    }
+
+    next();
+  } catch (_error) {
+    // If token is invalid, just proceed as unauthenticated instead of throwing error
+    next();
+  }
+};
+
