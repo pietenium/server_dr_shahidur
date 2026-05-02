@@ -27,16 +27,74 @@ export const appInfoService = {
   },
 
   update: async (payload: UpdateAppInfoPayload): Promise<IAppInfo | null> => {
-    // Basic type validation for critical fields if necessary (though validator handles it)
-    if (payload.email && typeof payload.email === "string") {
-      payload.email = payload.email.trim().toLowerCase();
+    // 1. Destructure to create an explicit allowlist (Security best practice)
+    const {
+      siteName,
+      siteDescription,
+      doctorName,
+      doctorTitle,
+      doctorSpecialty,
+      doctorBio,
+      email,
+      phone,
+      address,
+      socialLinks,
+      clinicHours,
+      mapEmbedUrl,
+    } = payload;
+
+    // 2. Build sanitized object (Only including defined fields)
+    const sanitizedPayload: Partial<UpdateAppInfoPayload> = {};
+
+    if (siteName !== undefined) {
+      sanitizedPayload.siteName = siteName;
+    }
+    if (siteDescription !== undefined) {
+      sanitizedPayload.siteDescription = siteDescription;
+    }
+    if (doctorName !== undefined) {
+      sanitizedPayload.doctorName = doctorName;
+    }
+    if (doctorTitle !== undefined) {
+      sanitizedPayload.doctorTitle = doctorTitle;
+    }
+    if (doctorSpecialty !== undefined) {
+      sanitizedPayload.doctorSpecialty = doctorSpecialty;
+    }
+    if (doctorBio !== undefined) {
+      sanitizedPayload.doctorBio = doctorBio;
+    }
+    if (phone !== undefined) {
+      sanitizedPayload.phone = phone;
+    }
+    if (address !== undefined) {
+      sanitizedPayload.address = address;
+    }
+    if (socialLinks !== undefined) {
+      sanitizedPayload.socialLinks = socialLinks;
+    }
+    if (clinicHours !== undefined) {
+      sanitizedPayload.clinicHours = clinicHours;
+    }
+    if (mapEmbedUrl !== undefined) {
+      sanitizedPayload.mapEmbedUrl = mapEmbedUrl;
     }
 
-    const updatedAppInfo = await AppInfo.findOneAndUpdate({}, payload, {
-      new: true,
-      upsert: true,
-      runValidators: true,
-    });
+    // 3. Normalize email securely
+    if (typeof email === "string") {
+      sanitizedPayload.email = email.trim().toLowerCase();
+    }
+
+    // 4. Update using $set and secure query
+    const updatedAppInfo = await AppInfo.findOneAndUpdate(
+      {},
+      { $set: sanitizedPayload },
+      {
+        new: true,
+        upsert: true,
+        runValidators: true,
+      },
+    );
 
     if (updatedAppInfo) {
       await deleteCache(CACHE_KEY);
