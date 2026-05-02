@@ -1,4 +1,4 @@
-import type { Document } from "mongoose";
+import type { Document, PipelineStage } from "mongoose";
 
 export interface IAnalytics extends Document {
   page: string;
@@ -33,3 +33,6 @@ export interface PageViewAggregationResult {
   count: number;
   page: string;
 }
+
+// Re-export PipelineStage for convenience in service
+export type { PipelineStage };
