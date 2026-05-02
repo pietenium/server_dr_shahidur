@@ -53,7 +53,7 @@ export const testimonialService = {
   },
 
   getById: async (id: string): Promise<ITestimonial> => {
-    const testimonial = await Testimonial.findById(id);
+    const testimonial = await Testimonial.findOne({ _id: { $eq: id } });
     if (!testimonial) {
       throw new ApiError(StatusCodes.NOT_FOUND, "Testimonial not found");
     }
@@ -61,8 +61,8 @@ export const testimonialService = {
   },
 
   update: async (id: string, payload: UpdateTestimonialPayload): Promise<ITestimonial> => {
-    const testimonial = await Testimonial.findByIdAndUpdate(
-      id,
+    const testimonial = await Testimonial.findOneAndUpdate(
+      { _id: { $eq: id } },
       { $set: payload },
       { new: true, runValidators: true }
     );
@@ -78,20 +78,20 @@ export const testimonialService = {
   },
 
   delete: async (id: string): Promise<void> => {
-    const testimonial = await Testimonial.findById(id);
+    const testimonial = await Testimonial.findOne({ _id: { $eq: id } });
     if (!testimonial) {
       throw new ApiError(StatusCodes.NOT_FOUND, "Testimonial not found");
     }
 
     // Delete assets
     const deletePromises: Promise<unknown>[] = [];
-    
+
     if (testimonial.image?.fileId) {
       deletePromises.push(imagekit.files.delete(testimonial.image.fileId));
     }
 
     if (testimonial.video?.fileId) {
-      // Assuming video is on Cloudinary as per plan
+      // Video assets are stored on Cloudinary
       deletePromises.push(cloudinary.uploader.destroy(testimonial.video.fileId, { resource_type: "video" }));
     }
 
@@ -101,7 +101,7 @@ export const testimonialService = {
       logger.error("Error deleting Testimonial assets:", err);
     }
 
-    await Testimonial.findByIdAndDelete(id);
+    await Testimonial.findOneAndDelete({ _id: { $eq: id } });
 
     // Invalidate cache
     void deleteCache(CACHE_KEY);

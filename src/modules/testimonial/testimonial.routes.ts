@@ -15,24 +15,24 @@ router.get("/", globalLimiter, optionalAuthenticate, testimonialController.getAl
 // Admin routes
 router.get(
   "/admin",
-  authenticate,
   globalLimiter,
+  authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   testimonialController.getAll,
 );
 
 router.get(
   "/:id",
-  authenticate,
   globalLimiter,
+  authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   testimonialController.getById,
 );
 
 router.post(
   "/",
-  authenticate,
   globalLimiter,
+  authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   testimonialValidator.create,
   logActivity("testimonial"),
@@ -41,8 +41,8 @@ router.post(
 
 router.patch(
   "/:id",
-  authenticate,
   globalLimiter,
+  authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   testimonialValidator.update,
   logActivity("testimonial"),
@@ -51,8 +51,8 @@ router.patch(
 
 router.delete(
   "/:id",
-  authenticate,
   globalLimiter,
+  authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   logActivity("testimonial"),
   testimonialController.delete,
