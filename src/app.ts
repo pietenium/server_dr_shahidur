@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import mongoSanitize from "express-mongo-sanitize";
 import morgan from "morgan";
 import chalk from "chalk";
+import lusca from "lusca";
 import { corsOptions } from "@config/cors";
 
 import { errorHandler } from "@middlewares/error.middleware";
@@ -63,7 +64,10 @@ app.use(cookieParser());
 // 6. MongoDB sanitize
 app.use(mongoSanitize());
 
-// 7. Morgan - development logging
+// 7. CSRF protection
+app.use(lusca.csrf());
+
+// 8. Morgan - development logging
 if (env.NODE_ENV === "development") {
   app.use(
     morgan((tokens, req, res) => {
@@ -78,8 +82,8 @@ if (env.NODE_ENV === "development") {
   );
 }
 
-// 8. Routes - mounted under /api/v1
- 
+// 9. Routes - mounted under /api/v1
+
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/analytics", analyticsRoutes);
 app.use("/api/v1/appointments", appointmentRoutes);
