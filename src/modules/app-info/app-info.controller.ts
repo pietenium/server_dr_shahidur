@@ -11,16 +11,18 @@ export const appInfoController = {
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "App info retrieved",
+      message: "App information retrieved successfully",
       data,
     });
   }),
+
   update: asyncHandler(async (req: Request, res: Response) => {
     const data = await appInfoService.update(req.body as UpdateAppInfoPayload);
+
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "App info updated",
+      message: "App information updated successfully",
       data,
     });
   }),
