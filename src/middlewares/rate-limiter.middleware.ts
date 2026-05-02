@@ -68,3 +68,17 @@ export const globalLimiter = rateLimit({
   },
   store: getStore(),
 });
+
+export const appointmentLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    statusCode: StatusCodes.TOO_MANY_REQUESTS,
+    message: "Too many appointment requests, please try again later.",
+  },
+  store: getStore(),
+});
+
