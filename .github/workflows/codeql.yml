@@ -2,7 +2,7 @@ name: "CodeQL Advanced Security Analysis"
 
 on:
   push:
-    branches: ["main", "personal/*"]
+    branches: ["main", "personal/*", "feature/*", "fix/*"]
   pull_request:
     branches: ["main"]
   schedule:

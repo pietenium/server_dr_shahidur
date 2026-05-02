@@ -52,6 +52,7 @@ router.post(
 
 router.post(
   "/logout",
+  authLimiter,
   authenticate,
   logActivity("auth"),
   authController.logout,
