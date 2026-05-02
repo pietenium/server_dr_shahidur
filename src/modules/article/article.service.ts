@@ -14,7 +14,7 @@ import { ApiError } from "@utils/ApiError";
 import { StatusCodes } from "http-status-codes";
 import { imagekit } from "@config/imagekit";
 import { logger } from "@utils/logger";
-import type { PaginateModel, UpdateQuery } from "mongoose";
+import type { PaginateModel, Types } from "mongoose";
 
 const CACHE_TTL_LIST = 300; // 5 minutes
 const CACHE_TTL_DETAIL = 600; // 10 minutes
@@ -199,7 +199,7 @@ export const articleService = {
       throw new ApiError(StatusCodes.NOT_FOUND, "Article not found");
     }
 
-    const updateData: UpdateQuery<IArticle> = {};
+    const updateData: Partial<IArticle> = {};
 
     if (payload.title !== undefined) {
       if (typeof payload.title !== "string") {
@@ -217,7 +217,7 @@ export const articleService = {
       if (typeof payload.category !== "string") {
         throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid category");
       }
-      updateData.category = payload.category;
+      updateData.category = payload.category as unknown as Types.ObjectId;
     }
     if (payload.tags !== undefined) {
       if (!Array.isArray(payload.tags) || !payload.tags.every((tag) => typeof tag === "string")) {
@@ -256,7 +256,7 @@ export const articleService = {
       updateData.content = sanitizeContent(payload.content);
     }
 
-    const article = await Article.findOneAndUpdate({ _id: { $eq: id } }, updateData, {
+    const article = await Article.findOneAndUpdate({ _id: { $eq: id } }, { $set: updateData }, {
       new: true,
       runValidators: true,
     }).populate("category");

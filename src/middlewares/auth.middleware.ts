@@ -12,14 +12,18 @@ export const authenticate: RequestHandler = (
   _res: Response,
   next: NextFunction,
 ): void => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || typeof authHeader !== "string" || !authHeader.startsWith("Bearer ")) {
+    return next(new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED));
+  }
+
+  const token = authHeader.substring(7);
+  if (!token) {
+    return next(new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED));
+  }
+
   try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
-    }
-
-    const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(
       token,
       env.JWT_ACCESS_SECRET,
@@ -66,46 +70,34 @@ export const optionalAuthenticate: RequestHandler = (
 ): void => {
   const authHeader = req.headers.authorization;
 
-  if (!authHeader || typeof authHeader !== "string" || !authHeader.startsWith("Bearer ")) {
-    return next();
-  }
+  // We use a non-blocking identification flow.
+  // If no valid token is provided, req.user remains undefined, and we proceed.
+  Promise.resolve().then(async () => {
+    if (typeof authHeader === "string" && authHeader.startsWith("Bearer ")) {
+      const token = authHeader.substring(7);
+      if (token) {
+        try {
+          const decoded = jwt.verify(
+            token,
+            env.JWT_ACCESS_SECRET,
+          ) as JwtAccessPayload;
 
-  try {
-    const token = authHeader.split(" ")[1];
-    if (!token) {
-      return next();
-    }
+          const redis = getRedisClient();
+          const isBlacklisted = await redis.get(`blacklist:jti:${decoded.jti}`);
 
-    const decoded = jwt.verify(
-      token,
-      env.JWT_ACCESS_SECRET,
-    ) as JwtAccessPayload;
-
-    const redis = getRedisClient();
-    void redis.get(`blacklist:jti:${decoded.jti}`).then((isBlacklisted) => {
-      if (!isBlacklisted) {
-        req.user = {
-          _id: decoded._id,
-          role: decoded.role,
-          email: "",
-          name: "",
-        };
+          if (!isBlacklisted) {
+            req.user = {
+              _id: decoded._id,
+              role: decoded.role,
+              email: "",
+              name: "",
+            };
+          }
+        } catch {
+          // Ignore verification errors for optional identification
+        }
       }
-      next();
-    }).catch(() => {
-      // Redis error should not block optional identity
-      req.user = {
-        _id: decoded._id,
-        role: decoded.role,
-        email: "",
-        name: "",
-      };
-      next();
-    });
-  } catch (_error) {
-    // If token is invalid, just proceed as unauthenticated
+    }
     next();
-  }
+  }).catch(() => next());
 };
-
-
