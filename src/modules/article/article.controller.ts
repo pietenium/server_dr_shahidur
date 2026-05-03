@@ -2,23 +2,29 @@ import type { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { asyncHandler } from "@utils/asyncHandler";
 import { ApiResponse } from "@utils/ApiResponse";
+import { ApiError } from "@utils/ApiError";
 import { articleService } from "./article.service";
 import type {
   CreateArticlePayload,
   UpdateArticlePayload,
 } from "./article.interface";
+import { ARTICLE_MESSAGES, AUTH_MESSAGES } from "@constants/messages.constant";
 
 export const articleController = {
   // --- Category Controllers ---
 
   createCategory: asyncHandler(async (req: Request, res: Response) => {
+    if (!req.user) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
+    }
+
     const { name, description } = req.body as { name: string; description?: string };
     const data = await articleService.createCategory(name, description);
 
     ApiResponse(res, {
       statusCode: StatusCodes.CREATED,
       success: true,
-      message: "Category created successfully",
+      message: ARTICLE_MESSAGES.CATEGORY_CREATED,
       data,
     });
   }),
@@ -29,29 +35,37 @@ export const articleController = {
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "Categories retrieved successfully",
+      message: ARTICLE_MESSAGES.CATEGORY_FETCHED,
       data,
     });
   }),
 
   updateCategory: asyncHandler(async (req: Request, res: Response) => {
+    if (!req.user) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
+    }
+
     const data = await articleService.updateCategory(req.params.id as string, req.body as { name?: string; description?: string });
 
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "Category updated successfully",
+      message: ARTICLE_MESSAGES.CATEGORY_UPDATED,
       data,
     });
   }),
 
   deleteCategory: asyncHandler(async (req: Request, res: Response) => {
+    if (!req.user) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
+    }
+
     await articleService.deleteCategory(req.params.id as string);
 
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "Category deleted successfully",
+      message: ARTICLE_MESSAGES.CATEGORY_DELETED,
       data: null,
     });
   }),
@@ -59,12 +73,16 @@ export const articleController = {
   // --- Article Controllers ---
 
   create: asyncHandler(async (req: Request, res: Response) => {
+    if (!req.user) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
+    }
+
     const data = await articleService.create(req.body as CreateArticlePayload);
 
     ApiResponse(res, {
       statusCode: StatusCodes.CREATED,
       success: true,
-      message: "Article created successfully",
+      message: ARTICLE_MESSAGES.CREATED,
       data,
     });
   }),
@@ -80,7 +98,7 @@ export const articleController = {
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "Articles retrieved successfully",
+      message: ARTICLE_MESSAGES.FETCHED,
       data,
     });
   }),
@@ -92,29 +110,37 @@ export const articleController = {
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "Article retrieved successfully",
+      message: ARTICLE_MESSAGES.FETCHED,
       data,
     });
   }),
 
   update: asyncHandler(async (req: Request, res: Response) => {
+    if (!req.user) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
+    }
+
     const data = await articleService.update(req.params.id as string, req.body as UpdateArticlePayload);
 
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "Article updated successfully",
+      message: ARTICLE_MESSAGES.UPDATED,
       data,
     });
   }),
 
   delete: asyncHandler(async (req: Request, res: Response) => {
+    if (!req.user) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
+    }
+
     await articleService.delete(req.params.id as string);
 
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "Article deleted successfully",
+      message: ARTICLE_MESSAGES.DELETED,
       data: null,
     });
   }),

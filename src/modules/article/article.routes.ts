@@ -10,7 +10,7 @@ import { globalLimiter } from "@middlewares/rate-limiter.middleware";
 const router = Router();
 
 // --- Category Routes ---
-router.get("/categories", articleController.getCategories);
+router.get("/categories", globalLimiter, articleController.getCategories);
 
 router.post(
   "/categories",
@@ -51,17 +51,18 @@ router.get("/slug/:slug", globalLimiter, optionalAuthenticate, articleValidator.
 // Admin routes
 router.get(
   "/admin",
-  authenticate,
   globalLimiter,
+  authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   articleValidator.query,
+  logActivity("article"),
   articleController.getArticles,
 );
 
 router.post(
   "/",
-  authenticate,
   globalLimiter,
+  authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   articleValidator.create,
   logActivity("article"),

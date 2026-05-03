@@ -2,11 +2,13 @@ import type { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { asyncHandler } from "@utils/asyncHandler";
 import { ApiResponse } from "@utils/ApiResponse";
+import { ApiError } from "@utils/ApiError";
 import { analyticsService } from "./analytics.service";
 import type { TrackPageViewPayload } from "./analytics.interface";
+import { ANALYTICS_MESSAGES, AUTH_MESSAGES } from "@constants/messages.constant";
 
 export const analyticsController = {
-  track: asyncHandler(async (req: Request, res: Response) => {
+  track: asyncHandler((req: Request, res: Response) => {
     const ip = req.ip || req.socket.remoteAddress || "Unknown";
     const userAgent = req.headers["user-agent"] || "Unknown";
 
@@ -16,31 +18,39 @@ export const analyticsController = {
     ApiResponse(res, {
       statusCode: StatusCodes.CREATED,
       success: true,
-      message: "Page view tracked",
+      message: ANALYTICS_MESSAGES.TRACKED,
       data: null,
     });
-
-    await Promise.resolve();
+    
+    return Promise.resolve();
   }),
 
-  getGeoStats: asyncHandler(async (_req: Request, res: Response) => {
+  getGeoStats: asyncHandler(async (req: Request, res: Response) => {
+    if (!req.user) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
+    }
+
     const data = await analyticsService.getGeoStats();
 
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "Geo stats retrieved",
+      message: ANALYTICS_MESSAGES.STATS_RETRIEVED,
       data,
     });
   }),
 
-  getPageStats: asyncHandler(async (_req: Request, res: Response) => {
+  getPageStats: asyncHandler(async (req: Request, res: Response) => {
+    if (!req.user) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
+    }
+
     const data = await analyticsService.getPageStats();
 
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "Page stats retrieved",
+      message: ANALYTICS_MESSAGES.STATS_RETRIEVED,
       data,
     });
   }),

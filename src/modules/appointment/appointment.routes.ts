@@ -26,6 +26,7 @@ router.get(
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   appointmentValidator.query,
+  logActivity("appointment"),
   appointmentController.get,
 );
 
@@ -34,6 +35,7 @@ router.get(
   globalLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
+  logActivity("appointment"),
   appointmentController.getCharts,
 );
 
@@ -43,6 +45,7 @@ router.get(
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   appointmentValidator.validateId,
+  logActivity("appointment"),
   appointmentController.getById,
 );
 

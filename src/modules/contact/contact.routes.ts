@@ -6,6 +6,7 @@ import { authorize } from "@middlewares/role.middleware";
 import { logActivity } from "@middlewares/activity-log.middleware";
 import { ROLES } from "@constants/roles.constant";
 import { globalLimiter } from "@middlewares/rate-limiter.middleware";
+import { verifyRecaptcha } from "@middlewares/recaptcha.middleware";
 
 const router = Router();
 
@@ -13,6 +14,7 @@ const router = Router();
 router.post(
   "/",
   globalLimiter,
+  verifyRecaptcha,
   contactValidator.create,
   contactController.create,
 );
@@ -20,9 +22,9 @@ router.post(
 // Admin routes
 router.use(globalLimiter, authenticate, authorize(ROLES.ADMIN, ROLES.MODERATOR));
 
-router.get("/", contactValidator.query, contactController.getMessages);
+router.get("/", logActivity("contact"), contactValidator.query, contactController.getMessages);
 
-router.get("/:id", contactController.getMessageById);
+router.get("/:id", logActivity("contact"), contactController.getMessageById);
 
 router.patch("/:id/read", logActivity("contact"), contactController.markAsRead);
 

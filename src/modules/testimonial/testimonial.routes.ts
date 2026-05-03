@@ -18,6 +18,7 @@ router.get(
   globalLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
+  logActivity("testimonial"),
   testimonialController.getAll,
 );
 
@@ -27,6 +28,7 @@ router.get(
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   testimonialValidator.validateId,
+  logActivity("testimonial"),
   testimonialController.getById,
 );
 

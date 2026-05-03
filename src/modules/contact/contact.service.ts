@@ -4,7 +4,6 @@ import type {
   CreateContactPayload,
   ContactFilterQuery,
 } from "./contact.interface";
-import { deleteCache } from "@utils/cache";
 import { ApiError } from "@utils/ApiError";
 import { StatusCodes } from "http-status-codes";
 import { getGeoLocation } from "@utils/getGeoLocation";
@@ -14,17 +13,23 @@ import { contactConfirmationTemplate } from "@emails/template/contact-confirmati
 import { logger } from "@utils/logger";
 
 
-const CACHE_KEY = "cache:contacts";
-
 export const contactService = {
   create: async (payload: CreateContactPayload, ip: string): Promise<IContact> => {
-    const location = await getGeoLocation(ip);
-    
+    // Save contact first for a fast HTTP response
     const contact = await Contact.create({
       ...payload,
       ipAddress: ip,
-      location,
     });
+
+    // Resolve geolocation asynchronously (non-blocking) — same pattern as appointment service
+    void (async () => {
+      try {
+        const location = await getGeoLocation(ip);
+        await Contact.findByIdAndUpdate(contact._id, { location });
+      } catch (error) {
+        logger.warn(`Failed to resolve geolocation for contact: ${(error as Error).message}`);
+      }
+    })();
 
     // Send Telegram Notification (Async)
     const telegramMsg = formatContactMessage(contact);
@@ -51,9 +56,6 @@ export const contactService = {
     }).catch((error) => {
       logger.warn(`Failed to send confirmation email: ${(error as Error).message}`);
     });
-
-    // Invalidate cache
-    void deleteCache(CACHE_KEY);
 
     return contact;
   },
@@ -100,9 +102,6 @@ export const contactService = {
       throw new ApiError(StatusCodes.NOT_FOUND, "Message not found");
     }
 
-    // Invalidate cache
-    void deleteCache(CACHE_KEY);
-
     return contact;
   },
 
@@ -111,8 +110,5 @@ export const contactService = {
     if (!contact) {
       throw new ApiError(StatusCodes.NOT_FOUND, "Message not found");
     }
-
-    // Invalidate cache
-    void deleteCache(CACHE_KEY);
   },
 };

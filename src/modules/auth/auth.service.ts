@@ -127,8 +127,12 @@ export const authService = {
       throw new ApiError(StatusCodes.BAD_REQUEST, "Magic token expired");
     }
 
-    // Return the hashed token so frontend can use it to reset password or login
-    return { magicToken: hashedMagicToken };
+    // Generate a short-lived session token (UUID) to return to the frontend.
+    // This avoids leaking the bcrypt hash and passes any UUID validator cleanly.
+    const sessionId = uuidv4();
+    await redis.set(`verify-session:${sessionId}`, user._id.toString(), "EX", 600);
+
+    return { magicToken: sessionId };
   },
 
   magicLogin: async (
@@ -139,33 +143,44 @@ export const authService = {
     }
 
     const email = payload.email.trim().toLowerCase();
-    const user = await User.findOne({ email });
+    const redis = getRedisClient();
 
+    // Check if magicToken is a verify-session UUID (OTP flow)
+    // In this case we resolve the userId directly from Redis
+    const sessionUserId = await redis.get(`verify-session:${payload.magicToken}`);
+
+    let userId: string;
+    if (sessionUserId) {
+      // OTP flow: session UUID maps directly to user id
+      userId = sessionUserId;
+    } else {
+      // Email magic link flow: raw UUID is compared against bcrypt hash
+      const user = await User.findOne({ email });
+      if (!user) {
+        throw new ApiError(StatusCodes.UNAUTHORIZED, "Invalid request");
+      }
+      const storedHashedMagicToken = await redis.get(`magic:${user._id.toString()}`);
+      if (!storedHashedMagicToken) {
+        throw new ApiError(StatusCodes.UNAUTHORIZED, "Link expired");
+      }
+      const isValid = await bcrypt.compare(payload.magicToken, storedHashedMagicToken);
+      if (!isValid) {
+        throw new ApiError(StatusCodes.UNAUTHORIZED, "Invalid magic token");
+      }
+      userId = user._id.toString();
+    }
+
+    const user = await User.findById(userId);
     if (!user) {
       throw new ApiError(StatusCodes.UNAUTHORIZED, "Invalid request");
     }
 
-    const redis = getRedisClient();
-    const storedHashedMagicToken = await redis.get(`magic:${user._id.toString()}`);
-
-    if (!storedHashedMagicToken) {
-      throw new ApiError(StatusCodes.UNAUTHORIZED, "Link expired");
-    }
-
-    // The frontend may pass either the raw magic token (from email link) or the hashed magic token (from verifyOtp).
-    // Let's check both possibilities.
-    let isValid: boolean;
-    if (payload.magicToken === storedHashedMagicToken) {
-      isValid = true; // Passed hashed token from verifyOtp
-    } else {
-      isValid = await bcrypt.compare(payload.magicToken, storedHashedMagicToken); // Passed raw token from email
-    }
-
-    if (!isValid) {
-      throw new ApiError(StatusCodes.UNAUTHORIZED, "Invalid magic token");
-    }
-
-    await redis.del(`otp:${user._id.toString()}`, `magic:${user._id.toString()}`);
+    // Clean up all tokens for this user
+    await redis.del(
+      `otp:${user._id.toString()}`,
+      `magic:${user._id.toString()}`,
+      `verify-session:${payload.magicToken}`,
+    );
 
     user.lastLogin = new Date();
     await user.save({ validateBeforeSave: false });
@@ -189,34 +204,46 @@ export const authService = {
     if (typeof payload.email !== "string") {
       throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid request");
     }
-    const user = await User.findOne({ email: { $eq: payload.email } });
+    const redis = getRedisClient();
 
+    // Check if magicToken is a verify-session UUID (OTP flow)
+    const sessionUserId = await redis.get(`verify-session:${payload.magicToken}`);
+
+    let userId: string;
+    if (sessionUserId) {
+      // OTP flow: session UUID maps directly to user id
+      userId = sessionUserId;
+    } else {
+      // Email magic link flow: raw UUID compared against bcrypt hash
+      const user = await User.findOne({ email: { $eq: payload.email } });
+      if (!user) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid request");
+      }
+      const storedHashedMagicToken = await redis.get(`magic:${user._id.toString()}`);
+      if (!storedHashedMagicToken) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, "Link expired");
+      }
+      const isValid = await bcrypt.compare(payload.magicToken, storedHashedMagicToken);
+      if (!isValid) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid magic token");
+      }
+      userId = user._id.toString();
+    }
+
+    const user = await User.findById(userId);
     if (!user) {
       throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid request");
-    }
-
-    const redis = getRedisClient();
-    const storedHashedMagicToken = await redis.get(`magic:${user._id.toString()}`);
-
-    if (!storedHashedMagicToken) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, "Link expired");
-    }
-
-    let isValid: boolean;
-    if (payload.magicToken === storedHashedMagicToken) {
-      isValid = true;
-    } else {
-      isValid = await bcrypt.compare(payload.magicToken, storedHashedMagicToken);
-    }
-
-    if (!isValid) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid magic token");
     }
 
     user.password = payload.newPassword;
     await user.save(); // pre-save hook will hash it
 
-    await redis.del(`otp:${user._id.toString()}`, `magic:${user._id.toString()}`);
+    // Clean up all tokens for this user
+    await redis.del(
+      `otp:${user._id.toString()}`,
+      `magic:${user._id.toString()}`,
+      `verify-session:${payload.magicToken}`,
+    );
 
     // Send confirmation email (Async)
     void sendEmail({

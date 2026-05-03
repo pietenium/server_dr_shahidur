@@ -13,40 +13,40 @@ const router = Router();
 router.use(globalLimiter);
 router.use(authMiddleware);
 
-router.get("/me", usersController.getMe);
+router.get("/me", activityLogMiddleware("user"), usersController.getMe);
 router.patch(
   "/me",
   usersValidator.updateProfile,
-  activityLogMiddleware("User"),
+  activityLogMiddleware("user"),
   usersController.updateMe,
 );
 router.patch(
   "/me/password",
   usersValidator.changePassword,
-  activityLogMiddleware("User"),
+  activityLogMiddleware("user"),
   usersController.changePassword,
 );
 
 // --- Admin Only Routes ---
 router.use(roleMiddleware(ROLES.ADMIN));
 
-router.get("/", usersValidator.getAllUsers, usersController.getAllUsers);
+router.get("/", activityLogMiddleware("user"), usersValidator.getAllUsers, usersController.getAllUsers);
 router.post(
   "/invite",
   usersValidator.inviteModerator,
-  activityLogMiddleware("User"),
+  activityLogMiddleware("user"),
   usersController.inviteModerator,
 );
 router.patch(
   "/:id/toggle-active",
   usersValidator.validateId,
-  activityLogMiddleware("User"),
+  activityLogMiddleware("user"),
   usersController.toggleUserActive,
 );
 router.delete(
   "/:id",
   usersValidator.validateId,
-  activityLogMiddleware("User"),
+  activityLogMiddleware("user"),
   usersController.deleteUser,
 );
 

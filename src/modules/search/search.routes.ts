@@ -1,14 +1,14 @@
 import { Router } from "express";
 import { searchController } from "./search.controller";
 import { searchValidator } from "./search.validator";
-import { globalLimiter } from "@middlewares/rate-limiter.middleware";
+import { searchLimiter } from "@middlewares/rate-limiter.middleware";
 
 const router = Router();
 
 // Public search route
 router.get(
   "/",
-  globalLimiter,
+  searchLimiter,
   searchValidator.query,
   searchController.universalSearch,
 );

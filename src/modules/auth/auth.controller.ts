@@ -12,6 +12,7 @@ import type {
   ResetPasswordPayload,
 } from "./auth.interface";
 import { env } from "@config/env";
+import { AUTH_MESSAGES } from "@constants/messages.constant";
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -36,7 +37,7 @@ export const authController = {
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "Login successful",
+      message: AUTH_MESSAGES.LOGIN_SUCCESS,
       data: { user, accessToken: tokens.accessToken },
     });
   }),
@@ -47,7 +48,7 @@ export const authController = {
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "If an account exists, an OTP and magic link have been sent to the email.",
+      message: AUTH_MESSAGES.OTP_SENT,
       data: null,
     });
   }),
@@ -60,7 +61,7 @@ export const authController = {
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "OTP verified successfully",
+      message: AUTH_MESSAGES.OTP_VERIFIED,
       data: { magicToken },
     });
   }),
@@ -82,7 +83,7 @@ export const authController = {
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "Login successful",
+      message: AUTH_MESSAGES.MAGIC_LOGIN_SUCCESS,
       data: { user, accessToken: tokens.accessToken },
     });
   }),
@@ -93,7 +94,7 @@ export const authController = {
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "Password has been reset successfully.",
+      message: AUTH_MESSAGES.PASSWORD_RESET_SUCCESS,
       data: null,
     });
   }),
@@ -112,12 +113,16 @@ export const authController = {
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "Token refreshed successfully",
+      message: AUTH_MESSAGES.TOKEN_REFRESHED,
       data: { accessToken: tokens.accessToken },
     });
   }),
 
   logout: asyncHandler(async (req: Request, res: Response) => {
+    if (!req.user) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
+    }
+
     const refreshToken = req.cookies.refreshToken as string | undefined;
 
     if (refreshToken) {
@@ -129,7 +134,7 @@ export const authController = {
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "Logged out successfully",
+      message: AUTH_MESSAGES.LOGOUT_SUCCESS,
       data: null,
     });
   }),

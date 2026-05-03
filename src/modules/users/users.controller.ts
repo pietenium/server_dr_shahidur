@@ -9,79 +9,96 @@ import type {
   ChangePasswordPayload,
   InviteModeratorPayload,
 } from "./users.interface";
+import { USER_MESSAGES, AUTH_MESSAGES } from "@constants/messages.constant";
 
 export const usersController = {
   getMe: asyncHandler(async (req: Request, res: Response) => {
-    if (!req.user) {throw new ApiError(StatusCodes.UNAUTHORIZED, "Unauthorized");}
+    if (!req.user) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
+    }
     const user = await usersService.getMe(req.user._id);
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "Profile fetched successfully",
+      message: USER_MESSAGES.PROFILE_FETCHED,
       data: user,
     });
   }),
 
   updateMe: asyncHandler(async (req: Request, res: Response) => {
-    if (!req.user) {throw new ApiError(StatusCodes.UNAUTHORIZED, "Unauthorized");}
+    if (!req.user) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
+    }
     const user = await usersService.updateMe(req.user._id, req.body as UpdateProfilePayload);
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "Profile updated successfully",
+      message: USER_MESSAGES.PROFILE_UPDATED,
       data: user,
     });
   }),
 
   changePassword: asyncHandler(async (req: Request, res: Response) => {
-    if (!req.user) {throw new ApiError(StatusCodes.UNAUTHORIZED, "Unauthorized");}
+    if (!req.user) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
+    }
     await usersService.changePassword(req.user._id, req.body as ChangePasswordPayload);
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "Password changed successfully",
+      message: USER_MESSAGES.PASSWORD_CHANGED,
       data: null,
     });
   }),
 
   getAllUsers: asyncHandler(async (req: Request, res: Response) => {
+    if (!req.user) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
+    }
     const result = await usersService.getAllUsers(req.query);
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "Users fetched successfully",
+      message: USER_MESSAGES.FETCHED,
       data: result,
     });
   }),
 
   inviteModerator: asyncHandler(async (req: Request, res: Response) => {
+    if (!req.user) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
+    }
     const moderator = await usersService.inviteModerator(req.body as InviteModeratorPayload);
     ApiResponse(res, {
       statusCode: StatusCodes.CREATED,
       success: true,
-      message: "Moderator invited successfully",
+      message: USER_MESSAGES.MODERATOR_INVITED,
       data: moderator,
     });
   }),
 
   toggleUserActive: asyncHandler(async (req: Request, res: Response) => {
-    if (!req.user) {throw new ApiError(StatusCodes.UNAUTHORIZED, "Unauthorized");}
+    if (!req.user) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
+    }
     const user = await usersService.toggleUserActive(req.user._id, req.params.id as string);
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "User status toggled successfully",
+      message: USER_MESSAGES.STATUS_TOGGLED,
       data: user,
     });
   }),
 
   deleteUser: asyncHandler(async (req: Request, res: Response) => {
-    if (!req.user) {throw new ApiError(StatusCodes.UNAUTHORIZED, "Unauthorized");}
+    if (!req.user) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
+    }
     await usersService.deleteUser(req.user._id, req.params.id as string);
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "User deleted successfully",
+      message: USER_MESSAGES.DELETED,
       data: null,
     });
   }),
