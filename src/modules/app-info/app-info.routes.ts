@@ -14,13 +14,13 @@ router.get("/", globalLimiter, appInfoController.getAppInfo);
 
 // Protected route to update site information
 router.patch(
-  "/",
-  globalLimiter,
-  authenticate,
-  authorize(ROLES.ADMIN, ROLES.MODERATOR),
-  appInfoValidator.update,
-  logActivity("app-info"),
-  appInfoController.updateAppInfo,
+    "/",
+    globalLimiter,
+    authenticate,
+    authorize(ROLES.ADMIN, ROLES.MODERATOR),
+    appInfoValidator.update,
+    logActivity("app-info"),
+    appInfoController.updateAppInfo,
 );
 
 export default router;
