@@ -26,7 +26,10 @@ export const usersService = {
 
   updateMe: async (userId: string, payload: UpdateProfilePayload): Promise<IUser> => {
     if (payload.email) {
-      const existing = await User.findOne({ email: payload.email, _id: { $ne: userId } });
+      if (typeof payload.email !== "string") {
+        throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid email format");
+      }
+      const existing = await User.findOne({ email: { $eq: payload.email }, _id: { $ne: userId } });
       if (existing) {
         throw new ApiError(StatusCodes.CONFLICT, "Email already in use");
       }
@@ -58,8 +61,8 @@ export const usersService = {
     const { role, isActive, search, page = 1, limit = 10 } = query;
     const filter: Record<string, unknown> = {};
 
-    if (role) {filter.role = role;}
-    if (typeof isActive === "boolean") {filter.isActive = isActive;}
+    if (role) { filter.role = role; }
+    if (typeof isActive === "boolean") { filter.isActive = isActive; }
     if (search) {
       filter.$or = [
         { name: { $regex: search, $options: "i" } },
@@ -131,7 +134,7 @@ export const usersService = {
 
     user.isActive = !user.isActive;
     await user.save();
-    
+
     const { password: _, ...userObj } = user.toObject();
     return userObj as unknown as IUser;
   },

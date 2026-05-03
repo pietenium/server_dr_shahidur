@@ -16,8 +16,8 @@ router.get("/slug/:slug", globalLimiter, optionalAuthenticate, researchControlle
 // Admin routes
 router.get(
   "/admin",
-  authenticate,
   globalLimiter,
+  authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   researchValidator.query,
   researchController.getResearchList,
@@ -25,8 +25,8 @@ router.get(
 
 router.post(
   "/",
-  authenticate,
   globalLimiter,
+  authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   researchValidator.create,
   logActivity("research"),
