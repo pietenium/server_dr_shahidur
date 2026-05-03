@@ -23,8 +23,12 @@ const app = express();
 
 // 0. Request Timeout (30s)
 app.use(timeout("30s"));
-app.use((req, _res, next) => {
-  if (!req.timedout) {next();}
+app.use((req, res, next): void => {
+  if (req.timedout) {
+    res.status(503).json({ success: false, statusCode: 503, message: "Request timeout" });
+    return;
+  }
+  next();
 });
 
 // 1. Helmet with strict CSP

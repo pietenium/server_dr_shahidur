@@ -18,10 +18,12 @@ export const ARTICLE_MESSAGES: Record<string, string> = {
   CREATED: "Article created successfully",
   UPDATED: "Article updated successfully",
   DELETED: "Article deleted successfully",
+  FETCHED: "Articles retrieved successfully",
   NOT_FOUND: "Article not found",
   CATEGORY_CREATED: "Category created successfully",
   CATEGORY_UPDATED: "Category updated successfully",
   CATEGORY_DELETED: "Category deleted successfully",
+  CATEGORY_FETCHED: "Categories retrieved successfully",
   CATEGORY_NOT_FOUND: "Category not found",
   CATEGORY_IN_USE: "Cannot delete category that has articles",
   SLUG_EXISTS: "Article with this title already exists",
@@ -31,6 +33,7 @@ export const RESEARCH_MESSAGES: Record<string, string> = {
   CREATED: "Research paper created successfully",
   UPDATED: "Research paper updated successfully",
   DELETED: "Research paper deleted successfully",
+  FETCHED: "Research publications fetched successfully",
   NOT_FOUND: "Research paper not found",
   INVALID_DOI: "Invalid DOI format",
 };
@@ -38,6 +41,8 @@ export const RESEARCH_MESSAGES: Record<string, string> = {
 export const APPOINTMENT_MESSAGES: Record<string, string> = {
   CREATED: "Appointment request submitted successfully",
   STATUS_UPDATED: "Appointment status updated",
+  FETCHED: "Appointments retrieved successfully",
+  CHARTS_FETCHED: "Appointment charts retrieved successfully",
   NOT_FOUND: "Appointment not found",
 };
 
@@ -45,18 +50,22 @@ export const TESTIMONIAL_MESSAGES: Record<string, string> = {
   CREATED: "Testimonial created successfully",
   UPDATED: "Testimonial updated successfully",
   DELETED: "Testimonial deleted successfully",
+  FETCHED: "Testimonials fetched successfully",
   NOT_FOUND: "Testimonial not found",
 };
 
 export const CONTACT_MESSAGES: Record<string, string> = {
   SUBMITTED: "Message sent successfully",
   MARKED_READ: "Message marked as read",
+  FETCHED: "Messages fetched successfully",
   DELETED: "Message deleted successfully",
   NOT_FOUND: "Message not found",
 };
 
 export const LOG_MESSAGES: Record<string, string> = {
+  FETCHED: "Activity logs fetched successfully",
   DELETED: "Logs deleted successfully",
+  CLEARED: "Activity logs cleared successfully",
   NOT_FOUND: "Log not found",
 };
 
@@ -71,9 +80,19 @@ export const APP_INFO_MESSAGES: Record<string, string> = {
 };
 
 export const USER_MESSAGES: Record<string, string> = {
+  FETCHED: "Users fetched successfully",
+  PROFILE_FETCHED: "Profile fetched successfully",
+  PROFILE_UPDATED: "Profile updated successfully",
   PASSWORD_CHANGED: "Password changed successfully",
+  STATUS_TOGGLED: "User status toggled successfully",
+  DELETED: "User deleted successfully",
   USER_NOT_FOUND: "User not found",
   CANNOT_DELETE_SELF: "Cannot delete your own account",
   CANNOT_DELETE_LAST_ADMIN: "Cannot delete the last admin user",
   MODERATOR_INVITED: "Moderator invited successfully",
+};
+
+export const ANALYTICS_MESSAGES: Record<string, string> = {
+  TRACKED: "Page view tracked successfully",
+  STATS_RETRIEVED: "Analytics statistics retrieved successfully",
 };

@@ -11,7 +11,6 @@ router.post(
   "/login",
   authLimiter,
   authValidator.login,
-  logActivity("auth"),
   authController.login,
 );
 
@@ -33,7 +32,6 @@ router.post(
   "/magic-login",
   authLimiter,
   authValidator.magicLogin,
-  logActivity("auth"),
   authController.magicLogin,
 );
 
@@ -41,12 +39,12 @@ router.post(
   "/reset-password",
   authLimiter,
   authValidator.resetPassword,
-  logActivity("auth"),
   authController.resetPassword,
 );
 
 router.post(
   "/refresh-token",
+  authLimiter,
   authController.refreshToken,
 );
 

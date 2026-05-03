@@ -4,6 +4,7 @@ declare namespace Express {
     email?: string;
     name?: string;
     role: "ADMIN" | "MODERATOR";
+    jti?: string;
   }
 
   interface Request {

@@ -15,6 +15,7 @@ import { StatusCodes } from "http-status-codes";
 import { imagekit } from "@config/imagekit";
 import { logger } from "@utils/logger";
 import type { Types } from "mongoose";
+import type mongoose from "mongoose";
 
 const CACHE_TTL_LIST = 300; // 5 minutes
 const CACHE_TTL_DETAIL = 600; // 10 minutes
@@ -105,7 +106,7 @@ export const articleService = {
     return article;
   },
 
-  getArticles: async (query: ArticleFilterQuery, isAdmin = false): Promise<unknown> => {
+  getArticles: async (query: ArticleFilterQuery, isAdmin = false): Promise<mongoose.PaginateResult<IArticle>> => {
     const { status, category, articleType, search, tag, page = 1, limit = 10, sort = "-createdAt" } = query;
 
     // For public users, only show published articles
@@ -139,7 +140,7 @@ export const articleService = {
     if (!isAdmin) {
       const cached = await getCache<unknown>(cacheKey);
       if (cached) {
-        return cached;
+        return cached as mongoose.PaginateResult<IArticle>;
       }
     }
 
@@ -182,8 +183,16 @@ export const articleService = {
     }
 
     if (isPublic) {
-      await Article.updateOne({ slug }, { $inc: { impressions: 1 } });
-      void setCache(cacheKey, article, CACHE_TTL_DETAIL);
+      const updated = await Article.findOneAndUpdate(
+        { slug },
+        { $inc: { impressions: 1 } },
+        { new: true },
+      ).populate("category");
+      if (!updated) {
+        throw new ApiError(StatusCodes.NOT_FOUND, "Article not found");
+      }
+      void setCache(cacheKey, updated, CACHE_TTL_DETAIL);
+      return updated;
     }
 
     return article;

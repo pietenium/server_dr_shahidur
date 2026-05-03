@@ -1,4 +1,5 @@
 import type { Document, Types } from "mongoose";
+import type { ArticleType } from "@constants/status.constant";
 
 export interface IArticleCategory extends Document {
   name: string;
@@ -57,4 +58,5 @@ export interface ArticleFilterQuery {
   sort?: string;
 }
 
-export type ArticleType = "MEDICAL" | "POLITICAL";
+// ArticleType is re-exported from @constants/status.constant
+export type { ArticleType };

@@ -4,6 +4,7 @@ import { asyncHandler } from "@utils/asyncHandler";
 import { ApiResponse } from "@utils/ApiResponse";
 import { searchService } from "./search.service";
 import type { SearchQuery } from "./search.interface";
+import { SEARCH_MESSAGES } from "@constants/messages.constant";
 
 export const searchController = {
   universalSearch: asyncHandler(async (req: Request, res: Response) => {
@@ -13,7 +14,7 @@ export const searchController = {
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "Search completed successfully",
+      message: SEARCH_MESSAGES.SUCCESS,
       data: result,
     });
   }),

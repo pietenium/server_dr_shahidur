@@ -1,4 +1,5 @@
 import type { Document } from "mongoose";
+import type { UploadType } from "@constants/status.constant";
 
 export interface IResearch extends Document {
   title: string;
@@ -21,7 +22,8 @@ export interface IResearch extends Document {
   updatedAt: Date;
 }
 
-export type UploadType = "PDF" | "DOI";
+// UploadType is imported from @constants/status.constant
+export type { UploadType };
 
 export interface CreateResearchPayload {
   title: string;

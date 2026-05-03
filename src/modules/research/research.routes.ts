@@ -20,6 +20,7 @@ router.get(
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   researchValidator.query,
+  logActivity("research"),
   researchController.getResearchList,
 );
 

@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import mongoosePaginate from "mongoose-paginate-v2";
 import type { IArticle } from "./article.interface";
+import { CONTENT_STATUS, ARTICLE_TYPE } from "@constants/status.constant";
 
 const articleSchema = new Schema<IArticle>(
   {
@@ -13,8 +14,8 @@ const articleSchema = new Schema<IArticle>(
       fileId: String,
     },
     category: { type: Schema.Types.ObjectId, ref: "ArticleCategory", required: true },
-    articleType: { type: String, enum: ["MEDICAL", "POLITICAL"], required: true },
-    status: { type: String, enum: ["DRAFT", "PUBLISHED"], default: "DRAFT" },
+    articleType: { type: String, enum: Object.values(ARTICLE_TYPE), required: true },
+    status: { type: String, enum: Object.values(CONTENT_STATUS), default: CONTENT_STATUS.DRAFT },
     impressions: { type: Number, default: 0 },
     ogImage: {
       url: String,
@@ -40,6 +41,7 @@ articleSchema.plugin(mongoosePaginate);
 articleSchema.index({ status: 1 });
 articleSchema.index({ category: 1 });
 articleSchema.index({ articleType: 1 });
+articleSchema.index({ publishedAt: -1 });
 articleSchema.index({ title: "text", content: "text", excerpt: "text" });
 
 export const Article = mongoose.model<

@@ -4,6 +4,7 @@ import { analyticsValidator } from "./analytics.validator";
 import { analyticsLimiter } from "@middlewares/rate-limiter.middleware";
 import { authenticate } from "@middlewares/auth.middleware";
 import { authorize } from "@middlewares/role.middleware";
+import { logActivity } from "@middlewares/activity-log.middleware";
 import { ROLES } from "@constants/roles.constant";
 
 const router = Router();
@@ -22,6 +23,7 @@ router.get(
   analyticsLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
+  logActivity("analytics"),
   analyticsController.getGeoStats,
 );
 
@@ -30,6 +32,7 @@ router.get(
   analyticsLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
+  logActivity("analytics"),
   analyticsController.getPageStats,
 );
 

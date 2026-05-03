@@ -2,13 +2,14 @@ import mongoose, { Schema } from "mongoose";
 import mongoosePaginate from "mongoose-paginate-v2";
 import bcrypt from "bcrypt";
 import type { IUser, IUserMethods, UserModel } from "./auth.interface";
+import { ROLES } from "@constants/roles.constant";
 
 const userSchema = new Schema<IUser, UserModel, IUserMethods>(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true, lowercase: true },
     password: { type: String, required: true },
-    role: { type: String, enum: ["ADMIN", "MODERATOR"], default: "MODERATOR" },
+    role: { type: String, enum: Object.values(ROLES), default: ROLES.MODERATOR },
     isActive: { type: Boolean, default: true },
     lastLogin: { type: Date },
   },
