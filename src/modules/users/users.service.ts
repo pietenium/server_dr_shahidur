@@ -98,7 +98,14 @@ export const usersService = {
   },
 
   inviteModerator: async (payload: InviteModeratorPayload): Promise<IUser> => {
-    const existing = await User.findOne({ email: payload.email });
+    if (typeof payload.email !== "string") {
+      throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid email format");
+    }
+    if (typeof payload.name !== "string") {
+      throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid name format");
+    }
+    const existing = await User.findOne({ email: { $eq: payload.email } });
+
     if (existing) {
       throw new ApiError(StatusCodes.CONFLICT, "User already exists with this email");
     }
