@@ -4,10 +4,24 @@ import type { ITestimonial } from "./testimonial.interface";
 
 const testimonialSchema = new Schema<ITestimonial>(
   {
-    name: { type: String, required: true },
-    designation: { type: String },
-    company: { type: String },
-    content: { type: String, required: true },
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    designation: {
+      type: String,
+      trim: true,
+    },
+    company: {
+      type: String,
+      trim: true,
+    },
+    content: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     image: {
       url: String,
       fileId: String,
@@ -16,12 +30,34 @@ const testimonialSchema = new Schema<ITestimonial>(
       url: String,
       fileId: String,
     },
-    rating: { type: Number, required: true, min: 1, max: 5 },
-    isVisible: { type: Boolean, default: true },
+    rating: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 5,
+    },
+    isVisible: {
+      type: Boolean,
+      default: true,
+    },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    toJSON: {
+      transform: (_, ret) => {
+        delete (ret as Record<string, unknown>).__v;
+        return ret;
+      },
+    },
+  },
 );
 
 testimonialSchema.plugin(mongoosePaginate);
 
-export const Testimonial = mongoose.model<ITestimonial>("Testimonial", testimonialSchema);
+// Index for visibility and creation date
+testimonialSchema.index({ isVisible: 1, createdAt: -1 });
+
+export const Testimonial = mongoose.model<
+  ITestimonial,
+  mongoose.PaginateModel<ITestimonial>
+>("Testimonial", testimonialSchema);

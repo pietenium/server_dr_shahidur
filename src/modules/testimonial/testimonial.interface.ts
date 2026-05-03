@@ -25,6 +25,14 @@ export interface CreateTestimonialPayload {
   company?: string;
   content: string;
   rating: number;
+  image?: {
+    url: string;
+    fileId: string;
+  };
+  video?: {
+    url: string;
+    fileId: string;
+  };
   isVisible?: boolean;
 }
 
