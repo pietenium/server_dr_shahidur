@@ -8,6 +8,8 @@ interface SendEmailOptions {
   html: string;
 }
 
+const sanitizeForLog = (value: string): string => value.replace(/[\r\n]+/g, " ");
+
 export const sendEmail = async (options: SendEmailOptions): Promise<void> => {
   try {
     await transporter.sendMail({
@@ -17,7 +19,9 @@ export const sendEmail = async (options: SendEmailOptions): Promise<void> => {
       html: options.html,
     });
   } catch (error) {
-    logger.error(`Failed to send email to ${options.to}: ${(error as Error).message}`);
+    const safeTo = sanitizeForLog(options.to);
+    const safeErrorMessage = sanitizeForLog((error as Error).message);
+    logger.error(`Failed to send email to ${safeTo}: ${safeErrorMessage}`);
     throw error; // Re-throw so callers know it failed
   }
 };
