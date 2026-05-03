@@ -8,7 +8,7 @@ import type { LogFilterQuery, BulkDeletePayload } from "./activity-log.interface
 export const activityLogController = {
   getLogs: asyncHandler(async (req: Request, res: Response) => {
     const query = req.query as unknown as LogFilterQuery;
-    const result = await activityLogService.getLogs(query);
+    const result = await activityLogService.getLogs(query, req.user!);
 
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
@@ -20,7 +20,7 @@ export const activityLogController = {
 
   deleteById: asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    await activityLogService.deleteById(id as string);
+    await activityLogService.deleteById(id as string, req.user!);
 
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
@@ -32,7 +32,7 @@ export const activityLogController = {
 
   bulkDelete: asyncHandler(async (req: Request, res: Response) => {
     const { ids } = req.body as BulkDeletePayload;
-    const result = await activityLogService.bulkDelete(ids);
+    const result = await activityLogService.bulkDelete(ids, req.user!);
 
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
@@ -42,13 +42,13 @@ export const activityLogController = {
     });
   }),
 
-  clearAll: asyncHandler(async (_req: Request, res: Response) => {
-    const result = await activityLogService.clearAll();
+  clearAll: asyncHandler(async (req: Request, res: Response) => {
+    const result = await activityLogService.clearAll(req.user!);
 
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: "All activity logs cleared successfully",
+      message: "Activity logs cleared successfully",
       data: result,
     });
   }),

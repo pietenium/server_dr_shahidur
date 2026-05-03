@@ -9,6 +9,8 @@ import { ApiError } from "@utils/ApiError";
 import { StatusCodes } from "http-status-codes";
 import { getGeoLocation } from "@utils/getGeoLocation";
 import { sendTelegramMessage, formatContactMessage } from "@utils/sendTelegram";
+import { sendEmail } from "@emails/sendEmail";
+import { contactConfirmationTemplate } from "@emails/template/contact-confirmation.template";
 
 
 const CACHE_KEY = "cache:contacts";
@@ -31,6 +33,16 @@ export const contactService = {
           telegramMessageId: res.telegramMessageId,
         });
       }
+    });
+
+    // Send Confirmation Email to Sender (Async)
+    void sendEmail({
+      to: contact.email,
+      subject: "Message Received — Dr. Sahidur Rahman Khan",
+      html: contactConfirmationTemplate({
+        name: contact.name,
+        subject: contact.subject,
+      }),
     });
 
     // Invalidate cache

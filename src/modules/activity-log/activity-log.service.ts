@@ -13,25 +13,25 @@ export const activityLogService = {
     return log;
   },
 
-  getLogs: async (query: LogFilterQuery): Promise<unknown> => {
-    const { user, module, startDate, endDate, page = 1, limit = 20 } = query;
+  getLogs: async (query: LogFilterQuery, user: Express.AuthenticatedUser): Promise<unknown> => {
+    const { user: userFilter, module, startDate, endDate, page = 1, limit = 20 } = query;
 
     const filter: Record<string, unknown> = {};
 
-    if (user) {
-      filter.user = { $eq: user };
+    // Role-based scoping
+    if (user.role === "MODERATOR") {
+      filter.user = { $eq: user._id };
+    } else if (userFilter) {
+      filter.user = { $eq: userFilter };
     }
+
     if (module) {
       filter.module = { $eq: module };
     }
     if (startDate ?? endDate) {
       const dateFilter: Record<string, Date> = {};
-      if (startDate) {
-        dateFilter.$gte = new Date(startDate);
-      }
-      if (endDate) {
-        dateFilter.$lte = new Date(endDate);
-      }
+      if (startDate) dateFilter.$gte = new Date(startDate);
+      if (endDate) dateFilter.$lte = new Date(endDate);
       filter.createdAt = dateFilter;
     }
 
@@ -49,24 +49,45 @@ export const activityLogService = {
     return results;
   },
 
-  deleteById: async (id: string): Promise<void> => {
-    const log = await ActivityLog.findOne({ _id: { $eq: id } });
+  deleteById: async (id: string, user: Express.AuthenticatedUser): Promise<void> => {
+    const log = await ActivityLog.findById(id);
     if (!log) {
       throw new ApiError(StatusCodes.NOT_FOUND, "Activity log not found");
     }
-    await ActivityLog.findOneAndDelete({ _id: { $eq: id } });
+
+    // Ownership check for moderators
+    if (user.role === "MODERATOR" && log.user.toString() !== user._id) {
+      throw new ApiError(StatusCodes.FORBIDDEN, "You can only delete your own logs");
+    }
+
+    await ActivityLog.findByIdAndDelete(id);
   },
 
-  bulkDelete: async (ids: string[]): Promise<{ deletedCount: number }> => {
+  bulkDelete: async (ids: string[], user: Express.AuthenticatedUser): Promise<{ deletedCount: number }> => {
     if (!Array.isArray(ids) || ids.length === 0) {
       throw new ApiError(StatusCodes.BAD_REQUEST, "Provide a non-empty array of IDs");
     }
-    const result = await ActivityLog.deleteMany({ _id: { $in: ids } });
+
+    const filter: any = { _id: { $in: ids } };
+    
+    // Ownership check for moderators
+    if (user.role === "MODERATOR") {
+      filter.user = { $eq: user._id };
+    }
+
+    const result = await ActivityLog.deleteMany(filter);
     return { deletedCount: result.deletedCount || 0 };
   },
 
-  clearAll: async (): Promise<{ deletedCount: number }> => {
-    const result = await ActivityLog.deleteMany({});
+  clearAll: async (user: Express.AuthenticatedUser): Promise<{ deletedCount: number }> => {
+    const filter: any = {};
+    
+    // Ownership check for moderators
+    if (user.role === "MODERATOR") {
+      filter.user = { $eq: user._id };
+    }
+
+    const result = await ActivityLog.deleteMany(filter);
     return { deletedCount: result.deletedCount || 0 };
   },
 };

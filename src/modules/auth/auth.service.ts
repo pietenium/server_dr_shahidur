@@ -14,6 +14,7 @@ import {
 } from "@utils/generateToken";
 import { sendEmail } from "@emails/sendEmail";
 import { magicLoginTemplate } from "@emails/template/magic-login.template";
+import { passwordChangedTemplate } from "@emails/template/password-changed.template";
 import { env } from "@config/env";
 
 import type {
@@ -217,11 +218,13 @@ export const authService = {
 
     await redis.del(`otp:${user._id.toString()}`, `magic:${user._id.toString()}`);
 
-    // Send confirmation email (stubbed for now, using dummy or similar)
-    await sendEmail({
+    // Send confirmation email (Async)
+    void sendEmail({
       to: user.email,
-      subject: "Your Password Has Been Reset",
-      html: "<p>Your password was successfully updated.</p>",
+      subject: "Password Changed Successfully — Dr. Sahidur Rahman Khan",
+      html: passwordChangedTemplate({
+        name: user.name,
+      }),
     });
   },
 
