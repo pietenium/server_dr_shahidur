@@ -25,6 +25,12 @@ export const usersService = {
   },
 
   updateMe: async (userId: string, payload: UpdateProfilePayload): Promise<IUser> => {
+
+    const safeUpdate: Partial<UpdateProfilePayload> = {};
+    if (typeof payload.name === "string") {
+      safeUpdate.name = payload.name;
+    }
+
     if (payload.email) {
       if (typeof payload.email !== "string") {
         throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid email format");
@@ -33,9 +39,10 @@ export const usersService = {
       if (existing) {
         throw new ApiError(StatusCodes.CONFLICT, "Email already in use");
       }
+      safeUpdate.email = payload.email;
     }
 
-    const user = await User.findByIdAndUpdate(userId, payload, { new: true }).select("-password");
+    const user = await User.findByIdAndUpdate(userId, safeUpdate, { new: true }).select("-password");
     if (!user) {
       throw new ApiError(StatusCodes.NOT_FOUND, "User not found");
     }
