@@ -8,8 +8,8 @@ import { globalLimiter } from "@middlewares/rate-limiter.middleware";
 
 const router = Router();
 
-// All activity log routes are admin-only
-router.use(globalLimiter, authenticate, authorize(ROLES.ADMIN));
+// All activity log routes are admin and moderator only
+router.use(globalLimiter, authenticate, authorize(ROLES.ADMIN, ROLES.MODERATOR));
 
 router.get("/", activityLogValidator.query, activityLogController.getLogs);
 

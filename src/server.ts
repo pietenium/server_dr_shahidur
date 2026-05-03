@@ -40,8 +40,12 @@ const startServer = async (): Promise<void> => {
   logger.info(chalk.green("✓ MongoDB connected"));
 
   // 3. Connect to Redis (non-fatal)
-  await connectRedis();
-  logger.info(chalk.green("✓ Redis connection attempted"));
+  try {
+    await connectRedis();
+    logger.info(chalk.green("✓ Redis connected"));
+  } catch (_error) {
+    logger.warn(chalk.yellow("Redis unavailable. Continuing without cache."));
+  }
 
   // 4. Seed admin
   await seedAdmin();

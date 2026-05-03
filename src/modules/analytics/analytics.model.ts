@@ -19,4 +19,11 @@ const analyticsSchema = new Schema<IAnalytics>(
   { timestamps: true },
 );
 
+analyticsSchema.set("toJSON", {
+  transform: (_doc, ret: { __v?: number }) => {
+    delete ret.__v;
+    return ret;
+  },
+});
+
 export const Analytics = mongoose.model<IAnalytics>("Analytics", analyticsSchema);

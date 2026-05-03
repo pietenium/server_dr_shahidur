@@ -70,8 +70,7 @@ export const articleController = {
   }),
 
   getArticles: asyncHandler(async (req: Request, res: Response) => {
-    // Check if the user is an admin/moderator based on path or auth state
-    const isAdmin = req.path.includes("/admin") || !!(req.user && (req.user.role === "ADMIN" || req.user.role === "MODERATOR"));
+    const isAdmin = !!(req.user && (req.user.role === "ADMIN" || req.user.role === "MODERATOR"));
     
     const data = await articleService.getArticles(
       req.query,

@@ -1,8 +1,8 @@
 declare namespace Express {
   interface AuthenticatedUser {
     _id: string;
-    email: string;
-    name: string;
+    email?: string;
+    name?: string;
     role: "ADMIN" | "MODERATOR";
   }
 

@@ -3,9 +3,12 @@ import { asyncHandler } from "@utils/asyncHandler";
 import { ApiResponse } from "@utils/ApiResponse";
 import { StatusCodes } from "http-status-codes";
 import { usersService } from "./users.service";
-import type { ValidationError } from "express-validator";
-import { validationResult } from "express-validator";
 import { ApiError } from "@utils/ApiError";
+import type {
+  UpdateProfilePayload,
+  ChangePasswordPayload,
+  InviteModeratorPayload,
+} from "./users.interface";
 
 export const usersController = {
   getMe: asyncHandler(async (req: Request, res: Response) => {
@@ -20,20 +23,8 @@ export const usersController = {
   }),
 
   updateMe: asyncHandler(async (req: Request, res: Response) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      throw new ApiError(
-        StatusCodes.BAD_REQUEST,
-        "Validation failed",
-        errors.array().map((err: ValidationError) => {
-          const field = err.type === "field" ? err.path : "unknown";
-          return { field, message: String(err.msg) };
-        }),
-      );
-    }
-
     if (!req.user) {throw new ApiError(StatusCodes.UNAUTHORIZED, "Unauthorized");}
-    const user = await usersService.updateMe(req.user._id, req.body as never);
+    const user = await usersService.updateMe(req.user._id, req.body as UpdateProfilePayload);
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
@@ -43,20 +34,8 @@ export const usersController = {
   }),
 
   changePassword: asyncHandler(async (req: Request, res: Response) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      throw new ApiError(
-        StatusCodes.BAD_REQUEST,
-        "Validation failed",
-        errors.array().map((err: ValidationError) => {
-          const field = err.type === "field" ? err.path : "unknown";
-          return { field, message: String(err.msg) };
-        }),
-      );
-    }
-
     if (!req.user) {throw new ApiError(StatusCodes.UNAUTHORIZED, "Unauthorized");}
-    await usersService.changePassword(req.user._id, req.body as never);
+    await usersService.changePassword(req.user._id, req.body as ChangePasswordPayload);
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
@@ -76,19 +55,7 @@ export const usersController = {
   }),
 
   inviteModerator: asyncHandler(async (req: Request, res: Response) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      throw new ApiError(
-        StatusCodes.BAD_REQUEST,
-        "Validation failed",
-        errors.array().map((err: ValidationError) => {
-          const field = err.type === "field" ? err.path : "unknown";
-          return { field, message: String(err.msg) };
-        }),
-      );
-    }
-
-    const moderator = await usersService.inviteModerator(req.body as never);
+    const moderator = await usersService.inviteModerator(req.body as InviteModeratorPayload);
     ApiResponse(res, {
       statusCode: StatusCodes.CREATED,
       success: true,
@@ -98,7 +65,8 @@ export const usersController = {
   }),
 
   toggleUserActive: asyncHandler(async (req: Request, res: Response) => {
-    const user = await usersService.toggleUserActive(req.params.id as string);
+    if (!req.user) {throw new ApiError(StatusCodes.UNAUTHORIZED, "Unauthorized");}
+    const user = await usersService.toggleUserActive(req.user._id, req.params.id as string);
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,

@@ -24,6 +24,13 @@ const appointmentSchema = new Schema<IAppointment>(
   { timestamps: true },
 );
 
+appointmentSchema.set("toJSON", {
+  transform: (_doc, ret: { __v?: number }) => {
+    delete ret.__v;
+    return ret;
+  },
+});
+
 appointmentSchema.plugin(mongoosePaginate);
 
 export const Appointment = mongoose.model<IAppointment>("Appointment", appointmentSchema);

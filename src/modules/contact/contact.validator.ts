@@ -1,30 +1,31 @@
-import { body, query, validationResult } from "express-validator";
-import { StatusCodes } from "http-status-codes";
-import { ApiError } from "@utils/ApiError";
-import type { Request, Response, NextFunction } from "express";
-
-const checkValidationResult = (req: Request, _res: Response, next: NextFunction): void => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    throw new ApiError(
-      StatusCodes.BAD_REQUEST,
-      "Validation Error",
-      errors.array().map((err) => ({
-        field: err.type === "field" ? err.path : undefined,
-        message: err.msg as string,
-      }))
-    );
-  }
-  next();
-};
+import { body, query } from "express-validator";
+import { checkValidationResult } from "@utils/validation";
 
 export const contactValidator = {
   create: [
-    body("name").trim().notEmpty().withMessage("Name is required"),
-    body("email").trim().isEmail().withMessage("Valid email is required"),
+    body("name")
+      .trim()
+      .notEmpty()
+      .withMessage("Name is required")
+      .isLength({ max: 100 })
+      .withMessage("Name must not exceed 100 characters"),
+    body("email")
+      .trim()
+      .isEmail()
+      .withMessage("Valid email is required"),
     body("phone").optional().trim(),
-    body("subject").trim().notEmpty().withMessage("Subject is required"),
-    body("message").trim().notEmpty().withMessage("Message is required"),
+    body("subject")
+      .trim()
+      .notEmpty()
+      .withMessage("Subject is required")
+      .isLength({ max: 200 })
+      .withMessage("Subject must not exceed 200 characters"),
+    body("message")
+      .trim()
+      .notEmpty()
+      .withMessage("Message is required")
+      .isLength({ max: 5000 })
+      .withMessage("Message must not exceed 5000 characters"),
     body("reason")
       .optional()
       .isIn(["medical-inquiry", "general", "media", "other"])

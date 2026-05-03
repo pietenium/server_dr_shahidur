@@ -61,8 +61,6 @@ export const authenticate: RequestHandler = (
       req.user = {
         _id: decoded._id,
         role: decoded.role,
-        email: "",
-        name: "",
       };
       next();
     })
@@ -89,8 +87,6 @@ export const optionalAuthenticate: RequestHandler = (
       req.user = {
         _id: decoded._id,
         role: decoded.role,
-        email: "",
-        name: "",
       };
       next();
     })

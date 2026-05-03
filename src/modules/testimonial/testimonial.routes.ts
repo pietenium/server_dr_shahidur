@@ -26,6 +26,7 @@ router.get(
   globalLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
+  testimonialValidator.validateId,
   testimonialController.getById,
 );
 
@@ -54,6 +55,7 @@ router.delete(
   globalLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
+  testimonialValidator.validateId,
   logActivity("testimonial"),
   testimonialController.delete,
 );

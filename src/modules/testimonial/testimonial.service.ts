@@ -66,6 +66,7 @@ export const testimonialService = {
     if (payload.name !== undefined) { safePayload.name = payload.name; }
     if (payload.designation !== undefined) { safePayload.designation = payload.designation; }
     if (payload.company !== undefined) { safePayload.company = payload.company; }
+    if (payload.content !== undefined) { safePayload.content = payload.content; }
     if (payload.rating !== undefined) { safePayload.rating = payload.rating; }
     if (payload.isVisible !== undefined) { safePayload.isVisible = payload.isVisible; }
     if (payload.image !== undefined) { safePayload.image = payload.image; }

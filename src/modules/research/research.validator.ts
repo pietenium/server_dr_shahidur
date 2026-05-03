@@ -1,22 +1,5 @@
-import { body, query, validationResult } from "express-validator";
-import { StatusCodes } from "http-status-codes";
-import { ApiError } from "@utils/ApiError";
-import type { Request, Response, NextFunction } from "express";
-
-const checkValidationResult = (req: Request, _res: Response, next: NextFunction): void => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    throw new ApiError(
-      StatusCodes.BAD_REQUEST,
-      "Validation Error",
-      errors.array().map((err) => ({
-        field: err.type === "field" ? err.path : undefined,
-        message: err.msg as string,
-      }))
-    );
-  }
-  next();
-};
+import { body, query, param } from "express-validator";
+import { checkValidationResult } from "@utils/validation";
 
 export const researchValidator = {
   create: [
@@ -81,6 +64,7 @@ export const researchValidator = {
   ],
 
   update: [
+    param("id").isMongoId().withMessage("Invalid research ID"),
     body("title")
       .optional()
       .trim()
@@ -136,7 +120,7 @@ export const researchValidator = {
   query: [
     query("status")
       .optional()
-      .isIn(["DRAFT", "PUBLISHED", "ARCHIVED"])
+      .isIn(["DRAFT", "PUBLISHED"])
       .withMessage("Invalid status filter"),
     
     query("uploadType")
@@ -159,6 +143,16 @@ export const researchValidator = {
       .isInt({ min: 1, max: 100 })
       .withMessage("Limit must be between 1 and 100"),
 
+    checkValidationResult,
+  ],
+
+  validateSlug: [
+    param("slug").trim().notEmpty().withMessage("Slug is required"),
+    checkValidationResult,
+  ],
+
+  validateId: [
+    param("id").isMongoId().withMessage("Invalid research ID"),
     checkValidationResult,
   ],
 };

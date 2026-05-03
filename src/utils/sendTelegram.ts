@@ -47,16 +47,16 @@ export const sendTelegramMessage = async (
 
 export const formatAppointmentMessage = (appointment: IAppointment): string => {
   return (
-    `🗓 *New Appointment Request*\n\n` +
-    `👤 *Patient:* ${appointment.name}\n` +
-    `📞 *Phone:* ${appointment.phone}\n` +
-    `📧 *Email:* ${appointment.email || "Not provided"}\n` +
-    `📅 *Preferred Date:* ${dayjs(appointment.preferredDate).format("MMMM D, YYYY")}\n` +
-    `⏰ *Preferred Time:* ${appointment.preferredTime}\n` +
-    `💬 *Message:* ${appointment.message || "No message"}\n` +
-    `📍 *Location:* ${appointment.location.city}, ${appointment.location.country}\n` +
-    `🕐 *Submitted:* ${dayjs(appointment.createdAt).format("MMMM D, YYYY h:mm A")}\n\n` +
-    `_Manage via dashboard._`
+    `🗓 <b>New Appointment Request</b>\n\n` +
+    `👤 <b>Patient:</b> ${appointment.name}\n` +
+    `📞 <b>Phone:</b> ${appointment.phone}\n` +
+    `📧 <b>Email:</b> ${appointment.email || "Not provided"}\n` +
+    `📅 <b>Preferred Date:</b> ${dayjs(appointment.preferredDate).format("MMMM D, YYYY")}\n` +
+    `⏰ <b>Preferred Time:</b> ${appointment.preferredTime}\n` +
+    `💬 <b>Message:</b> ${appointment.message || "No message"}\n` +
+    `📍 <b>Location:</b> ${appointment.location.city}, ${appointment.location.country}\n` +
+    `🕐 <b>Submitted:</b> ${dayjs(appointment.createdAt).format("MMMM D, YYYY h:mm A")}\n\n` +
+    `<i>Manage via dashboard.</i>`
   );
 };
 

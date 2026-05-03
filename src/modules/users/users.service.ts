@@ -15,8 +15,10 @@ import { moderatorInviteTemplate } from "@emails/template/moderator-invite.templ
 import { env } from "@config/env";
 import type { PaginatedResult } from "@types-app/global.types";
 
+type SafeUser = Omit<IUser, "password">;
+
 export const usersService = {
-  getMe: async (userId: string): Promise<IUser> => {
+  getMe: async (userId: string): Promise<SafeUser> => {
     const user = await User.findById(userId).select("-password");
     if (!user) {
       throw new ApiError(StatusCodes.NOT_FOUND, "User not found");
@@ -24,11 +26,14 @@ export const usersService = {
     return user;
   },
 
-  updateMe: async (userId: string, payload: UpdateProfilePayload): Promise<IUser> => {
-
+  updateMe: async (userId: string, payload: UpdateProfilePayload): Promise<SafeUser> => {
     const safeUpdate: Partial<UpdateProfilePayload> = {};
     if (typeof payload.name === "string") {
-      safeUpdate.name = payload.name;
+      const trimmedName = payload.name.trim();
+      if (trimmedName.length === 0) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, "Name cannot be empty");
+      }
+      safeUpdate.name = trimmedName;
     }
 
     if (payload.email) {
@@ -64,7 +69,7 @@ export const usersService = {
     await user.save();
   },
 
-  getAllUsers: async (query: UserFilterQuery): Promise<PaginatedResult<IUser>> => {
+  getAllUsers: async (query: UserFilterQuery): Promise<PaginatedResult<SafeUser>> => {
     const { role, isActive, search, page = 1, limit = 10 } = query;
     const filter: Record<string, unknown> = {};
 
@@ -85,7 +90,7 @@ export const usersService = {
     });
 
     return {
-      results: result.docs,
+      results: result.docs as unknown as SafeUser[],
       pagination: {
         totalDocs: result.totalDocs,
         totalPages: result.totalPages,
@@ -97,7 +102,7 @@ export const usersService = {
     };
   },
 
-  inviteModerator: async (payload: InviteModeratorPayload): Promise<IUser> => {
+  inviteModerator: async (payload: InviteModeratorPayload): Promise<SafeUser> => {
     if (typeof payload.email !== "string") {
       throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid email format");
     }
@@ -133,10 +138,14 @@ export const usersService = {
     });
 
     const { password: _, ...userObj } = moderator.toObject();
-    return userObj as unknown as IUser;
+    return userObj as unknown as SafeUser;
   },
 
-  toggleUserActive: async (userId: string): Promise<IUser> => {
+  toggleUserActive: async (adminId: string, userId: string): Promise<SafeUser> => {
+    if (adminId === userId) {
+      throw new ApiError(StatusCodes.FORBIDDEN, "You cannot toggle your own account status");
+    }
+
     const user = await User.findById(userId);
     if (!user) {
       throw new ApiError(StatusCodes.NOT_FOUND, "User not found");
@@ -150,7 +159,7 @@ export const usersService = {
     await user.save();
 
     const { password: _, ...userObj } = user.toObject();
-    return userObj as unknown as IUser;
+    return userObj as unknown as SafeUser;
   },
 
   deleteUser: async (adminId: string, userId: string): Promise<void> => {

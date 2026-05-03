@@ -182,8 +182,7 @@ export const articleService = {
     }
 
     if (isPublic) {
-      article.impressions += 1;
-      await article.save();
+      await Article.updateOne({ slug }, { $inc: { impressions: 1 } });
       void setCache(cacheKey, article, CACHE_TTL_DETAIL);
     }
 
@@ -228,8 +227,7 @@ export const articleService = {
     if (payload.status !== undefined) {
       if (
         payload.status !== "DRAFT" &&
-        payload.status !== "PUBLISHED" &&
-        payload.status !== "ARCHIVED"
+        payload.status !== "PUBLISHED"
       ) {
         throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid status");
       }
@@ -247,7 +245,12 @@ export const articleService = {
     }
 
     if (payload.title) {
-      updateData.slug = generateSlug(payload.title);
+      const newSlug = generateSlug(payload.title);
+      const slugExists = await Article.findOne({ slug: newSlug, _id: { $ne: id } });
+      if (slugExists) {
+        throw new ApiError(StatusCodes.CONFLICT, "An article with a similar title already exists");
+      }
+      updateData.slug = newSlug;
     }
     if (payload.content !== undefined) {
       if (typeof payload.content !== "string") {
