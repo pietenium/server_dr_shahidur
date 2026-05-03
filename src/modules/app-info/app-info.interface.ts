@@ -37,6 +37,14 @@ export interface UpdateAppInfoPayload {
   doctorTitle?: string;
   doctorSpecialty?: string;
   doctorBio?: string;
+  doctorImage?: {
+    url: string;
+    fileId: string;
+  };
+  ogImage?: {
+    url: string;
+    fileId: string;
+  };
   email?: string;
   phone?: string;
   address?: string;

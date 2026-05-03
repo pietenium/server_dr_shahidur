@@ -2,28 +2,30 @@ import type { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { asyncHandler } from "@utils/asyncHandler";
 import { ApiResponse } from "@utils/ApiResponse";
-import { appInfoService } from "./app-info.service";
 import type { UpdateAppInfoPayload } from "./app-info.interface";
+import { appInfoService } from "./app-info.service";
 
 export const appInfoController = {
-  get: asyncHandler(async (_req: Request, res: Response) => {
-    const data = await appInfoService.get();
-    ApiResponse(res, {
-      statusCode: StatusCodes.OK,
-      success: true,
-      message: "App information retrieved successfully",
-      data,
-    });
-  }),
+    getAppInfo: asyncHandler(async (_req: Request, res: Response) => {
+        const appInfo = await appInfoService.getAppInfo();
 
-  update: asyncHandler(async (req: Request, res: Response) => {
-    const data = await appInfoService.update(req.body as UpdateAppInfoPayload);
+        ApiResponse(res, {
+            statusCode: StatusCodes.OK,
+            success: true,
+            message: "Application information fetched successfully",
+            data: appInfo,
+        });
+    }),
 
-    ApiResponse(res, {
-      statusCode: StatusCodes.OK,
-      success: true,
-      message: "App information updated successfully",
-      data,
-    });
-  }),
+    updateAppInfo: asyncHandler(async (req: Request, res: Response) => {
+        const payload = req.body as UpdateAppInfoPayload;
+        const appInfo = await appInfoService.updateAppInfo(payload);
+
+        ApiResponse(res, {
+            statusCode: StatusCodes.OK,
+            success: true,
+            message: "Application information updated successfully",
+            data: appInfo,
+        });
+    }),
 };
