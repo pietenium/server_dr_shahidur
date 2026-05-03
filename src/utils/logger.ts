@@ -13,7 +13,17 @@ const sanitizeLogArg = (arg: unknown): unknown => {
   }
 
   if (arg instanceof Error) {
-    return arg;
+    const sanitizedError = new Error(sanitizeLogString(arg.message));
+    sanitizedError.name = sanitizeLogString(arg.name);
+    if (arg.stack) {
+      sanitizedError.stack = sanitizeLogString(arg.stack);
+    }
+    if ("cause" in arg) {
+      (sanitizedError as Error & { cause?: unknown }).cause = sanitizeLogArg(
+        (arg as Error & { cause?: unknown }).cause,
+      );
+    }
+    return sanitizedError;
   }
 
   if (Array.isArray(arg)) {
