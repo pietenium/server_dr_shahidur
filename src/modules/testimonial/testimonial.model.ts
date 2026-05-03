@@ -56,6 +56,7 @@ testimonialSchema.plugin(mongoosePaginate);
 
 // Index for visibility and creation date
 testimonialSchema.index({ isVisible: 1, createdAt: -1 });
+testimonialSchema.index({ name: "text", content: "text", company: "text" });
 
 export const Testimonial = mongoose.model<
   ITestimonial,

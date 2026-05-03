@@ -14,7 +14,7 @@ import { ApiError } from "@utils/ApiError";
 import { StatusCodes } from "http-status-codes";
 import { imagekit } from "@config/imagekit";
 import { logger } from "@utils/logger";
-import type { PaginateModel, Types } from "mongoose";
+import type { Types } from "mongoose";
 
 const CACHE_TTL_LIST = 300; // 5 minutes
 const CACHE_TTL_DETAIL = 600; // 10 minutes
@@ -150,7 +150,7 @@ export const articleService = {
       populate: "category",
     };
 
-    const model = Article as unknown as PaginateModel<IArticle>;
+    const model = Article;
     const results = await model.paginate(filter, options);
 
     if (!isAdmin) {
