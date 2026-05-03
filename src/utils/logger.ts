@@ -5,32 +5,67 @@ const isDev = (): boolean => {
   return env === "development" || env === "test";
 };
 
+const sanitizeLogString = (value: string): string => value.replace(/[\r\n]+/g, " ");
+
+const sanitizeLogArg = (arg: unknown): unknown => {
+  if (typeof arg === "string") {
+    return sanitizeLogString(arg);
+  }
+
+  if (arg instanceof Error) {
+    return arg;
+  }
+
+  if (Array.isArray(arg)) {
+    return arg.map((item) => sanitizeLogArg(item));
+  }
+
+  if (arg && typeof arg === "object") {
+    const sanitized: Record<string, unknown> = {};
+    Object.entries(arg as Record<string, unknown>).forEach(([key, value]) => {
+      sanitized[key] = sanitizeLogArg(value);
+    });
+    return sanitized;
+  }
+
+  return arg;
+};
+
+const sanitizeLogArgs = (args: unknown[]): unknown[] => args.map((arg) => sanitizeLogArg(arg));
+
+
 export const logger = {
   log: (...args: unknown[]): void => {
+
     if (isDev()) {
+      const safeArgs = sanitizeLogArgs(args);
       // eslint-disable-next-line no-console
-      console.log(...args);
+      console.log(...args); console.log(...safeArgs);
     }
   },
   info: (...args: unknown[]): void => {
     if (isDev()) {
-      console.info(...args);
+      const safeArgs = sanitizeLogArgs(args);
+      console.info(...safeArgs);
     }
   },
   warn: (...args: unknown[]): void => {
     if (isDev()) {
-      console.warn(...args);
+      const safeArgs = sanitizeLogArgs(args);
+      console.warn(...safeArgs);
     }
   },
   error: (...args: unknown[]): void => {
     if (isDev()) {
-      console.error(...args);
+      const safeArgs = sanitizeLogArgs(args);
+      console.error(...safeArgs);
     }
   },
   debug: (...args: unknown[]): void => {
     if (isDev()) {
+      const safeArgs = sanitizeLogArgs(args);
       // eslint-disable-next-line no-console
-      console.debug(chalk.gray("[debug]"), ...args);
+      console.debug(chalk.gray("[debug]"), ...safeArgs);
     }
   },
 } as const;
