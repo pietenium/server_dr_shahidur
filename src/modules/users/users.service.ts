@@ -1,4 +1,5 @@
 import { User } from "@modules/auth/auth.model";
+import type { PaginateModel } from "mongoose";
 import type { IUser } from "@modules/auth/auth.interface";
 import type {
   UpdateProfilePayload,
@@ -55,10 +56,10 @@ export const usersService = {
 
   getAllUsers: async (query: UserFilterQuery): Promise<PaginatedResult<IUser>> => {
     const { role, isActive, search, page = 1, limit = 10 } = query;
-    const filter: any = {};
+    const filter: Record<string, unknown> = {};
 
-    if (role) filter.role = role;
-    if (typeof isActive === "boolean") filter.isActive = isActive;
+    if (role) {filter.role = role;}
+    if (typeof isActive === "boolean") {filter.isActive = isActive;}
     if (search) {
       filter.$or = [
         { name: { $regex: search, $options: "i" } },
@@ -66,7 +67,7 @@ export const usersService = {
       ];
     }
 
-    const result = await (User as any).paginate(filter, {
+    const result = await (User as unknown as PaginateModel<IUser>).paginate(filter, {
       page,
       limit,
       select: "-password",
@@ -78,10 +79,10 @@ export const usersService = {
       pagination: {
         totalDocs: result.totalDocs,
         totalPages: result.totalPages,
-        currentPage: result.page,
-        limit: result.limit,
-        hasNextPage: result.hasNextPage,
-        hasPrevPage: result.hasPrevPage,
+        currentPage: result.page ?? 1,
+        limit: result.limit ?? 10,
+        hasNextPage: !!result.hasNextPage,
+        hasPrevPage: !!result.hasPrevPage,
       },
     };
   },
@@ -114,9 +115,8 @@ export const usersService = {
       }),
     });
 
-    const userObj = moderator.toObject();
-    delete (userObj as any).password;
-    return userObj as IUser;
+    const { password: _, ...userObj } = moderator.toObject();
+    return userObj as unknown as IUser;
   },
 
   toggleUserActive: async (userId: string): Promise<IUser> => {
@@ -132,9 +132,8 @@ export const usersService = {
     user.isActive = !user.isActive;
     await user.save();
     
-    const userObj = user.toObject();
-    delete (userObj as any).password;
-    return userObj as IUser;
+    const { password: _, ...userObj } = user.toObject();
+    return userObj as unknown as IUser;
   },
 
   deleteUser: async (adminId: string, userId: string): Promise<void> => {

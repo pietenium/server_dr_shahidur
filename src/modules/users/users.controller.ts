@@ -1,14 +1,16 @@
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import { asyncHandler } from "@utils/asyncHandler";
 import { ApiResponse } from "@utils/ApiResponse";
 import { StatusCodes } from "http-status-codes";
 import { usersService } from "./users.service";
+import type { ValidationError } from "express-validator";
 import { validationResult } from "express-validator";
 import { ApiError } from "@utils/ApiError";
 
 export const usersController = {
   getMe: asyncHandler(async (req: Request, res: Response) => {
-    const user = await usersService.getMe(req.user!._id);
+    if (!req.user) {throw new ApiError(StatusCodes.UNAUTHORIZED, "Unauthorized");}
+    const user = await usersService.getMe(req.user._id);
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
@@ -23,14 +25,15 @@ export const usersController = {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
         "Validation failed",
-        errors.array().map((err: any) => ({
-          field: err.path || err.param,
-          message: err.msg,
-        })),
+        errors.array().map((err: ValidationError) => {
+          const field = err.type === "field" ? err.path : "unknown";
+          return { field, message: String(err.msg) };
+        }),
       );
     }
 
-    const user = await usersService.updateMe(req.user!._id, req.body);
+    if (!req.user) {throw new ApiError(StatusCodes.UNAUTHORIZED, "Unauthorized");}
+    const user = await usersService.updateMe(req.user._id, req.body as never);
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
@@ -45,14 +48,15 @@ export const usersController = {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
         "Validation failed",
-        errors.array().map((err: any) => ({
-          field: err.path || err.param,
-          message: err.msg,
-        })),
+        errors.array().map((err: ValidationError) => {
+          const field = err.type === "field" ? err.path : "unknown";
+          return { field, message: String(err.msg) };
+        }),
       );
     }
 
-    await usersService.changePassword(req.user!._id, req.body);
+    if (!req.user) {throw new ApiError(StatusCodes.UNAUTHORIZED, "Unauthorized");}
+    await usersService.changePassword(req.user._id, req.body as never);
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
@@ -62,7 +66,7 @@ export const usersController = {
   }),
 
   getAllUsers: asyncHandler(async (req: Request, res: Response) => {
-    const result = await usersService.getAllUsers(req.query as any);
+    const result = await usersService.getAllUsers(req.query);
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
@@ -77,14 +81,14 @@ export const usersController = {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
         "Validation failed",
-        errors.array().map((err: any) => ({
-          field: err.path || err.param,
-          message: err.msg,
-        })),
+        errors.array().map((err: ValidationError) => {
+          const field = err.type === "field" ? err.path : "unknown";
+          return { field, message: String(err.msg) };
+        }),
       );
     }
 
-    const moderator = await usersService.inviteModerator(req.body);
+    const moderator = await usersService.inviteModerator(req.body as never);
     ApiResponse(res, {
       statusCode: StatusCodes.CREATED,
       success: true,
@@ -104,7 +108,8 @@ export const usersController = {
   }),
 
   deleteUser: asyncHandler(async (req: Request, res: Response) => {
-    await usersService.deleteUser(req.user!._id, req.params.id as string);
+    if (!req.user) {throw new ApiError(StatusCodes.UNAUTHORIZED, "Unauthorized");}
+    await usersService.deleteUser(req.user._id, req.params.id as string);
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,

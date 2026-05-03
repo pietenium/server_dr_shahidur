@@ -24,7 +24,7 @@ const app = express();
 // 0. Request Timeout (30s)
 app.use(timeout("30s"));
 app.use((req, _res, next) => {
-  if (!req.timedout) next();
+  if (!req.timedout) {next();}
 });
 
 // 1. Helmet with strict CSP

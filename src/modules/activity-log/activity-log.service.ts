@@ -1,9 +1,6 @@
 import { ActivityLog } from "./activity-log.model";
-import type {
-  IActivityLog,
-  CreateLogPayload,
-  LogFilterQuery,
-} from "./activity-log.interface";
+import type { Types } from "mongoose";
+import type { IActivityLog, CreateLogPayload, LogFilterQuery } from "./activity-log.interface";
 import { ApiError } from "@utils/ApiError";
 import { StatusCodes } from "http-status-codes";
 
@@ -30,8 +27,8 @@ export const activityLogService = {
     }
     if (startDate ?? endDate) {
       const dateFilter: Record<string, Date> = {};
-      if (startDate) dateFilter.$gte = new Date(startDate);
-      if (endDate) dateFilter.$lte = new Date(endDate);
+      if (startDate) {dateFilter.$gte = new Date(startDate);}
+      if (endDate) {dateFilter.$lte = new Date(endDate);}
       filter.createdAt = dateFilter;
     }
 
@@ -56,7 +53,7 @@ export const activityLogService = {
     }
 
     // Ownership check for moderators
-    if (user.role === "MODERATOR" && log.user.toString() !== user._id) {
+    if (user.role === "MODERATOR" && (log.user as Types.ObjectId).toHexString() !== user._id) {
       throw new ApiError(StatusCodes.FORBIDDEN, "You can only delete your own logs");
     }
 
@@ -68,7 +65,7 @@ export const activityLogService = {
       throw new ApiError(StatusCodes.BAD_REQUEST, "Provide a non-empty array of IDs");
     }
 
-    const filter: any = { _id: { $in: ids } };
+    const filter: Record<string, unknown> = { _id: { $in: ids } };
     
     // Ownership check for moderators
     if (user.role === "MODERATOR") {
@@ -80,7 +77,7 @@ export const activityLogService = {
   },
 
   clearAll: async (user: Express.AuthenticatedUser): Promise<{ deletedCount: number }> => {
-    const filter: any = {};
+    const filter: Record<string, unknown> = {};
     
     // Ownership check for moderators
     if (user.role === "MODERATOR") {

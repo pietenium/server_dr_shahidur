@@ -3,12 +3,14 @@ import { StatusCodes } from "http-status-codes";
 import { asyncHandler } from "@utils/asyncHandler";
 import { ApiResponse } from "@utils/ApiResponse";
 import { activityLogService } from "./activity-log.service";
+import { ApiError } from "@utils/ApiError";
 import type { LogFilterQuery, BulkDeletePayload } from "./activity-log.interface";
 
 export const activityLogController = {
   getLogs: asyncHandler(async (req: Request, res: Response) => {
     const query = req.query as unknown as LogFilterQuery;
-    const result = await activityLogService.getLogs(query, req.user!);
+    if (!req.user) {throw new ApiError(StatusCodes.UNAUTHORIZED, "Unauthorized");}
+    const result = await activityLogService.getLogs(query, req.user);
 
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
@@ -20,7 +22,8 @@ export const activityLogController = {
 
   deleteById: asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    await activityLogService.deleteById(id as string, req.user!);
+    if (!req.user) {throw new ApiError(StatusCodes.UNAUTHORIZED, "Unauthorized");}
+    await activityLogService.deleteById(id as string, req.user);
 
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
@@ -32,7 +35,8 @@ export const activityLogController = {
 
   bulkDelete: asyncHandler(async (req: Request, res: Response) => {
     const { ids } = req.body as BulkDeletePayload;
-    const result = await activityLogService.bulkDelete(ids, req.user!);
+    if (!req.user) {throw new ApiError(StatusCodes.UNAUTHORIZED, "Unauthorized");}
+    const result = await activityLogService.bulkDelete(ids, req.user);
 
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
@@ -43,7 +47,8 @@ export const activityLogController = {
   }),
 
   clearAll: asyncHandler(async (req: Request, res: Response) => {
-    const result = await activityLogService.clearAll(req.user!);
+    if (!req.user) {throw new ApiError(StatusCodes.UNAUTHORIZED, "Unauthorized");}
+    const result = await activityLogService.clearAll(req.user);
 
     ApiResponse(res, {
       statusCode: StatusCodes.OK,

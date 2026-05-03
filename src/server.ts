@@ -60,10 +60,11 @@ const startServer = async (): Promise<void> => {
   });
 
   // 7. Graceful Shutdown
-  const gracefulShutdown = async (signal: string) => {
+  const gracefulShutdown = (signal: string) => {
     logger.info(chalk.yellow(`\n${signal} received. Starting graceful shutdown...`));
     
-    server.close(async () => {
+    server.close(() => {
+      void (async () => {
       logger.info(chalk.blue("HTTP server closed."));
       
       try {
@@ -89,7 +90,8 @@ const startServer = async (): Promise<void> => {
         logger.error(chalk.red("Error during graceful shutdown:"), err);
         process.exit(1);
       }
-    });
+    })();
+  });
 
     // Force close if it takes too long
     setTimeout(() => {
