@@ -29,4 +29,13 @@ const articleSchema = new Schema<IArticle>(
 
 articleSchema.plugin(mongoosePaginate);
 
-export const Article = mongoose.model<IArticle>("Article", articleSchema);
+// Indexes
+articleSchema.index({ status: 1 });
+articleSchema.index({ category: 1 });
+articleSchema.index({ articleType: 1 });
+articleSchema.index({ title: "text", content: "text", excerpt: "text" });
+
+export const Article = mongoose.model<
+  IArticle,
+  mongoose.PaginateModel<IArticle>
+>("Article", articleSchema);

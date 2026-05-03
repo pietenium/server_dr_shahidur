@@ -5,6 +5,10 @@ on:
     branches:
       - main
       - personal/tarekul42
+      - feat/*
+      - fix/*
+      - chore/*
+      - refactor/*
   pull_request:
     branches:
       - main

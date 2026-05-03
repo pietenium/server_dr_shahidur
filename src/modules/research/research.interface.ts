@@ -27,7 +27,15 @@ export interface CreateResearchPayload {
   title: string;
   description?: string;
   uploadType: "PDF" | "DOI";
+  pdfFile?: {
+    url: string;
+    fileId: string;
+  };
   doiUrl?: string;
+  thumbnailImage?: {
+    url: string;
+    fileId: string;
+  };
   status?: "DRAFT" | "PUBLISHED";
   publishedAt?: string;
 }

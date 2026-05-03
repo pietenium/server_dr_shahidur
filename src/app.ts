@@ -6,26 +6,26 @@ import cookieParser from "cookie-parser";
 import mongoSanitize from "express-mongo-sanitize";
 import morgan from "morgan";
 import chalk from "chalk";
+import hpp from "hpp";
+import lusca from "lusca";
+import timeout from "connect-timeout";
 import { corsOptions } from "@config/cors";
 
 import { errorHandler } from "@middlewares/error.middleware";
 import { ApiError } from "@utils/ApiError";
 import { StatusCodes } from "http-status-codes";
 
-// Import route modules
-import authRoutes from "@modules/auth/auth.routes";
+// Import routes
+import routes from "./routes";
 import { env } from "./config/env";
-import analyticsRoutes from "@modules/analytics/analytics.routes";
-import appointmentRoutes from "@modules/appointment/appointment.routes";
-import articleRoutes from "@modules/article/article.routes";
-import researchRoutes from "@modules/research/research.routes";
-import testimonialRoutes from "@modules/testimonial/testimonial.routes";
-import activityLogRoutes from "@modules/activity-log/activity-log.routes";
-import appInfoRoutes from "@modules/app-info/app-info.routes";
-import contactRoutes from "@modules/contact/contact.routes";
-import searchRoutes from "@modules/search/search.routes";
 
 const app = express();
+
+// 0. Request Timeout (30s)
+app.use(timeout("30s"));
+app.use((req, _res, next) => {
+  if (!req.timedout) {next();}
+});
 
 // 1. Helmet with strict CSP
 app.use(
@@ -63,7 +63,22 @@ app.use(cookieParser());
 // 6. MongoDB sanitize
 app.use(mongoSanitize());
 
-// 7. Morgan - development logging
+// 7. HTTP Parameter Pollution
+app.use(hpp());
+
+// 8. Lusca - Additional security headers (satisfies CodeQL)
+app.use(
+  lusca({
+    xframe: "SAMEORIGIN",
+    p3p: "ABCDEF",
+    hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+    xssProtection: true,
+    nosniff: true,
+    referrerPolicy: "same-origin",
+  }),
+);
+
+// 9. Morgan - development logging
 if (env.NODE_ENV === "development") {
   app.use(
     morgan((tokens, req, res) => {
@@ -78,25 +93,16 @@ if (env.NODE_ENV === "development") {
   );
 }
 
-// 8. Routes - mounted under /api/v1
- 
-app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/analytics", analyticsRoutes);
-app.use("/api/v1/appointments", appointmentRoutes);
-app.use("/api/v1/articles", articleRoutes);
-app.use("/api/v1/research", researchRoutes);
-app.use("/api/v1/testimonials", testimonialRoutes);
-app.use("/api/v1/activity-logs", activityLogRoutes);
-app.use("/api/v1/app-info", appInfoRoutes);
-app.use("/api/v1/contact", contactRoutes);
-app.use("/api/v1/search", searchRoutes);
+// 10. Routes - mounted under /api/v1
 
-// 9. 404 handler
+app.use("/api/v1", routes);
+
+// 11. 404 handler
 app.use((_req, _res, next) => {
   next(new ApiError(StatusCodes.NOT_FOUND, "Route not found"));
 });
 
-// 10. Global error handler
+// 12. Global error handler
 app.use(errorHandler);
 
 export default app;

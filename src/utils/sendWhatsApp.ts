@@ -59,6 +59,8 @@ export const initWhatsApp = (): void => {
   }
 };
 
+export const getWhatsAppClient = (): Client | null => client;
+
 export const sendWhatsAppMessage = async (
   phone: string,
   message: string,

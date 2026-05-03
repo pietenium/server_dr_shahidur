@@ -13,6 +13,7 @@ export const generateTokenJti = (): string => {
 export const generateAccessToken = (payload: JwtAccessPayload): string => {
   return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
     expiresIn: "15m",
+    jwtid: payload.jti,
   });
 };
 
