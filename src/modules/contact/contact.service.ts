@@ -11,6 +11,7 @@ import { getGeoLocation } from "@utils/getGeoLocation";
 import { sendTelegramMessage, formatContactMessage } from "@utils/sendTelegram";
 import { sendEmail } from "@emails/sendEmail";
 import { contactConfirmationTemplate } from "@emails/template/contact-confirmation.template";
+import { logger } from "@utils/logger";
 
 
 const CACHE_KEY = "cache:contacts";
@@ -27,13 +28,17 @@ export const contactService = {
 
     // Send Telegram Notification (Async)
     const telegramMsg = formatContactMessage(contact);
-    void sendTelegramMessage(telegramMsg).then((res) => {
-      if (res.success && res.telegramMessageId) {
-        void Contact.findByIdAndUpdate(contact._id, {
-          telegramMessageId: res.telegramMessageId,
-        });
-      }
-    });
+    void sendTelegramMessage(telegramMsg)
+      .then((res) => {
+        if (res.success && res.telegramMessageId) {
+          void Contact.findByIdAndUpdate(contact._id, {
+            telegramMessageId: res.telegramMessageId,
+          });
+        }
+      })
+      .catch((error) => {
+        logger.warn(`Failed to send Telegram notification: ${(error as Error).message}`);
+      });
 
     // Send Confirmation Email to Sender (Async)
     void sendEmail({
@@ -43,6 +48,8 @@ export const contactService = {
         name: contact.name,
         subject: contact.subject,
       }),
+    }).catch((error) => {
+      logger.warn(`Failed to send confirmation email: ${(error as Error).message}`);
     });
 
     // Invalidate cache

@@ -5,6 +5,7 @@ import { authenticate as authMiddleware } from "@middlewares/auth.middleware";
 import { authorize as roleMiddleware } from "@middlewares/role.middleware";
 import { logActivity as activityLogMiddleware } from "@middlewares/activity-log.middleware";
 import { globalLimiter } from "@middlewares/rate-limiter.middleware";
+import { ROLES } from "@constants/roles.constant";
 
 const router = Router();
 
@@ -27,9 +28,9 @@ router.patch(
 );
 
 // --- Admin Only Routes ---
-router.use(roleMiddleware("ADMIN"));
+router.use(roleMiddleware(ROLES.ADMIN));
 
-router.get("/", usersController.getAllUsers);
+router.get("/", usersValidator.getAllUsers, usersController.getAllUsers);
 router.post(
   "/invite",
   usersValidator.inviteModerator,
@@ -38,11 +39,13 @@ router.post(
 );
 router.patch(
   "/:id/toggle-active",
+  usersValidator.validateId,
   activityLogMiddleware("User"),
   usersController.toggleUserActive,
 );
 router.delete(
   "/:id",
+  usersValidator.validateId,
   activityLogMiddleware("User"),
   usersController.deleteUser,
 );

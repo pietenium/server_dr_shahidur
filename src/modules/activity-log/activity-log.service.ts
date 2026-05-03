@@ -3,6 +3,7 @@ import type { Types } from "mongoose";
 import type { IActivityLog, CreateLogPayload, LogFilterQuery } from "./activity-log.interface";
 import { ApiError } from "@utils/ApiError";
 import { StatusCodes } from "http-status-codes";
+import { ROLES } from "@constants/roles.constant";
 
 export const activityLogService = {
   create: async (payload: CreateLogPayload): Promise<IActivityLog> => {
@@ -16,7 +17,7 @@ export const activityLogService = {
     const filter: Record<string, unknown> = {};
 
     // Role-based scoping
-    if (user.role === "MODERATOR") {
+    if (user.role === ROLES.MODERATOR) {
       filter.user = { $eq: user._id };
     } else if (userFilter) {
       filter.user = { $eq: userFilter };
@@ -53,7 +54,7 @@ export const activityLogService = {
     }
 
     // Ownership check for moderators
-    if (user.role === "MODERATOR" && (log.user as Types.ObjectId).toHexString() !== user._id) {
+    if (user.role === ROLES.MODERATOR && (log.user as Types.ObjectId).toHexString() !== user._id) {
       throw new ApiError(StatusCodes.FORBIDDEN, "You can only delete your own logs");
     }
 
@@ -68,7 +69,7 @@ export const activityLogService = {
     const filter: Record<string, unknown> = { _id: { $in: ids } };
     
     // Ownership check for moderators
-    if (user.role === "MODERATOR") {
+    if (user.role === ROLES.MODERATOR) {
       filter.user = { $eq: user._id };
     }
 
@@ -80,7 +81,7 @@ export const activityLogService = {
     const filter: Record<string, unknown> = {};
     
     // Ownership check for moderators
-    if (user.role === "MODERATOR") {
+    if (user.role === ROLES.MODERATOR) {
       filter.user = { $eq: user._id };
     }
 

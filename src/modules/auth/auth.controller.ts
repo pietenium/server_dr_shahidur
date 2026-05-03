@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { asyncHandler } from "@utils/asyncHandler";
 import { ApiResponse } from "@utils/ApiResponse";
+import { ApiError } from "@utils/ApiError";
 import { authService } from "./auth.service";
 import type {
   LoginPayload,
@@ -101,13 +102,7 @@ export const authController = {
     const refreshToken = req.cookies.refreshToken as string | undefined;
 
     if (!refreshToken) {
-      ApiResponse(res, {
-        statusCode: StatusCodes.UNAUTHORIZED,
-        success: false,
-        message: "Refresh token is missing",
-        data: null,
-      });
-      return;
+      throw new ApiError(StatusCodes.UNAUTHORIZED, "Refresh token is missing");
     }
 
     const tokens = await authService.refreshToken(refreshToken);

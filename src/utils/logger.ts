@@ -36,11 +36,10 @@ const sanitizeLogArgs = (args: unknown[]): unknown[] => args.map((arg) => saniti
 
 export const logger = {
   log: (...args: unknown[]): void => {
-
     if (isDev()) {
       const safeArgs = sanitizeLogArgs(args);
       // eslint-disable-next-line no-console
-      console.log(...args); console.log(...safeArgs);
+      console.log(...safeArgs);
     }
   },
   info: (...args: unknown[]): void => {
@@ -50,16 +49,14 @@ export const logger = {
     }
   },
   warn: (...args: unknown[]): void => {
-    if (isDev()) {
-      const safeArgs = sanitizeLogArgs(args);
-      console.warn(...safeArgs);
-    }
+    // Always log warnings
+    const safeArgs = sanitizeLogArgs(args);
+    console.warn(...safeArgs);
   },
   error: (...args: unknown[]): void => {
-    if (isDev()) {
-      const safeArgs = sanitizeLogArgs(args);
-      console.error(...safeArgs);
-    }
+    // Always log errors, even in production
+    const safeArgs = sanitizeLogArgs(args);
+    console.error(...safeArgs);
   },
   debug: (...args: unknown[]): void => {
     if (isDev()) {

@@ -1,4 +1,5 @@
-import { body } from "express-validator";
+import { body, query, param } from "express-validator";
+import { checkValidationResult } from "@utils/validation";
 
 export const usersValidator = {
   updateProfile: [
@@ -12,6 +13,7 @@ export const usersValidator = {
       .isEmail()
       .withMessage("Invalid email address")
       .normalizeEmail(),
+    checkValidationResult,
   ],
 
   changePassword: [
@@ -25,6 +27,7 @@ export const usersValidator = {
       .withMessage(
         "New password must contain uppercase, lowercase, number and special character",
       ),
+    checkValidationResult,
   ],
 
   inviteModerator: [
@@ -33,5 +36,20 @@ export const usersValidator = {
       .isEmail()
       .withMessage("Invalid email address")
       .normalizeEmail(),
+    checkValidationResult,
+  ],
+
+  getAllUsers: [
+    query("role").optional().isIn(["ADMIN", "MODERATOR"]),
+    query("isActive").optional().isBoolean().toBoolean(),
+    query("search").optional().isString().trim(),
+    query("page").optional().isInt({ min: 1 }).toInt(),
+    query("limit").optional().isInt({ min: 1, max: 100 }).toInt(),
+    checkValidationResult,
+  ],
+
+  validateId: [
+    param("id").isMongoId().withMessage("Invalid user ID"),
+    checkValidationResult,
   ],
 };

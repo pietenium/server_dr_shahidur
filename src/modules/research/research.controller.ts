@@ -21,10 +21,9 @@ export const researchController = {
   getResearchList: asyncHandler(async (req: Request, res: Response) => {
     const query = req.query as unknown as ResearchFilterQuery;
     
-    // For specific routes, we can just allow fetching DRAFT if isAdmin
-    const isPublicRoute = !req.originalUrl.includes("/admin");
+    const isAdmin = !!(req.user && (req.user.role === "ADMIN" || req.user.role === "MODERATOR"));
 
-    const result = await researchService.getResearchList(query, !isPublicRoute);
+    const result = await researchService.getResearchList(query, isAdmin);
 
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
@@ -37,7 +36,7 @@ export const researchController = {
   getBySlug: asyncHandler(async (req: Request, res: Response) => {
     const { slug } = req.params;
     
-    const isAdmin = req.user?.role === "ADMIN" || req.user?.role === "MODERATOR";
+    const isAdmin = !!(req.user && (req.user.role === "ADMIN" || req.user.role === "MODERATOR"));
     const isPublic = !isAdmin;
 
     const research = await researchService.getBySlug(slug as string, isPublic);

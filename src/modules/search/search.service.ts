@@ -11,6 +11,10 @@ import type {
   ResearchSearchResult,
   TestimonialSearchResult,
 } from "./search.interface";
+import { logger } from "@utils/logger";
+
+const escapeRegex = (str: string): string =>
+  str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export const searchService = {
   universalSearch: async (query: SearchQuery): Promise<UniversalSearchResult> => {
@@ -64,15 +68,16 @@ export const searchService = {
             articles = (docs as unknown as IArticle[]).map(formatArticle);
           })
           // Fallback if text search fails or yields no results
-          .catch(async () => {
-             const docs = await Article.find({
-               status: "PUBLISHED",
-               $or: [
-                 { title: { $regex: searchTerms, $options: "i" } },
-                 { excerpt: { $regex: searchTerms, $options: "i" } }
-               ]
-             }).limit(limit);
-             articles = (docs as unknown as IArticle[]).map(formatArticle);
+          .catch(async (error) => {
+            logger.warn(`Article text search failed, falling back to regex: ${(error as Error).message}`);
+            const docs = await Article.find({
+              status: "PUBLISHED",
+              $or: [
+                { title: { $regex: escapeRegex(searchTerms), $options: "i" } },
+                { excerpt: { $regex: escapeRegex(searchTerms), $options: "i" } }
+              ]
+            }).limit(limit);
+            articles = (docs as unknown as IArticle[]).map(formatArticle);
           })
       );
     }
@@ -88,12 +93,13 @@ export const searchService = {
           .then((docs) => {
             research = (docs as unknown as IResearch[]).map(formatResearch);
           })
-          .catch(async () => {
+          .catch(async (error) => {
+            logger.warn(`Research text search failed, falling back to regex: ${(error as Error).message}`);
             const docs = await Research.find({
               status: "PUBLISHED",
               $or: [
-                { title: { $regex: searchTerms, $options: "i" } },
-                { description: { $regex: searchTerms, $options: "i" } }
+                { title: { $regex: escapeRegex(searchTerms), $options: "i" } },
+                { description: { $regex: escapeRegex(searchTerms), $options: "i" } }
               ]
             }).limit(limit);
             research = (docs as unknown as IResearch[]).map(formatResearch);
@@ -112,12 +118,13 @@ export const searchService = {
           .then((docs) => {
             testimonials = (docs as unknown as ITestimonial[]).map(formatTestimonial);
           })
-          .catch(async () => {
+          .catch(async (error) => {
+            logger.warn(`Testimonial text search failed, falling back to regex: ${(error as Error).message}`);
             const docs = await Testimonial.find({
               isVisible: true,
               $or: [
-                { name: { $regex: searchTerms, $options: "i" } },
-                { content: { $regex: searchTerms, $options: "i" } }
+                { name: { $regex: escapeRegex(searchTerms), $options: "i" } },
+                { content: { $regex: escapeRegex(searchTerms), $options: "i" } }
               ]
             }).limit(limit);
             testimonials = (docs as unknown as ITestimonial[]).map(formatTestimonial);

@@ -52,6 +52,7 @@ export const researchService = {
 
     // Invalidate caches
     void deleteCachePattern("cache:research:*");
+    void deleteCachePattern("cache:research-slug:*");
 
     return research;
   },
@@ -139,8 +140,13 @@ export const researchService = {
 
     if (payload.title !== undefined) {
       if (typeof payload.title !== "string") {throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid title");}
+      const newSlug = generateSlug(payload.title);
+      const slugExists = await Research.findOne({ slug: newSlug, _id: { $ne: id } });
+      if (slugExists) {
+        throw new ApiError(StatusCodes.CONFLICT, "A research item with a similar title already exists");
+      }
       updateData.title = payload.title;
-      updateData.slug = generateSlug(payload.title);
+      updateData.slug = newSlug;
     }
 
     if (payload.description !== undefined) {
@@ -182,9 +188,15 @@ export const researchService = {
     }
 
     if (payload.pdfFile !== undefined) {
+      if (existingResearch.pdfFile?.fileId) {
+        void imagekit.files.delete(existingResearch.pdfFile.fileId).catch(() => {});
+      }
       updateData.pdfFile = payload.pdfFile;
     }
     if (payload.thumbnailImage !== undefined) {
+      if (existingResearch.thumbnailImage?.fileId) {
+        void imagekit.files.delete(existingResearch.thumbnailImage.fileId).catch(() => {});
+      }
       updateData.thumbnailImage = payload.thumbnailImage;
     }
 
@@ -208,6 +220,7 @@ export const researchService = {
 
     // Invalidate caches
     void deleteCachePattern("cache:research:*");
+    void deleteCachePattern("cache:research-slug:*");
     void deleteCache(`cache:research-slug:${research.slug}`);
     if (existingResearch.slug !== research.slug) {
       void deleteCache(`cache:research-slug:${existingResearch.slug}`);
@@ -244,6 +257,7 @@ export const researchService = {
 
     // Invalidate caches
     void deleteCachePattern("cache:research:*");
+    void deleteCachePattern("cache:research-slug:*");
     void deleteCache(`cache:research-slug:${research.slug}`);
   },
 };

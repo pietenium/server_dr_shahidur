@@ -42,6 +42,7 @@ router.get(
   globalLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
+  appointmentValidator.validateId,
   appointmentController.getById,
 );
 

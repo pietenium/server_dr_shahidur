@@ -1,3 +1,5 @@
+import type { Role } from "@constants/roles.constant";
+
 export interface UpdateProfilePayload {
   name?: string;
   email?: string;
@@ -14,7 +16,7 @@ export interface InviteModeratorPayload {
 }
 
 export interface UserFilterQuery {
-  role?: string;
+  role?: Role;
   isActive?: boolean;
   search?: string;
   page?: number;

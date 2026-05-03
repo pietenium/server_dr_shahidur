@@ -37,6 +37,7 @@ router.delete(
   globalLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
+  articleValidator.validateId,
   logActivity("article-category"),
   articleController.deleteCategory,
 );
@@ -45,7 +46,7 @@ router.delete(
 
 // Public listing and detail
 router.get("/", globalLimiter, optionalAuthenticate, articleValidator.query, articleController.getArticles);
-router.get("/slug/:slug", globalLimiter, optionalAuthenticate, articleController.getBySlug);
+router.get("/slug/:slug", globalLimiter, optionalAuthenticate, articleValidator.validateSlug, articleController.getBySlug);
 
 // Admin routes
 router.get(
@@ -82,6 +83,7 @@ router.delete(
   globalLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
+  articleValidator.validateId,
   logActivity("article"),
   articleController.delete,
 );

@@ -27,6 +27,13 @@ const articleSchema = new Schema<IArticle>(
   { timestamps: true },
 );
 
+articleSchema.set("toJSON", {
+  transform: (_doc, ret: { __v?: number }) => {
+    delete ret.__v;
+    return ret;
+  },
+});
+
 articleSchema.plugin(mongoosePaginate);
 
 // Indexes

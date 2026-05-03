@@ -1,26 +1,5 @@
 import { body, param, query } from "express-validator";
-import type { Request, Response, NextFunction } from "express";
-import { validationResult } from "express-validator";
-import { ApiError } from "@utils/ApiError";
-import { StatusCodes } from "http-status-codes";
-
-const checkValidationResult = (
-  req: Request,
-  _res: Response,
-  next: NextFunction,
-): void => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    const formattedErrors = errors.array().map((err) => ({
-      field: err.type === "field" ? err.path : undefined,
-      message: err.msg as string,
-    }));
-    return next(
-      new ApiError(StatusCodes.BAD_REQUEST, "Validation failed", formattedErrors),
-    );
-  }
-  next();
-};
+import { checkValidationResult } from "@utils/validation";
 
 export const appointmentValidator = {
   create: [
@@ -52,8 +31,8 @@ export const appointmentValidator = {
     query("status").optional().toUpperCase().isIn(["PENDING", "CONFIRMED", "CANCELLED"]),
     query("startDate").optional().isISO8601(),
     query("endDate").optional().isISO8601(),
-    query("page").optional().isInt({ min: 1 }),
-    query("limit").optional().isInt({ min: 1 }),
+    query("page").optional().isInt({ min: 1 }).toInt(),
+    query("limit").optional().isInt({ min: 1, max: 100 }).toInt(),
     checkValidationResult,
   ],
 
@@ -64,6 +43,11 @@ export const appointmentValidator = {
       .toUpperCase()
       .isIn(["CONFIRMED", "CANCELLED"])
       .withMessage("Status must be CONFIRMED or CANCELLED"),
+    checkValidationResult,
+  ],
+
+  validateId: [
+    param("id").isMongoId().withMessage("Invalid appointment ID"),
     checkValidationResult,
   ],
 };

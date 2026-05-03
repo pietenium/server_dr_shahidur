@@ -11,7 +11,7 @@ const router = Router();
 
 // Public routes
 router.get("/", globalLimiter, optionalAuthenticate, researchValidator.query, researchController.getResearchList);
-router.get("/slug/:slug", globalLimiter, optionalAuthenticate, researchController.getBySlug);
+router.get("/slug/:slug", globalLimiter, optionalAuthenticate, researchValidator.validateSlug, researchController.getBySlug);
 
 // Admin routes
 router.get(
@@ -48,6 +48,7 @@ router.delete(
   globalLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
+  researchValidator.validateId,
   logActivity("research"),
   researchController.delete,
 );
