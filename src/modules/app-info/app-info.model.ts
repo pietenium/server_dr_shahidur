@@ -3,12 +3,12 @@ import type { IAppInfo } from "./app-info.interface";
 
 const appInfoSchema = new Schema<IAppInfo>(
   {
-    siteName: { type: String, required: true },
-    siteDescription: { type: String },
-    doctorName: { type: String, required: true },
-    doctorTitle: { type: String, required: true },
-    doctorSpecialty: { type: String, required: true },
-    doctorBio: { type: String },
+    siteName: { type: String, required: true, trim: true },
+    siteDescription: { type: String, trim: true },
+    doctorName: { type: String, required: true, trim: true },
+    doctorTitle: { type: String, required: true, trim: true },
+    doctorSpecialty: { type: String, required: true, trim: true },
+    doctorBio: { type: String, trim: true },
     doctorImage: {
       url: String,
       fileId: String,
@@ -17,9 +17,9 @@ const appInfoSchema = new Schema<IAppInfo>(
       url: String,
       fileId: String,
     },
-    email: { type: String, required: true },
-    phone: { type: String, required: true },
-    address: { type: String },
+    email: { type: String, required: true, trim: true },
+    phone: { type: String, required: true, trim: true },
+    address: { type: String, trim: true },
     socialLinks: {
       facebook: String,
       twitter: String,
@@ -27,10 +27,18 @@ const appInfoSchema = new Schema<IAppInfo>(
       youtube: String,
       instagram: String,
     },
-    clinicHours: { type: String },
-    mapEmbedUrl: { type: String },
+    clinicHours: { type: String, trim: true },
+    mapEmbedUrl: { type: String, trim: true },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    toJSON: {
+      transform: (_, ret) => {
+        delete (ret as Record<string, unknown>).__v;
+        return ret;
+      },
+    },
+  },
 );
 
 export const AppInfo = mongoose.model<IAppInfo>("AppInfo", appInfoSchema);

@@ -4,21 +4,23 @@ import { appInfoValidator } from "./app-info.validator";
 import { authenticate } from "@middlewares/auth.middleware";
 import { authorize } from "@middlewares/role.middleware";
 import { logActivity } from "@middlewares/activity-log.middleware";
-import { globalLimiter } from "@middlewares/rate-limiter.middleware";
 import { ROLES } from "@constants/roles.constant";
+import { globalLimiter } from "@middlewares/rate-limiter.middleware";
 
 const router = Router();
 
-router.get("/", globalLimiter, appInfoController.get);
+// Public route to get site information
+router.get("/", globalLimiter, appInfoController.getAppInfo);
 
+// Protected route to update site information
 router.patch(
   "/",
   globalLimiter,
   authenticate,
-  authorize(ROLES.ADMIN),
+  authorize(ROLES.ADMIN, ROLES.MODERATOR),
   appInfoValidator.update,
   logActivity("app-info"),
-  appInfoController.update,
+  appInfoController.updateAppInfo,
 );
 
 export default router;
