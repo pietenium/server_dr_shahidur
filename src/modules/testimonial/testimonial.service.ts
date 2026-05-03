@@ -61,9 +61,19 @@ export const testimonialService = {
   },
 
   update: async (id: string, payload: UpdateTestimonialPayload): Promise<ITestimonial> => {
+
+    const safePayload: Partial<UpdateTestimonialPayload> = {};
+    if (payload.name !== undefined) { safePayload.name = payload.name; }
+    if (payload.designation !== undefined) { safePayload.designation = payload.designation; }
+    if (payload.company !== undefined) { safePayload.company = payload.company; }
+    if (payload.rating !== undefined) { safePayload.rating = payload.rating; }
+    if (payload.isVisible !== undefined) { safePayload.isVisible = payload.isVisible; }
+    if (payload.image !== undefined) { safePayload.image = payload.image; }
+    if (payload.video !== undefined) { safePayload.video = payload.video; }
+
     const testimonial = await Testimonial.findOneAndUpdate(
       { _id: { $eq: id } },
-      { $set: payload },
+      { $set: safePayload },
       { new: true, runValidators: true }
     );
 
