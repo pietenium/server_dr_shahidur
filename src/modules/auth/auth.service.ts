@@ -13,8 +13,8 @@ import {
   generateTokenJti,
 } from "@utils/generateToken";
 import { sendEmail } from "@emails/sendEmail";
-import { magicLoginTemplate } from "@emails/template/magic-login.template";
-import { passwordChangedTemplate } from "@emails/template/password-changed.template";
+import { magicLoginTemplate } from "@emails/templates/magic-login.template";
+import { passwordChangedTemplate } from "@emails/templates/password-changed.template";
 import { env } from "@config/env";
 
 import type {

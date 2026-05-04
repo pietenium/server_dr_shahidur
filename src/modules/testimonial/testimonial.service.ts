@@ -1,3 +1,4 @@
+import type mongoose from "mongoose";
 import { Testimonial } from "./testimonial.model";
 import type {
   ITestimonial,
@@ -25,12 +26,12 @@ export const testimonialService = {
     return testimonial;
   },
 
-  getAll: async (isAdmin = false): Promise<unknown> => {
+  getAll: async (isAdmin = false): Promise<mongoose.PaginateResult<ITestimonial>> => {
     // Try cache for public requests
     if (!isAdmin) {
       const cached = await getCache<unknown>(CACHE_KEY);
       if (cached) {
-        return cached;
+        return cached as mongoose.PaginateResult<ITestimonial>;
       }
     }
 

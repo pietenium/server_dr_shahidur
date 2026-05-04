@@ -1,5 +1,5 @@
 import type { Document, Types } from "mongoose";
-import type { ArticleType } from "@constants/status.constant";
+import type { ArticleType, ContentStatus } from "@constants/status.constant";
 
 export interface IArticleCategory extends Document {
   name: string;
@@ -19,8 +19,8 @@ export interface IArticle extends Document {
     fileId: string;
   };
   category: Types.ObjectId | IArticleCategory;
-  articleType: "MEDICAL" | "POLITICAL";
-  status: "DRAFT" | "PUBLISHED";
+  articleType: ArticleType;
+  status: ContentStatus;
   impressions: number;
   ogImage?: {
     url: string;
@@ -38,8 +38,8 @@ export interface CreateArticlePayload {
   content: string;
   excerpt?: string;
   category: string | Types.ObjectId;
-  articleType: "MEDICAL" | "POLITICAL";
-  status?: "DRAFT" | "PUBLISHED";
+  articleType: ArticleType;
+  status?: ContentStatus;
   author?: string;
   tags?: string[];
   publishedAt?: string;

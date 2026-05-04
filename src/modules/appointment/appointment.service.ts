@@ -1,3 +1,4 @@
+import type mongoose from "mongoose";
 import { Appointment } from "./appointment.model";
 import type {
   IAppointment,
@@ -8,7 +9,7 @@ import type {
 import { getGeoLocation } from "@utils/getGeoLocation";
 import { sendWhatsAppMessage } from "@utils/sendWhatsApp";
 import { sendEmail } from "@emails/sendEmail";
-import { appointmentConfirmationTemplate } from "@emails/template/appointment-confirmation.template";
+import { appointmentConfirmationTemplate } from "@emails/templates/appointment-confirmation.template";
 import { env } from "@config/env";
 import dayjs from "dayjs";
 import { logger } from "@utils/logger";
@@ -88,7 +89,7 @@ Manage via dashboard.`;
     return appointment;
   },
 
-  get: async (query: AppointmentFilterQuery): Promise<unknown> => {
+  get: async (query: AppointmentFilterQuery): Promise<mongoose.PaginateResult<IAppointment>> => {
     const { status, startDate, endDate, search, page = 1, limit = 10 } = query;
     const filter: AppointmentFilter = {};
 

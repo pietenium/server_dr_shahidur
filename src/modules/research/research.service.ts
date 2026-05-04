@@ -1,3 +1,4 @@
+import type mongoose from "mongoose";
 import { Research } from "./research.model";
 import type {
   IResearch,
@@ -57,7 +58,7 @@ export const researchService = {
     return research;
   },
 
-  getResearchList: async (query: ResearchFilterQuery, isAdmin = false): Promise<unknown> => {
+  getResearchList: async (query: ResearchFilterQuery, isAdmin = false): Promise<mongoose.PaginateResult<IResearch>> => {
     const { status, uploadType, search, page = 1, limit = 10 } = query;
     
     const filter: Record<string, unknown> = {};
@@ -82,7 +83,7 @@ export const researchService = {
     // Try cache if not admin
     if (!isAdmin) {
       const cached = await getCache<unknown>(cacheKey);
-      if (cached) {return cached;}
+      if (cached) {return cached as mongoose.PaginateResult<IResearch>;}
     }
 
     const options = {

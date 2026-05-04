@@ -1,3 +1,4 @@
+import type mongoose from "mongoose";
 import { Contact } from "./contact.model";
 import type {
   IContact,
@@ -9,7 +10,7 @@ import { StatusCodes } from "http-status-codes";
 import { getGeoLocation } from "@utils/getGeoLocation";
 import { sendTelegramMessage, formatContactMessage } from "@utils/sendTelegram";
 import { sendEmail } from "@emails/sendEmail";
-import { contactConfirmationTemplate } from "@emails/template/contact-confirmation.template";
+import { contactConfirmationTemplate } from "@emails/templates/contact-confirmation.template";
 import { logger } from "@utils/logger";
 
 
@@ -60,7 +61,7 @@ export const contactService = {
     return contact;
   },
 
-  getMessages: async (query: ContactFilterQuery): Promise<unknown> => {
+  getMessages: async (query: ContactFilterQuery): Promise<mongoose.PaginateResult<IContact>> => {
     const { isRead, reason, page = 1, limit = 20 } = query;
 
     const filter: Record<string, unknown> = {};
