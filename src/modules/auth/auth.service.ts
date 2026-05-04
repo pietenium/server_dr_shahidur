@@ -199,7 +199,7 @@ export const authService = {
     return { user, tokens: { accessToken, refreshToken } };
   },
 
-  resetPassword: async (payload: ResetPasswordPayload): Promise<void> => {
+  resetPassword: async (payload: ResetPasswordPayload): Promise<IUser> => {
 
     if (typeof payload.email !== "string") {
       throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid request");
@@ -253,6 +253,8 @@ export const authService = {
         name: user.name,
       }),
     });
+
+    return user;
   },
 
   refreshToken: async (token: string): Promise<AuthTokens> => {
