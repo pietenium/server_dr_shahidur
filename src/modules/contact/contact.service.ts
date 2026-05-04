@@ -9,7 +9,7 @@ import { StatusCodes } from "http-status-codes";
 import { getGeoLocation } from "@utils/getGeoLocation";
 import { sendTelegramMessage, formatContactMessage } from "@utils/sendTelegram";
 import { sendEmail } from "@emails/sendEmail";
-import { contactConfirmationTemplate } from "@emails/template/contact-confirmation.template";
+import { contactConfirmationTemplate } from "@emails/templates/contact-confirmation.template";
 import { logger } from "@utils/logger";
 
 

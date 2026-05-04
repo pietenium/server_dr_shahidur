@@ -1,7 +1,7 @@
 import type { Document } from "mongoose";
 import type { GeoLocation } from "@types-app/global.types";
 
-export type ContactReason = "medical-inquiry" | "general" | "media" | "other";
+import { ContactReason } from "@constants/status.constant";
 
 export interface IContact extends Document {
   name: string;

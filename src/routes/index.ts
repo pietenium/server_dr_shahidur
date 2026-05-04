@@ -10,6 +10,7 @@ import appInfoRoutes from "@modules/app-info/app-info.routes";
 import contactRoutes from "@modules/contact/contact.routes";
 import searchRoutes from "@modules/search/search.routes";
 import usersRoutes from "@modules/users/users.routes";
+import uploadRoutes from "@modules/upload/upload.routes";
 
 const router = Router();
 
@@ -25,6 +26,7 @@ const moduleRoutes = [
   { path: "/contact", route: contactRoutes },
   { path: "/search", route: searchRoutes },
   { path: "/users", route: usersRoutes },
+  { path: "/upload", route: uploadRoutes },
 ];
 
 moduleRoutes.forEach((route) => {

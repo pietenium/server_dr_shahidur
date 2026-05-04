@@ -12,7 +12,7 @@ import { ApiError } from "@utils/ApiError";
 import { StatusCodes } from "http-status-codes";
 import crypto from "crypto";
 import { sendEmail } from "@emails/sendEmail";
-import { moderatorInviteTemplate } from "@emails/template/moderator-invite.template";
+import { moderatorInviteTemplate } from "@emails/templates/moderator-invite.template";
 import { env } from "@config/env";
 import type { PaginatedResult } from "@types-app/global.types";
 

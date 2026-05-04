@@ -20,7 +20,7 @@ export const ARTICLE_TYPE = {
 } as const;
 
 export const CONTACT_REASON = {
-  MEDICAL: "medical-inquiry",
+  MEDICAL_INQUIRY: "medical-inquiry",
   GENERAL: "general",
   MEDIA: "media",
   OTHER: "other",

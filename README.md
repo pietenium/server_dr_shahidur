@@ -140,6 +140,7 @@ Request → Route → Validator → Auth Middleware → Role Middleware
 │   │   ├── app-info/
 │   │   ├── search/
 │   │   ├── contact/
+│   │   ├── upload/
 │   │   └── users/
 │   ├── middlewares/
 │   ├── config/
@@ -274,6 +275,23 @@ Request → Route → Validator → Auth Middleware → Role Middleware
 | Method | Endpoint            | Access | Description                             |
 | ------ | ------------------- | ------ | --------------------------------------- |
 | GET    | `/?q=&type=&limit=` | Public | Search articles, research, testimonials |
+
+---
+
+### Uploads — `/api/v1/upload`
+
+| Method | Endpoint | Access     | Description                                |
+| ------ | -------- | ---------- | ------------------------------------------ |
+| POST   | `/image` | Admin/Mod  | Upload single image to ImageKit            |
+| POST   | `/pdf`   | Admin/Mod  | Upload single PDF to ImageKit              |
+| POST   | `/video` | Admin/Mod  | Upload single video                        |
+
+---
+
+## File Upload Strategy
+
+We use a **decoupled upload strategy** via a dedicated `POST /api/v1/upload` endpoint. 
+Instead of handling raw `multipart/form-data` during entity creation (Articles, Research, Testimonials), the frontend pre-uploads the files to the upload endpoints. The API responds with a structured `{ url, fileId }` object, which the frontend then attaches as JSON to the entity endpoints. This keeps entity payloads strictly JSON and significantly simplifies validation and service logic.
 
 ---
 
