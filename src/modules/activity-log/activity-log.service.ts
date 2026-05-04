@@ -1,3 +1,4 @@
+import type mongoose from "mongoose";
 import { ActivityLog } from "./activity-log.model";
 import type { Types } from "mongoose";
 import type { IActivityLog, CreateLogPayload, LogFilterQuery } from "./activity-log.interface";
@@ -11,7 +12,7 @@ export const activityLogService = {
     return log;
   },
 
-  getLogs: async (query: LogFilterQuery, user: Express.AuthenticatedUser): Promise<unknown> => {
+  getLogs: async (query: LogFilterQuery, user: Express.AuthenticatedUser): Promise<mongoose.PaginateResult<IActivityLog>> => {
     const { user: userFilter, module, startDate, endDate, page = 1, limit = 20 } = query;
 
     const filter: Record<string, unknown> = {};

@@ -8,15 +8,32 @@ import { ApiResponse } from "@utils/ApiResponse";
 import { Readable } from "stream";
 import type { UploadApiResponse, UploadApiErrorResponse } from "cloudinary";
 
+interface ImageKitUploadResponse {
+  url: string;
+  fileId: string;
+  [key: string]: unknown;
+}
+
+interface ImageKitInstance {
+  upload(params: {
+    file: string | Buffer;
+    fileName: string;
+    folder?: string;
+    [key: string]: unknown;
+  }): Promise<ImageKitUploadResponse>;
+}
+
 export const uploadController = {
   uploadImage: asyncHandler(async (req: Request, res: Response) => {
-    if (!req.file) {
+    const file = req.file;
+    if (!file) {
       throw new ApiError(StatusCodes.BAD_REQUEST, "No image file uploaded");
     }
     
-    const result = await (imagekit as any).upload({
-      file: `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`,
-      fileName: req.file.originalname,
+    const ik = imagekit as unknown as ImageKitInstance;
+    const result = await ik.upload({
+      file: `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
+      fileName: file.originalname,
       folder: "/images",
     });
 
@@ -32,13 +49,15 @@ export const uploadController = {
   }),
 
   uploadPdf: asyncHandler(async (req: Request, res: Response) => {
-    if (!req.file) {
+    const file = req.file;
+    if (!file) {
       throw new ApiError(StatusCodes.BAD_REQUEST, "No PDF file uploaded");
     }
     
-    const result = await (imagekit as any).upload({
-      file: `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`,
-      fileName: req.file.originalname,
+    const ik = imagekit as unknown as ImageKitInstance;
+    const result = await ik.upload({
+      file: `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
+      fileName: file.originalname,
       folder: "/pdfs",
     });
 
@@ -54,7 +73,8 @@ export const uploadController = {
   }),
 
   uploadVideo: asyncHandler(async (req: Request, res: Response) => {
-    if (!req.file) {
+    const file = req.file;
+    if (!file) {
       throw new ApiError(StatusCodes.BAD_REQUEST, "No video file uploaded");
     }
 
@@ -71,7 +91,7 @@ export const uploadController = {
           }
         }
       );
-      Readable.from(req.file!.buffer).pipe(uploadStream);
+      Readable.from(file.buffer).pipe(uploadStream);
     });
 
     ApiResponse(res, {

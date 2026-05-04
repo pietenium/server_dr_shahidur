@@ -1,3 +1,4 @@
+import type mongoose from "mongoose";
 import { Appointment } from "./appointment.model";
 import type {
   IAppointment,
@@ -88,7 +89,7 @@ Manage via dashboard.`;
     return appointment;
   },
 
-  get: async (query: AppointmentFilterQuery): Promise<unknown> => {
+  get: async (query: AppointmentFilterQuery): Promise<mongoose.PaginateResult<IAppointment>> => {
     const { status, startDate, endDate, search, page = 1, limit = 10 } = query;
     const filter: AppointmentFilter = {};
 

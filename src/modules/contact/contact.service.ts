@@ -1,3 +1,4 @@
+import type mongoose from "mongoose";
 import { Contact } from "./contact.model";
 import type {
   IContact,
@@ -60,7 +61,7 @@ export const contactService = {
     return contact;
   },
 
-  getMessages: async (query: ContactFilterQuery): Promise<unknown> => {
+  getMessages: async (query: ContactFilterQuery): Promise<mongoose.PaginateResult<IContact>> => {
     const { isRead, reason, page = 1, limit = 20 } = query;
 
     const filter: Record<string, unknown> = {};
