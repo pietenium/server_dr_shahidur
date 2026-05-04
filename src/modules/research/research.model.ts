@@ -1,13 +1,14 @@
 import mongoose, { Schema } from "mongoose";
 import mongoosePaginate from "mongoose-paginate-v2";
 import type { IResearch } from "./research.interface";
+import { UPLOAD_TYPE, CONTENT_STATUS } from "@constants/status.constant";
 
 const researchSchema = new Schema<IResearch>(
   {
     title: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
     description: { type: String },
-    uploadType: { type: String, enum: ["PDF", "DOI"], required: true },
+    uploadType: { type: String, enum: Object.values(UPLOAD_TYPE), required: true },
     pdfFile: {
       url: String,
       fileId: String,
@@ -18,7 +19,7 @@ const researchSchema = new Schema<IResearch>(
       url: String,
       fileId: String,
     },
-    status: { type: String, enum: ["DRAFT", "PUBLISHED"], default: "DRAFT" },
+    status: { type: String, enum: Object.values(CONTENT_STATUS), default: CONTENT_STATUS.DRAFT },
     publishedAt: { type: Date },
   },
   {
@@ -37,6 +38,7 @@ researchSchema.plugin(mongoosePaginate);
 // Indexes
 researchSchema.index({ status: 1 });
 researchSchema.index({ uploadType: 1 });
+researchSchema.index({ publishedAt: -1 });
 researchSchema.index({ title: "text", description: "text" });
 
 export const Research = mongoose.model<

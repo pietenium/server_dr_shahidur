@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import mongoosePaginate from "mongoose-paginate-v2";
 import type { IContact } from "./contact.interface";
+import { CONTACT_REASON } from "@constants/status.constant";
 
 const contactSchema = new Schema<IContact>(
   {
@@ -11,8 +12,8 @@ const contactSchema = new Schema<IContact>(
     message: { type: String, required: true, trim: true },
     reason: {
       type: String,
-      enum: ["medical-inquiry", "general", "media", "other"],
-      default: "general",
+      enum: Object.values(CONTACT_REASON),
+      default: CONTACT_REASON.GENERAL,
     },
     ipAddress: { type: String },
     location: {

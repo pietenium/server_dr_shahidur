@@ -1,11 +1,11 @@
 import type { Document } from "mongoose";
-import type { UploadType } from "@constants/status.constant";
+import type { UploadType, ContentStatus } from "@constants/status.constant";
 
 export interface IResearch extends Document {
   title: string;
   slug: string;
   description?: string;
-  uploadType: "PDF" | "DOI";
+  uploadType: UploadType;
   pdfFile?: {
     url: string;
     fileId: string;
@@ -16,7 +16,7 @@ export interface IResearch extends Document {
     url: string;
     fileId: string;
   };
-  status: "DRAFT" | "PUBLISHED";
+  status: ContentStatus;
   publishedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -28,7 +28,7 @@ export type { UploadType };
 export interface CreateResearchPayload {
   title: string;
   description?: string;
-  uploadType: "PDF" | "DOI";
+  uploadType: UploadType;
   pdfFile?: {
     url: string;
     fileId: string;
@@ -38,7 +38,7 @@ export interface CreateResearchPayload {
     url: string;
     fileId: string;
   };
-  status?: "DRAFT" | "PUBLISHED";
+  status?: ContentStatus;
   publishedAt?: string;
 }
 

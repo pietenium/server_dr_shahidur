@@ -19,9 +19,17 @@ export const ARTICLE_TYPE = {
   POLITICAL: "POLITICAL",
 } as const;
 
+export const CONTACT_REASON = {
+  MEDICAL: "medical-inquiry",
+  GENERAL: "general",
+  MEDIA: "media",
+  OTHER: "other",
+} as const;
+
 export type AppointmentStatus =
   (typeof APPOINTMENT_STATUS)[keyof typeof APPOINTMENT_STATUS];
 export type ContentStatus =
   (typeof CONTENT_STATUS)[keyof typeof CONTENT_STATUS];
 export type UploadType = (typeof UPLOAD_TYPE)[keyof typeof UPLOAD_TYPE];
 export type ArticleType = (typeof ARTICLE_TYPE)[keyof typeof ARTICLE_TYPE];
+export type ContactReason = (typeof CONTACT_REASON)[keyof typeof CONTACT_REASON];

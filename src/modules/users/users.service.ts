@@ -7,6 +7,7 @@ import type {
   InviteModeratorPayload,
   UserFilterQuery,
 } from "./users.interface";
+import { ROLES } from "@constants/roles.constant";
 import { ApiError } from "@utils/ApiError";
 import { StatusCodes } from "http-status-codes";
 import crypto from "crypto";
@@ -121,7 +122,7 @@ export const usersService = {
       name: payload.name,
       email: payload.email,
       password: temporaryPassword,
-      role: "MODERATOR",
+      role: ROLES.MODERATOR,
       isActive: true,
     });
 
@@ -151,7 +152,7 @@ export const usersService = {
       throw new ApiError(StatusCodes.NOT_FOUND, "User not found");
     }
 
-    if (user.role === "ADMIN") {
+    if (user.role === ROLES.ADMIN) {
       throw new ApiError(StatusCodes.FORBIDDEN, "Admin account status cannot be toggled");
     }
 
@@ -172,8 +173,8 @@ export const usersService = {
       throw new ApiError(StatusCodes.FORBIDDEN, "You cannot delete your own account");
     }
 
-    if (user.role === "ADMIN") {
-      const adminCount = await User.countDocuments({ role: "ADMIN" });
+    if (user.role === ROLES.ADMIN) {
+      const adminCount = await User.countDocuments({ role: ROLES.ADMIN });
       if (adminCount <= 1) {
         throw new ApiError(StatusCodes.FORBIDDEN, "Cannot delete the last administrator");
       }
