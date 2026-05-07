@@ -14,7 +14,7 @@ const seedAdmin = async (): Promise<void> => {
 
   const existingAdmin = await User.findOne({ email: env.ADMIN_SEED_EMAIL });
   if (!existingAdmin) {
-    const hashedPassword = await bcrypt.hash(env.ADMIN_SEED_PASSWORD, 12);
+    const hashedPassword = await bcrypt.hash(env.ADMIN_SEED_PASSWORD, 10);
 
     await User.create({
       name: "Dr. Sahidur Rahman Khan",
