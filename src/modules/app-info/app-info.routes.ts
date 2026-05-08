@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { appInfoController } from "./app-info.controller";
-import { appInfoValidator } from "./app-info.validator";
+import { updateAppInfoValidator } from "./app-info.validator";
 import { authenticate } from "@middlewares/auth.middleware";
 import { authorize } from "@middlewares/role.middleware";
 import { logActivity } from "@middlewares/activity-log.middleware";
@@ -14,13 +14,13 @@ router.get("/", globalLimiter, appInfoController.getAppInfo);
 
 // Protected route to update site information
 router.patch(
-    "/",
-    globalLimiter,
-    authenticate,
-    authorize(ROLES.ADMIN, ROLES.MODERATOR),
-    appInfoValidator.update,
-    logActivity("app-info"),
-    appInfoController.updateAppInfo,
+  "/",
+  globalLimiter,
+  authenticate,
+  authorize(ROLES.ADMIN, ROLES.MODERATOR),
+  updateAppInfoValidator,
+  logActivity("app-info"),
+  appInfoController.updateAppInfo,
 );
 
 export default router;

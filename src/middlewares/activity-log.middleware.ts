@@ -2,8 +2,6 @@ import type { Request, Response, NextFunction, RequestHandler } from "express";
 import { activityLogService } from "@modules/activity-log/activity-log.service";
 import type { CreateLogPayload } from "@modules/activity-log/activity-log.interface";
 
-
-
 export const logActivity = (module: string): RequestHandler => {
   return (req: Request, res: Response, next: NextFunction): void => {
     res.on("finish", () => {
@@ -17,9 +15,9 @@ export const logActivity = (module: string): RequestHandler => {
           ipAddress: req.ip || "unknown",
           userAgent: req.get("user-agent") || "unknown",
         };
-         
+
         activityLogService.create(payload).catch(() => {
-          // Fire and forget - log failure is non-critical
+          throw new Error("Failed to log activity");
         });
       }
     });
