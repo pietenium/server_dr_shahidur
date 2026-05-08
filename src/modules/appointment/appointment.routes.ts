@@ -1,7 +1,10 @@
 import { Router } from "express";
 import { appointmentController } from "./appointment.controller";
 import { appointmentValidator } from "./appointment.validator";
-import { appointmentLimiter, globalLimiter } from "@middlewares/rate-limiter.middleware";
+import {
+  appointmentLimiter,
+  globalLimiter,
+} from "@middlewares/rate-limiter.middleware";
 import { authenticate } from "@middlewares/auth.middleware";
 import { authorize } from "@middlewares/role.middleware";
 import { logActivity } from "@middlewares/activity-log.middleware";
@@ -26,7 +29,6 @@ router.get(
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   appointmentValidator.query,
-  logActivity("appointment"),
   appointmentController.get,
 );
 
@@ -35,7 +37,6 @@ router.get(
   globalLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
-  logActivity("appointment"),
   appointmentController.getCharts,
 );
 
@@ -45,7 +46,6 @@ router.get(
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   appointmentValidator.validateId,
-  logActivity("appointment"),
   appointmentController.getById,
 );
 

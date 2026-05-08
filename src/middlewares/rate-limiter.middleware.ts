@@ -71,7 +71,7 @@ export const globalLimiter = rateLimit({
 
 export const appointmentLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5,
+  max: 10,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -81,4 +81,3 @@ export const appointmentLimiter = rateLimit({
   },
   store: getStore(),
 });
-
