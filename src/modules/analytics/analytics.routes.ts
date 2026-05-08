@@ -14,6 +14,7 @@ router.post(
   "/track",
   analyticsLimiter,
   analyticsValidator.track,
+  logActivity("analytics"),
   analyticsController.track,
 );
 
@@ -23,7 +24,6 @@ router.get(
   analyticsLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
-  logActivity("analytics"),
   analyticsController.getGeoStats,
 );
 
@@ -32,7 +32,6 @@ router.get(
   analyticsLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
-  logActivity("analytics"),
   analyticsController.getPageStats,
 );
 
