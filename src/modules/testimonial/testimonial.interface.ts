@@ -6,12 +6,12 @@ export interface ITestimonial extends Document {
   company?: string;
   content: string;
   image?: {
-    url: string;
-    fileId: string;
+    url: string | undefined;
+    fileId: string | undefined;
   };
   video?: {
-    url: string;
-    fileId: string;
+    url: string | undefined;
+    fileId: string | undefined;
   };
   rating: number;
   isVisible: boolean;
@@ -26,12 +26,12 @@ export interface CreateTestimonialPayload {
   content: string;
   rating: number;
   image?: {
-    url: string;
-    fileId: string;
+    url: string | undefined;
+    fileId: string | undefined;
   };
   video?: {
-    url: string;
-    fileId: string;
+    url: string | undefined;
+    fileId: string | undefined;
   };
   isVisible?: boolean;
 }

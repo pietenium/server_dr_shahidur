@@ -3,9 +3,17 @@ import { StatusCodes } from "http-status-codes";
 import { asyncHandler } from "@utils/asyncHandler";
 import { ApiResponse } from "@utils/ApiResponse";
 import { ApiError } from "@utils/ApiError";
-import { testimonialService } from "./testimonial.service";
-import type { CreateTestimonialPayload, UpdateTestimonialPayload } from "./testimonial.interface";
-import { TESTIMONIAL_MESSAGES, AUTH_MESSAGES } from "@constants/messages.constant";
+import { TestimonialService } from "./testimonial.service";
+import type {
+  CreateTestimonialPayload,
+  UpdateTestimonialPayload,
+} from "./testimonial.interface";
+import {
+  TESTIMONIAL_MESSAGES,
+  AUTH_MESSAGES,
+} from "@constants/messages.constant";
+
+const testimonialService = new TestimonialService();
 
 export const testimonialController = {
   create: asyncHandler(async (req: Request, res: Response) => {
@@ -14,7 +22,17 @@ export const testimonialController = {
     }
 
     const payload = req.body as CreateTestimonialPayload;
-    const testimonial = await testimonialService.create(payload);
+    const uploadFiles = req.files as
+      | Record<string, Express.Multer.File[]>
+      | undefined;
+    const image = uploadFiles?.["image"]?.[0];
+    const video = uploadFiles?.["video"]?.[0];
+
+    const testimonial = await testimonialService.createTestimonial(
+      payload,
+      image,
+      video,
+    );
 
     ApiResponse(res, {
       statusCode: StatusCodes.CREATED,
@@ -27,14 +45,15 @@ export const testimonialController = {
   getAll: asyncHandler(async (req: Request, res: Response) => {
     // Check if the route is /admin
     const isPublicRoute = !req.originalUrl.includes("/admin");
+    const adminView = !isPublicRoute;
 
-    const result = await testimonialService.getAll(!isPublicRoute);
+    const testimonials = await testimonialService.getTestimonials(adminView);
 
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
       message: TESTIMONIAL_MESSAGES.FETCHED,
-      data: result,
+      data: testimonials,
     });
   }),
 
@@ -44,7 +63,9 @@ export const testimonialController = {
     }
 
     const { id } = req.params;
-    const testimonial = await testimonialService.getById(id as string);
+    const testimonial = await testimonialService.getTestimonialById(
+      id as string,
+    );
 
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
@@ -61,7 +82,18 @@ export const testimonialController = {
 
     const { id } = req.params;
     const payload = req.body as UpdateTestimonialPayload;
-    const testimonial = await testimonialService.update(id as string, payload);
+    const uploadFiles = req.files as
+      | Record<string, Express.Multer.File[]>
+      | undefined;
+    const image = uploadFiles?.["image"]?.[0];
+    const video = uploadFiles?.["video"]?.[0];
+
+    const testimonial = await testimonialService.updateTestimonial(
+      id as string,
+      payload,
+      image,
+      video,
+    );
 
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
@@ -77,7 +109,7 @@ export const testimonialController = {
     }
 
     const { id } = req.params;
-    await testimonialService.delete(id as string);
+    await testimonialService.deleteTestimonial(id as string);
 
     ApiResponse(res, {
       statusCode: StatusCodes.OK,

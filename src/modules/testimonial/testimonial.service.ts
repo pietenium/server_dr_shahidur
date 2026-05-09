@@ -1,121 +1,226 @@
-import type mongoose from "mongoose";
 import { Testimonial } from "./testimonial.model";
+import { ApiError } from "@utils/ApiError";
+import { TESTIMONIAL_MESSAGES } from "@constants/messages.constant";
 import type {
   ITestimonial,
   CreateTestimonialPayload,
   UpdateTestimonialPayload,
 } from "./testimonial.interface";
 import { getCache, setCache, deleteCache } from "@utils/cache";
-import { ApiError } from "@utils/ApiError";
-import { StatusCodes } from "http-status-codes";
-import { imagekit } from "@config/imagekit";
-import cloudinary from "@config/cloudinary";
-import { logger } from "@utils/logger";
 
+export class TestimonialService {
+  public async getTestimonials(
+    adminView: boolean = false,
+  ): Promise<ITestimonial[]> {
+    if (!adminView) {
+      const cacheKey = "cache:testimonials";
+      const cached = await getCache<ITestimonial[]>(cacheKey);
 
-const CACHE_KEY = "cache:testimonials";
-const CACHE_TTL = 600; // 10 minutes
-
-export const testimonialService = {
-  create: async (payload: CreateTestimonialPayload): Promise<ITestimonial> => {
-    const testimonial = await Testimonial.create(payload);
-
-    // Invalidate cache
-    void deleteCache(CACHE_KEY);
-
-    return testimonial;
-  },
-
-  getAll: async (isAdmin = false): Promise<mongoose.PaginateResult<ITestimonial>> => {
-    // Try cache for public requests
-    if (!isAdmin) {
-      const cached = await getCache<unknown>(CACHE_KEY);
       if (cached) {
-        return cached as mongoose.PaginateResult<ITestimonial>;
+        return cached;
       }
     }
 
-    const filter = isAdmin ? {} : { isVisible: true };
-    const options = {
-      page: 1,
-      limit: 100, // Fetch all testimonials as they are usually few
-      sort: "-createdAt",
+    const filter: Record<string, unknown> = adminView
+      ? {}
+      : { isVisible: true };
+    const testimonials = await Testimonial.find(filter).sort({ createdAt: -1 });
+
+    if (!adminView) {
+      await setCache("cache:testimonials", testimonials, 600);
+    }
+
+    return testimonials;
+  }
+
+  public async createTestimonial(
+    payload: CreateTestimonialPayload,
+    image?: Express.Multer.File,
+    video?: Express.Multer.File,
+  ): Promise<ITestimonial> {
+    const testimonialData: Partial<ITestimonial> = {
+      name: payload.name,
+      designation: payload.designation,
+      company: payload.company,
+      content: payload.content,
+      rating: payload.rating,
+      isVisible: payload.isVisible !== undefined ? payload.isVisible : true,
     };
 
-    const model = Testimonial;
-    const results = await model.paginate(filter, options);
-
-    // Cache results for public requests
-    if (!isAdmin) {
-      void setCache(CACHE_KEY, results, CACHE_TTL);
+    // Upload image to ImageKit
+    if (image) {
+      const { imagekit } = await import("@config/imagekit");
+      const result = await imagekit.files.upload({
+        file: image.buffer.toString("base64"),
+        fileName: `testimonial-${Date.now()}`,
+        folder: "/testimonials",
+      });
+      testimonialData.image = { url: result.url, fileId: result.fileId };
     }
 
-    return results;
-  },
-
-  getById: async (id: string): Promise<ITestimonial> => {
-    const testimonial = await Testimonial.findOne({ _id: { $eq: id } });
-    if (!testimonial) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "Testimonial not found");
+    // Upload video to Cloudinary
+    if (video) {
+      const { cloudinaryUploader } = await import("@config/cloudinary");
+      const result = await new Promise<{
+        secure_url: string;
+        public_id: string;
+      }>((resolve, reject) => {
+        const uploadStream = cloudinaryUploader.upload_stream(
+          { resource_type: "video", folder: "testimonials" },
+          (error, result) => {
+            if (error) {
+              reject(
+                new Error(
+                  typeof error === "string"
+                    ? error
+                    : error?.message || "Upload failed",
+                ),
+              );
+            } else {
+              resolve(result as { secure_url: string; public_id: string });
+            }
+          },
+        );
+        uploadStream.end(video.buffer);
+      });
+      testimonialData.video = {
+        url: result.secure_url,
+        fileId: result.public_id,
+      };
     }
-    return testimonial;
-  },
 
-  update: async (id: string, payload: UpdateTestimonialPayload): Promise<ITestimonial> => {
-
-    const safePayload: Partial<UpdateTestimonialPayload> = {};
-    if (payload.name !== undefined) { safePayload.name = payload.name; }
-    if (payload.designation !== undefined) { safePayload.designation = payload.designation; }
-    if (payload.company !== undefined) { safePayload.company = payload.company; }
-    if (payload.content !== undefined) { safePayload.content = payload.content; }
-    if (payload.rating !== undefined) { safePayload.rating = payload.rating; }
-    if (payload.isVisible !== undefined) { safePayload.isVisible = payload.isVisible; }
-    if (payload.image !== undefined) { safePayload.image = payload.image; }
-    if (payload.video !== undefined) { safePayload.video = payload.video; }
-
-    const testimonial = await Testimonial.findOneAndUpdate(
-      { _id: { $eq: id } },
-      { $set: safePayload },
-      { new: true, runValidators: true }
-    );
-
-    if (!testimonial) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "Testimonial not found");
-    }
+    const testimonial = await Testimonial.create(testimonialData);
 
     // Invalidate cache
-    void deleteCache(CACHE_KEY);
+    await deleteCache("cache:testimonials");
 
     return testimonial;
-  },
+  }
 
-  delete: async (id: string): Promise<void> => {
-    const testimonial = await Testimonial.findOne({ _id: { $eq: id } });
+  public async updateTestimonial(
+    id: string,
+    payload: UpdateTestimonialPayload,
+    image?: Express.Multer.File,
+    video?: Express.Multer.File,
+  ): Promise<ITestimonial> {
+    const testimonial = await Testimonial.findById(id);
+
     if (!testimonial) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "Testimonial not found");
+      throw new ApiError(404, TESTIMONIAL_MESSAGES.NOT_FOUND);
     }
 
-    // Delete assets
-    const deletePromises: Promise<unknown>[] = [];
+    if (payload.name) {
+      testimonial.name = payload.name;
+    }
+    if (payload.designation !== undefined) {
+      testimonial.designation = payload.designation;
+    }
+    if (payload.company !== undefined) {
+      testimonial.company = payload.company;
+    }
+    if (payload.content) {
+      testimonial.content = payload.content;
+    }
+    if (payload.rating) {
+      testimonial.rating = payload.rating;
+    }
+    if (payload.isVisible !== undefined) {
+      testimonial.isVisible = payload.isVisible;
+    }
 
+    // Handle image upload
+    if (image) {
+      // Delete old image from ImageKit
+      if (testimonial.image?.fileId) {
+        const { imagekit } = await import("@config/imagekit");
+        await imagekit.files.delete(testimonial.image.fileId).catch(() => {});
+      }
+      const { imagekit } = await import("@config/imagekit");
+      const result = await imagekit.files.upload({
+        file: image.buffer.toString("base64"),
+        fileName: `testimonial-${Date.now()}`,
+        folder: "/testimonials",
+      });
+      testimonial.image = { url: result.url, fileId: result.fileId };
+    }
+
+    // Handle video upload
+    if (video) {
+      // Delete old video from Cloudinary
+      if (testimonial.video?.fileId) {
+        const { cloudinaryUploader } = await import("@config/cloudinary");
+        await cloudinaryUploader.destroy(testimonial.video.fileId, {
+          resource_type: "video",
+        });
+      }
+      const { cloudinaryUploader } = await import("@config/cloudinary");
+      const result = await new Promise<{
+        secure_url: string;
+        public_id: string;
+      }>((resolve, reject) => {
+        const uploadStream = cloudinaryUploader.upload_stream(
+          { resource_type: "video", folder: "testimonials" },
+          (error, result) => {
+            if (error) {
+              reject(
+                new Error(
+                  typeof error === "string"
+                    ? error
+                    : error?.message || "Upload failed",
+                ),
+              );
+            } else {
+              resolve(result as { secure_url: string; public_id: string });
+            }
+          },
+        );
+        uploadStream.end(video.buffer);
+      });
+      testimonial.video = { url: result.secure_url, fileId: result.public_id };
+    }
+
+    await testimonial.save();
+
+    // Invalidate cache
+    await deleteCache("cache:testimonials");
+
+    return testimonial;
+  }
+
+  public async deleteTestimonial(id: string): Promise<void> {
+    const testimonial = await Testimonial.findById(id);
+
+    if (!testimonial) {
+      throw new ApiError(404, TESTIMONIAL_MESSAGES.NOT_FOUND);
+    }
+
+    // Delete image from ImageKit
     if (testimonial.image?.fileId) {
-      deletePromises.push(imagekit.files.delete(testimonial.image.fileId));
+      const { imagekit } = await import("@config/imagekit");
+      await imagekit.files.delete(testimonial.image.fileId).catch(() => {});
     }
 
+    // Delete video from Cloudinary
     if (testimonial.video?.fileId) {
-      // Video assets are stored on Cloudinary
-      deletePromises.push(cloudinary.uploader.destroy(testimonial.video.fileId, { resource_type: "video" }));
+      const { cloudinaryUploader } = await import("@config/cloudinary");
+      await cloudinaryUploader.destroy(testimonial.video.fileId, {
+        resource_type: "video",
+      });
     }
 
-    try {
-      await Promise.all(deletePromises);
-    } catch (err) {
-      logger.error("Error deleting Testimonial assets:", err);
-    }
-
-    await Testimonial.findOneAndDelete({ _id: { $eq: id } });
+    await testimonial.deleteOne();
 
     // Invalidate cache
-    void deleteCache(CACHE_KEY);
-  },
-};
+    await deleteCache("cache:testimonials");
+  }
+
+  public async getTestimonialById(id: string): Promise<ITestimonial> {
+    const testimonial = await Testimonial.findById(id);
+
+    if (!testimonial) {
+      throw new ApiError(404, TESTIMONIAL_MESSAGES.NOT_FOUND);
+    }
+
+    return testimonial;
+  }
+}
