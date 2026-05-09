@@ -10,7 +10,7 @@ import type {
 import { ROLES } from "@constants/roles.constant";
 import { ApiError } from "@utils/ApiError";
 import { StatusCodes } from "http-status-codes";
-// import crypto from "crypto";
+import crypto from "crypto";
 import { sendEmail } from "@emails/sendEmail";
 import { moderatorInviteTemplate } from "@emails/templates/moderator-invite.template";
 import { env } from "@config/env";
@@ -144,8 +144,7 @@ export const usersService = {
       );
     }
 
-    // const temporaryPassword = crypto.randomBytes(8).toString("hex");
-    const temporaryPassword = env.TEMP_PASS;
+    const temporaryPassword = crypto.randomBytes(8).toString("hex");
 
     const moderator = await User.create({
       name: payload.name,

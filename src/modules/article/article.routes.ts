@@ -1,7 +1,10 @@
 import { Router } from "express";
 import { articleController } from "./article.controller";
 import { articleValidator } from "./article.validator";
-import { authenticate, optionalAuthenticate } from "@middlewares/auth.middleware";
+import {
+  authenticate,
+  optionalAuthenticate,
+} from "@middlewares/auth.middleware";
 import { authorize } from "@middlewares/role.middleware";
 import { logActivity } from "@middlewares/activity-log.middleware";
 import { ROLES } from "@constants/roles.constant";
@@ -45,8 +48,20 @@ router.delete(
 // --- Article Routes ---
 
 // Public listing and detail
-router.get("/", globalLimiter, optionalAuthenticate, articleValidator.query, articleController.getArticles);
-router.get("/slug/:slug", globalLimiter, optionalAuthenticate, articleValidator.validateSlug, articleController.getBySlug);
+router.get(
+  "/",
+  globalLimiter,
+  optionalAuthenticate,
+  articleValidator.query,
+  articleController.getArticles,
+);
+router.get(
+  "/slug/:slug",
+  globalLimiter,
+  optionalAuthenticate,
+  articleValidator.validateSlug,
+  articleController.getBySlug,
+);
 
 // Admin routes
 router.get(
@@ -55,7 +70,6 @@ router.get(
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   articleValidator.query,
-  logActivity("article"),
   articleController.getArticles,
 );
 

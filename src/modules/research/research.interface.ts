@@ -7,14 +7,14 @@ export interface IResearch extends Document {
   description?: string;
   uploadType: UploadType;
   pdfFile?: {
-    url: string;
-    fileId: string;
+    url: string | undefined;
+    fileId: string | undefined;
   };
   doiUrl?: string;
   doiNumber?: string;
   thumbnailImage?: {
-    url: string;
-    fileId: string;
+    url: string | undefined;
+    fileId: string | undefined;
   };
   status: ContentStatus;
   publishedAt?: Date;

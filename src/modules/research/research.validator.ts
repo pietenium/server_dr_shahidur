@@ -122,7 +122,7 @@ export const researchValidator = {
       .optional()
       .isIn(["DRAFT", "PUBLISHED"])
       .withMessage("Invalid status filter"),
-    
+
     query("uploadType")
       .optional()
       .isIn(["PDF", "DOI"])

@@ -1,47 +1,62 @@
 import mongoose, { Schema } from "mongoose";
 import mongoosePaginate from "mongoose-paginate-v2";
 import type { IResearch } from "./research.interface";
-import { UPLOAD_TYPE, CONTENT_STATUS } from "@constants/status.constant";
 
 const researchSchema = new Schema<IResearch>(
   {
-    title: { type: String, required: true },
-    slug: { type: String, required: true, unique: true },
-    description: { type: String },
-    uploadType: { type: String, enum: Object.values(UPLOAD_TYPE), required: true },
+    title: {
+      type: String,
+      required: [true, "Research title is required"],
+      trim: true,
+      maxlength: [300, "Title cannot exceed 300 characters"],
+    },
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+    },
+    description: {
+      type: String,
+      trim: true,
+      maxlength: [2000, "Description cannot exceed 2000 characters"],
+    },
+    uploadType: {
+      type: String,
+      enum: ["PDF", "DOI"],
+      required: [true, "Upload type is required"],
+    },
     pdfFile: {
-      url: String,
-      fileId: String,
+      url: { type: String },
+      fileId: { type: String },
     },
-    doiUrl: { type: String },
-    doiNumber: { type: String },
+    doiUrl: {
+      type: String,
+    },
+    doiNumber: {
+      type: String,
+    },
     thumbnailImage: {
-      url: String,
-      fileId: String,
+      url: { type: String },
+      fileId: { type: String },
     },
-    status: { type: String, enum: Object.values(CONTENT_STATUS), default: CONTENT_STATUS.DRAFT },
-    publishedAt: { type: Date },
-  },
-  {
-    timestamps: true,
-    toJSON: {
-      transform: (_, ret) => {
-        delete (ret as Record<string, unknown>).__v;
-        return ret;
-      },
+    status: {
+      type: String,
+      enum: ["DRAFT", "PUBLISHED"],
+      default: "DRAFT",
+    },
+    publishedAt: {
+      type: Date,
     },
   },
+  { timestamps: true },
 );
 
 researchSchema.plugin(mongoosePaginate);
 
-// Indexes
-researchSchema.index({ status: 1 });
-researchSchema.index({ uploadType: 1 });
-researchSchema.index({ publishedAt: -1 });
+researchSchema.index({ slug: 1 });
+researchSchema.index({ status: 1, uploadType: 1 });
+researchSchema.index({ createdAt: -1 });
 researchSchema.index({ title: "text", description: "text" });
 
-export const Research = mongoose.model<
-  IResearch,
-  mongoose.PaginateModel<IResearch>
->("Research", researchSchema);
+export const Research = mongoose.model<IResearch>("Research", researchSchema);
