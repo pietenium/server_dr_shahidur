@@ -15,16 +15,16 @@ export interface IArticle extends Document {
   content: string;
   excerpt?: string;
   featuredImage?: {
-    url: string;
-    fileId: string;
+    url: string | undefined;
+    fileId: string | undefined;
   };
   category: Types.ObjectId | IArticleCategory;
   articleType: ArticleType;
   status: ContentStatus;
   impressions: number;
   ogImage?: {
-    url: string;
-    fileId: string;
+    url: string | undefined;
+    fileId: string | undefined;
   };
   author?: string;
   tags?: string[];

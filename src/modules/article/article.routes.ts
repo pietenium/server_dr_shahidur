@@ -1,4 +1,5 @@
 import { Router } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { articleController } from "./article.controller";
 import { articleValidator } from "./article.validator";
 import {
@@ -9,8 +10,29 @@ import { authorize } from "@middlewares/role.middleware";
 import { logActivity } from "@middlewares/activity-log.middleware";
 import { ROLES } from "@constants/roles.constant";
 import { globalLimiter } from "@middlewares/rate-limiter.middleware";
+import { uploadImage } from "@middlewares/upload.middleware";
 
 const router = Router();
+
+// Custom middleware for handling article file uploads (featuredImage and ogImage)
+const handleArticleFiles = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  // Use uploadImage for both images (both are images)
+  const upload = uploadImage.fields([
+    { name: "featuredImage", maxCount: 1 },
+    { name: "ogImage", maxCount: 1 },
+  ]);
+
+  upload(req, res, (err) => {
+    if (err) {
+      return next(err);
+    }
+    next();
+  });
+};
 
 // --- Category Routes ---
 router.get("/categories", globalLimiter, articleController.getCategories);
@@ -55,11 +77,11 @@ router.get(
   articleValidator.query,
   articleController.getArticles,
 );
+
 router.get(
   "/slug/:slug",
   globalLimiter,
   optionalAuthenticate,
-  articleValidator.validateSlug,
   articleController.getBySlug,
 );
 
@@ -78,6 +100,7 @@ router.post(
   globalLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
+  handleArticleFiles,
   articleValidator.create,
   logActivity("article"),
   articleController.create,
@@ -88,6 +111,7 @@ router.patch(
   globalLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
+  handleArticleFiles,
   articleValidator.update,
   logActivity("article"),
   articleController.update,
