@@ -18,6 +18,10 @@ import {
 import type { Types } from "mongoose";
 
 export class ResearchService {
+  private getSafeString(value: unknown): string | undefined {
+    return typeof value === "string" ? value : undefined;
+  }
+
   public async getResearchList(query: ResearchFilterQuery): Promise<{
     papers: IResearch[];
     totalDocs: number;
@@ -41,16 +45,21 @@ export class ResearchService {
 
     const filter: Record<string, unknown> = {};
 
-    if (query.status) {
-      filter.status = query.status;
+    const safeStatus = this.getSafeString(query.status);
+    if (safeStatus) {
+      filter.status = { $eq: safeStatus };
     }
-    if (query.uploadType) {
-      filter.uploadType = query.uploadType;
+
+    const safeUploadType = this.getSafeString(query.uploadType);
+    if (safeUploadType) {
+      filter.uploadType = { $eq: safeUploadType };
     }
-    if (query.search) {
+
+    const safeSearch = this.getSafeString(query.search);
+    if (safeSearch) {
       filter.$or = [
-        { title: { $regex: query.search, $options: "i" } },
-        { description: { $regex: query.search, $options: "i" } },
+        { title: { $regex: safeSearch, $options: "i" } },
+        { description: { $regex: safeSearch, $options: "i" } },
       ];
     }
 
