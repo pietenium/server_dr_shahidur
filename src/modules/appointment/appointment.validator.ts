@@ -10,7 +10,11 @@ export const appointmentValidator = {
       .withMessage("Phone is required")
       .matches(/^\+8801[3-9]\d{8}$/)
       .withMessage("Invalid Bangladesh phone number format (+8801XXXXXXXXX)"),
-    body("email").optional().isEmail().withMessage("Invalid email format").normalizeEmail(),
+    body("email")
+      .optional()
+      .isEmail()
+      .withMessage("Invalid email format")
+      .normalizeEmail(),
     body("preferredDate")
       .notEmpty()
       .withMessage("Date is required")
@@ -28,7 +32,10 @@ export const appointmentValidator = {
   ],
 
   query: [
-    query("status").optional().toUpperCase().isIn(["PENDING", "CONFIRMED", "CANCELLED"]),
+    query("status")
+      .optional()
+      .toUpperCase()
+      .isIn(["PENDING", "CONFIRMED", "CANCELLED"]),
     query("startDate").optional().isISO8601(),
     query("endDate").optional().isISO8601(),
     query("page").optional().isInt({ min: 1 }).toInt(),

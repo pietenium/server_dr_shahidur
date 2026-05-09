@@ -7,12 +7,7 @@ import { authLimiter } from "@middlewares/rate-limiter.middleware";
 
 const router = Router();
 
-router.post(
-  "/login",
-  authLimiter,
-  authValidator.login,
-  authController.login,
-);
+router.post("/login", authLimiter, authValidator.login, authController.login);
 
 router.post(
   "/forgot-password",
@@ -42,11 +37,7 @@ router.post(
   authController.resetPassword,
 );
 
-router.post(
-  "/refresh-token",
-  authLimiter,
-  authController.refreshToken,
-);
+router.post("/refresh-token", authLimiter, authController.refreshToken);
 
 router.post(
   "/logout",

@@ -4,7 +4,10 @@ import { asyncHandler } from "@utils/asyncHandler";
 import { ApiResponse } from "@utils/ApiResponse";
 import { activityLogService } from "./activity-log.service";
 import { ApiError } from "@utils/ApiError";
-import type { LogFilterQuery, BulkDeletePayload } from "./activity-log.interface";
+import type {
+  LogFilterQuery,
+  BulkDeletePayload,
+} from "./activity-log.interface";
 import { LOG_MESSAGES, AUTH_MESSAGES } from "@constants/messages.constant";
 
 export const activityLogController = {

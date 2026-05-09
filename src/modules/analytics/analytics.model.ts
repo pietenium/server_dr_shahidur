@@ -33,6 +33,12 @@ analyticsSchema.index({ sessionId: 1 });
 analyticsSchema.index({ timestamp: -1 });
 
 // TTL index: auto-delete analytics older than 90 days
-analyticsSchema.index({ timestamp: 1 }, { expireAfterSeconds: 90 * 24 * 60 * 60 });
+analyticsSchema.index(
+  { timestamp: 1 },
+  { expireAfterSeconds: 90 * 24 * 60 * 60 },
+);
 
-export const Analytics = mongoose.model<IAnalytics>("Analytics", analyticsSchema);
+export const Analytics = mongoose.model<IAnalytics>(
+  "Analytics",
+  analyticsSchema,
+);

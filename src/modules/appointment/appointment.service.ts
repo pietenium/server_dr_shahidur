@@ -7,10 +7,8 @@ import type {
   AppointmentChartData,
 } from "./appointment.interface";
 import { getGeoLocation } from "@utils/getGeoLocation";
-// import { sendWhatsAppMessage } from "@utils/sendWhatsApp";
 import { sendEmail } from "@emails/sendEmail";
 import { appointmentConfirmationTemplate } from "@emails/templates/appointment-confirmation.template";
-// import { env } from "@config/env";
 import dayjs from "dayjs";
 import { logger } from "@utils/logger";
 import { ApiError } from "@utils/ApiError";

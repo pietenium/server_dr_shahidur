@@ -1,6 +1,6 @@
-import eslint from '@eslint/js';
-import tseslint from 'typescript-eslint';
-import globals from 'globals';
+import eslint from "@eslint/js";
+import tseslint from "typescript-eslint";
+import globals from "globals";
 
 export default tseslint.config(
   eslint.configs.recommended,
@@ -23,76 +23,76 @@ export default tseslint.config(
     rules: {
       // ─── Logging ─────────────────────────────────────────────────────────
       // Warn on console.log — allow warn/error/info for intentional logging
-      'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
+      "no-console": ["warn", { allow: ["warn", "error", "info"] }],
 
       // ─── Security ────────────────────────────────────────────────────────
-      'no-eval': 'error',
-      'no-implied-eval': 'error',
-      'no-new-func': 'error',
+      "no-eval": "error",
+      "no-implied-eval": "error",
+      "no-new-func": "error",
 
       // ─── TypeScript ───────────────────────────────────────────────────────
       // Enforce proper typing — no silent any
-      '@typescript-eslint/no-explicit-any': 'warn',
+      "@typescript-eslint/no-explicit-any": "warn",
 
       // Exported functions should declare return types explicitly
-      '@typescript-eslint/explicit-module-boundary-types': 'warn',
+      "@typescript-eslint/explicit-module-boundary-types": "warn",
 
       // Prefer import type { } for type-only imports (better tree-shaking)
-      '@typescript-eslint/consistent-type-imports': [
-        'error',
-        { prefer: 'type-imports', fixStyle: 'separate-type-imports' },
+      "@typescript-eslint/consistent-type-imports": [
+        "error",
+        { prefer: "type-imports", fixStyle: "separate-type-imports" },
       ],
 
       // Discourage non-null assertions (!) that bypass type safety
-      '@typescript-eslint/no-non-null-assertion': 'warn',
+      "@typescript-eslint/no-non-null-assertion": "warn",
 
       // Underscore-prefixed vars are intentionally unused (e.g. _req, _next)
-      '@typescript-eslint/no-unused-vars': [
-        'error',
+      "@typescript-eslint/no-unused-vars": [
+        "error",
         {
-          argsIgnorePattern: '^_',
-          varsIgnorePattern: '^_',
-          caughtErrorsIgnorePattern: '^_',
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
         },
       ],
 
       // ─── Async Safety ────────────────────────────────────────────────────
       // Every async call must be awaited or explicitly handled
-      '@typescript-eslint/no-floating-promises': 'error',
+      "@typescript-eslint/no-floating-promises": "error",
 
       // Awaiting non-promise values is likely a bug
-      '@typescript-eslint/await-thenable': 'error',
+      "@typescript-eslint/await-thenable": "error",
 
       // Returning await inside try/catch preserves error stack traces
-      '@typescript-eslint/return-await': ['error', 'in-try-catch'],
+      "@typescript-eslint/return-await": ["error", "in-try-catch"],
 
       // Async functions inside new Promise() can shadow errors
-      'no-async-promise-executor': 'error',
+      "no-async-promise-executor": "error",
 
       // ─── Code Quality ─────────────────────────────────────────────────────
       // Always use === / !== instead of == / !=
-      'eqeqeq': ['error', 'always'],
+      eqeqeq: ["error", "always"],
 
       // No var — use const or let only
-      'no-var': 'error',
-      'prefer-const': 'error',
+      "no-var": "error",
+      "prefer-const": "error",
 
       // Always throw Error objects, not strings or literals
-      'no-throw-literal': 'error',
+      "no-throw-literal": "error",
 
       // ─── Style & Consistency ─────────────────────────────────────────────
       // Always require curly braces — prevents one-liner if bugs
-      'curly': ['error', 'all'],
+      curly: ["error", "all"],
 
       // Simplify control flow: no else after return
-      'no-else-return': 'error',
+      "no-else-return": "error",
 
       // Use shorthand properties: { x } instead of { x: x }
-      'object-shorthand': 'error',
+      "object-shorthand": "error",
     },
   },
 
   {
-    ignores: ['dist/', 'node_modules/', 'eslint.config.js'],
-  }
+    ignores: ["dist/", "node_modules/", "eslint.config.js"],
+  },
 );

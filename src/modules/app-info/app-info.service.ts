@@ -2,6 +2,7 @@ import { AppInfo } from "./app-info.model";
 import { ApiError } from "@utils/ApiError";
 import type { UpdateAppInfoPayload, IAppInfo } from "./app-info.interface";
 import { getCache, setCache, deleteCache } from "@utils/cache";
+
 export class AppInfoService {
   public async getAppInfo(): Promise<IAppInfo | null> {
     const cacheKey = "cache:app-info";

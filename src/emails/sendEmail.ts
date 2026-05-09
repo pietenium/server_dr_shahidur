@@ -8,7 +8,8 @@ interface SendEmailOptions {
   html: string;
 }
 
-const sanitizeForLog = (value: string): string => value.replace(/[\r\n]+/g, " ");
+const sanitizeForLog = (value: string): string =>
+  value.replace(/[\r\n]+/g, " ");
 
 export const sendEmail = async (options: SendEmailOptions): Promise<void> => {
   try {

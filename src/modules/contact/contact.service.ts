@@ -13,9 +13,11 @@ import { sendEmail } from "@emails/sendEmail";
 import { contactConfirmationTemplate } from "@emails/templates/contact-confirmation.template";
 import { logger } from "@utils/logger";
 
-
 export const contactService = {
-  create: async (payload: CreateContactPayload, ip: string): Promise<IContact> => {
+  create: async (
+    payload: CreateContactPayload,
+    ip: string,
+  ): Promise<IContact> => {
     // Save contact first for a fast HTTP response
     const contact = await Contact.create({
       ...payload,
@@ -28,7 +30,9 @@ export const contactService = {
         const location = await getGeoLocation(ip);
         await Contact.findByIdAndUpdate(contact._id, { location });
       } catch (error) {
-        logger.warn(`Failed to resolve geolocation for contact: ${(error as Error).message}`);
+        logger.warn(
+          `Failed to resolve geolocation for contact: ${(error as Error).message}`,
+        );
       }
     })();
 
@@ -43,7 +47,9 @@ export const contactService = {
         }
       })
       .catch((error) => {
-        logger.warn(`Failed to send Telegram notification: ${(error as Error).message}`);
+        logger.warn(
+          `Failed to send Telegram notification: ${(error as Error).message}`,
+        );
       });
 
     // Send Confirmation Email to Sender (Async)
@@ -55,13 +61,17 @@ export const contactService = {
         subject: contact.subject,
       }),
     }).catch((error) => {
-      logger.warn(`Failed to send confirmation email: ${(error as Error).message}`);
+      logger.warn(
+        `Failed to send confirmation email: ${(error as Error).message}`,
+      );
     });
 
     return contact;
   },
 
-  getMessages: async (query: ContactFilterQuery): Promise<mongoose.PaginateResult<IContact>> => {
+  getMessages: async (
+    query: ContactFilterQuery,
+  ): Promise<mongoose.PaginateResult<IContact>> => {
     const { isRead, reason, page = 1, limit = 20 } = query;
 
     const filter: Record<string, unknown> = {};
@@ -96,7 +106,7 @@ export const contactService = {
     const contact = await Contact.findOneAndUpdate(
       { _id: { $eq: id } },
       { $set: { isRead: true } },
-      { new: true }
+      { new: true },
     );
 
     if (!contact) {

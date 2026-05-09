@@ -29,7 +29,12 @@ const imageFilter = (
   if (ALLOWED_IMAGE_TYPES.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new ApiError(StatusCodes.BAD_REQUEST, `Invalid image type: ${file.mimetype}`));
+    cb(
+      new ApiError(
+        StatusCodes.BAD_REQUEST,
+        `Invalid image type: ${file.mimetype}`,
+      ),
+    );
   }
 };
 
@@ -58,7 +63,12 @@ const videoFilter = (
   if (ALLOWED_VIDEO_TYPES.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new ApiError(StatusCodes.BAD_REQUEST, `Invalid video type: ${file.mimetype}`));
+    cb(
+      new ApiError(
+        StatusCodes.BAD_REQUEST,
+        `Invalid video type: ${file.mimetype}`,
+      ),
+    );
   }
 };
 

@@ -5,7 +5,10 @@ import { ApiResponse } from "@utils/ApiResponse";
 import { ApiError } from "@utils/ApiError";
 import { analyticsService } from "./analytics.service";
 import type { TrackPageViewPayload } from "./analytics.interface";
-import { ANALYTICS_MESSAGES, AUTH_MESSAGES } from "@constants/messages.constant";
+import {
+  ANALYTICS_MESSAGES,
+  AUTH_MESSAGES,
+} from "@constants/messages.constant";
 
 export const analyticsController = {
   track: asyncHandler((req: Request, res: Response) => {
@@ -13,7 +16,11 @@ export const analyticsController = {
     const userAgent = req.headers["user-agent"] || "Unknown";
 
     // Fire-and-forget: explicitly mark as ignored for linting
-    void analyticsService.trackPageView(req.body as TrackPageViewPayload, ip, userAgent);
+    void analyticsService.trackPageView(
+      req.body as TrackPageViewPayload,
+      ip,
+      userAgent,
+    );
 
     ApiResponse(res, {
       statusCode: StatusCodes.CREATED,
@@ -21,7 +28,7 @@ export const analyticsController = {
       message: ANALYTICS_MESSAGES.TRACKED,
       data: null,
     });
-    
+
     return Promise.resolve();
   }),
 

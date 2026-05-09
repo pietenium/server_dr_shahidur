@@ -14,7 +14,7 @@ export const magicLoginTemplate = (data: MagicLoginData): string => {
         <h2 style="color: #1a6b4a;">Login Details</h2>
         <p>Hello ${data.name},</p>
         <p>You requested to log in. You can either use the OTP below or click the magic link:</p>
-        
+
         <div style="background-color: #f5f5f5; padding: 20px; text-align: center; margin: 20px 0; border-radius: 4px;">
           <p style="margin: 0; color: #666; font-size: 14px;">Your OTP Code</p>
           <h1 style="color: #1a6b4a; letter-spacing: 5px; margin: 10px 0 0; font-size: 36px;">${data.otp}</h1>
