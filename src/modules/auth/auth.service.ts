@@ -81,7 +81,12 @@ export const authService = {
 
     const redis = getRedisClient();
     await redis.set(`otp:${user._id.toString()}`, hashedOtp, "EX", 600);
-    await redis.set(`magic:${user._id.toString()}`, hashedMagicToken, "EX", 600);
+    await redis.set(
+      `magic:${user._id.toString()}`,
+      hashedMagicToken,
+      "EX",
+      600,
+    );
 
     const magicLink = `${env.CLIENT_DASHBOARD_URL}/magic-login?token=${magicToken}&email=${encodeURIComponent(user.email)}`;
 
@@ -130,7 +135,12 @@ export const authService = {
     // Generate a short-lived session token (UUID) to return to the frontend.
     // This avoids leaking the bcrypt hash and passes any UUID validator cleanly.
     const sessionId = uuidv4();
-    await redis.set(`verify-session:${sessionId}`, user._id.toString(), "EX", 600);
+    await redis.set(
+      `verify-session:${sessionId}`,
+      user._id.toString(),
+      "EX",
+      600,
+    );
 
     return { magicToken: sessionId };
   },
@@ -147,7 +157,9 @@ export const authService = {
 
     // Check if magicToken is a verify-session UUID (OTP flow)
     // In this case we resolve the userId directly from Redis
-    const sessionUserId = await redis.get(`verify-session:${payload.magicToken}`);
+    const sessionUserId = await redis.get(
+      `verify-session:${payload.magicToken}`,
+    );
 
     let userId: string;
     if (sessionUserId) {
@@ -159,11 +171,16 @@ export const authService = {
       if (!user) {
         throw new ApiError(StatusCodes.UNAUTHORIZED, "Invalid request");
       }
-      const storedHashedMagicToken = await redis.get(`magic:${user._id.toString()}`);
+      const storedHashedMagicToken = await redis.get(
+        `magic:${user._id.toString()}`,
+      );
       if (!storedHashedMagicToken) {
         throw new ApiError(StatusCodes.UNAUTHORIZED, "Link expired");
       }
-      const isValid = await bcrypt.compare(payload.magicToken, storedHashedMagicToken);
+      const isValid = await bcrypt.compare(
+        payload.magicToken,
+        storedHashedMagicToken,
+      );
       if (!isValid) {
         throw new ApiError(StatusCodes.UNAUTHORIZED, "Invalid magic token");
       }
@@ -200,14 +217,15 @@ export const authService = {
   },
 
   resetPassword: async (payload: ResetPasswordPayload): Promise<void> => {
-
     if (typeof payload.email !== "string") {
       throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid request");
     }
     const redis = getRedisClient();
 
     // Check if magicToken is a verify-session UUID (OTP flow)
-    const sessionUserId = await redis.get(`verify-session:${payload.magicToken}`);
+    const sessionUserId = await redis.get(
+      `verify-session:${payload.magicToken}`,
+    );
 
     let userId: string;
     if (sessionUserId) {
@@ -219,11 +237,16 @@ export const authService = {
       if (!user) {
         throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid request");
       }
-      const storedHashedMagicToken = await redis.get(`magic:${user._id.toString()}`);
+      const storedHashedMagicToken = await redis.get(
+        `magic:${user._id.toString()}`,
+      );
       if (!storedHashedMagicToken) {
         throw new ApiError(StatusCodes.BAD_REQUEST, "Link expired");
       }
-      const isValid = await bcrypt.compare(payload.magicToken, storedHashedMagicToken);
+      const isValid = await bcrypt.compare(
+        payload.magicToken,
+        storedHashedMagicToken,
+      );
       if (!isValid) {
         throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid magic token");
       }
@@ -258,10 +281,7 @@ export const authService = {
   refreshToken: async (token: string): Promise<AuthTokens> => {
     let decoded: JwtRefreshPayload;
     try {
-      decoded = jwt.verify(
-        token,
-        env.JWT_REFRESH_SECRET,
-      ) as JwtRefreshPayload;
+      decoded = jwt.verify(token, env.JWT_REFRESH_SECRET) as JwtRefreshPayload;
     } catch {
       throw new ApiError(StatusCodes.UNAUTHORIZED, "Invalid refresh token");
     }
@@ -269,12 +289,18 @@ export const authService = {
     const redis = getRedisClient();
     const isBlacklisted = await redis.get(`blacklist:jti:${decoded.jti}`);
     if (isBlacklisted) {
-      throw new ApiError(StatusCodes.UNAUTHORIZED, "Token has been invalidated");
+      throw new ApiError(
+        StatusCodes.UNAUTHORIZED,
+        "Token has been invalidated",
+      );
     }
 
     const user = await User.findById(decoded._id);
     if (!user || !user.isActive) {
-      throw new ApiError(StatusCodes.UNAUTHORIZED, "User inactive or not found");
+      throw new ApiError(
+        StatusCodes.UNAUTHORIZED,
+        "User inactive or not found",
+      );
     }
 
     // Blacklist old token
@@ -308,10 +334,7 @@ export const authService = {
   logout: async (token: string): Promise<void> => {
     let decoded: JwtRefreshPayload;
     try {
-      decoded = jwt.verify(
-        token,
-        env.JWT_REFRESH_SECRET,
-      ) as JwtRefreshPayload;
+      decoded = jwt.verify(token, env.JWT_REFRESH_SECRET) as JwtRefreshPayload;
     } catch {
       // If token is invalid or expired, no need to blacklist
       return;

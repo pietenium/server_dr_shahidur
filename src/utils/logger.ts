@@ -5,7 +5,8 @@ const isDev = (): boolean => {
   return env === "development" || env === "test";
 };
 
-const sanitizeLogString = (value: string): string => value.replace(/[\r\n]+/g, " ");
+const sanitizeLogString = (value: string): string =>
+  value.replace(/[\r\n]+/g, " ");
 
 const sanitizeLogArg = (arg: unknown): unknown => {
   if (typeof arg === "string") {
@@ -41,8 +42,8 @@ const sanitizeLogArg = (arg: unknown): unknown => {
   return arg;
 };
 
-const sanitizeLogArgs = (args: unknown[]): unknown[] => args.map((arg) => sanitizeLogArg(arg));
-
+const sanitizeLogArgs = (args: unknown[]): unknown[] =>
+  args.map((arg) => sanitizeLogArg(arg));
 
 export const logger = {
   log: (...args: unknown[]): void => {

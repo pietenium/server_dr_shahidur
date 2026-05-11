@@ -4,14 +4,17 @@ import { asyncHandler } from "@utils/asyncHandler";
 import { ApiResponse } from "@utils/ApiResponse";
 import { ApiError } from "@utils/ApiError";
 import { contactService } from "./contact.service";
-import type { CreateContactPayload, ContactFilterQuery } from "./contact.interface";
+import type {
+  CreateContactPayload,
+  ContactFilterQuery,
+} from "./contact.interface";
 import { CONTACT_MESSAGES, AUTH_MESSAGES } from "@constants/messages.constant";
 
 export const contactController = {
   create: asyncHandler(async (req: Request, res: Response) => {
     const payload = req.body as CreateContactPayload;
     const ip = req.ip || "unknown";
-    
+
     const contact = await contactService.create(payload, ip);
 
     ApiResponse(res, {

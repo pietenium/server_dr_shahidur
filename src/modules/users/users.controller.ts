@@ -29,7 +29,10 @@ export const usersController = {
     if (!req.user) {
       throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
     }
-    const user = await usersService.updateMe(req.user._id, req.body as UpdateProfilePayload);
+    const user = await usersService.updateMe(
+      req.user._id,
+      req.body as UpdateProfilePayload,
+    );
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
@@ -42,7 +45,10 @@ export const usersController = {
     if (!req.user) {
       throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
     }
-    await usersService.changePassword(req.user._id, req.body as ChangePasswordPayload);
+    await usersService.changePassword(
+      req.user._id,
+      req.body as ChangePasswordPayload,
+    );
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
@@ -68,7 +74,9 @@ export const usersController = {
     if (!req.user) {
       throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
     }
-    const moderator = await usersService.inviteModerator(req.body as InviteModeratorPayload);
+    const moderator = await usersService.inviteModerator(
+      req.body as InviteModeratorPayload,
+    );
     ApiResponse(res, {
       statusCode: StatusCodes.CREATED,
       success: true,
@@ -81,7 +89,10 @@ export const usersController = {
     if (!req.user) {
       throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
     }
-    const user = await usersService.toggleUserActive(req.user._id, req.params.id as string);
+    const user = await usersService.toggleUserActive(
+      req.user._id,
+      req.params.id as string,
+    );
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,

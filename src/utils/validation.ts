@@ -15,7 +15,11 @@ export const checkValidationResult = (
       message: err.msg as string,
     }));
     return next(
-      new ApiError(StatusCodes.BAD_REQUEST, "Validation failed", formattedErrors),
+      new ApiError(
+        StatusCodes.BAD_REQUEST,
+        "Validation failed",
+        formattedErrors,
+      ),
     );
   }
   next();

@@ -20,9 +20,18 @@ router.post(
 );
 
 // Admin routes
-router.use(globalLimiter, authenticate, authorize(ROLES.ADMIN, ROLES.MODERATOR));
+router.use(
+  globalLimiter,
+  authenticate,
+  authorize(ROLES.ADMIN, ROLES.MODERATOR),
+);
 
-router.get("/", logActivity("contact"), contactValidator.query, contactController.getMessages);
+router.get(
+  "/",
+  logActivity("contact"),
+  contactValidator.query,
+  contactController.getMessages,
+);
 
 router.get("/:id", logActivity("contact"), contactController.getMessageById);
 

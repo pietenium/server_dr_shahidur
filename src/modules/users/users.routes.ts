@@ -30,7 +30,12 @@ router.patch(
 // --- Admin Only Routes ---
 router.use(authorize(ROLES.ADMIN));
 
-router.get("/", logActivity("users"), usersValidator.getAllUsers, usersController.getAllUsers);
+router.get(
+  "/",
+  logActivity("users"),
+  usersValidator.getAllUsers,
+  usersController.getAllUsers,
+);
 router.post(
   "/invite",
   usersValidator.inviteModerator,

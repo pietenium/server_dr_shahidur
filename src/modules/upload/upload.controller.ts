@@ -29,7 +29,7 @@ export const uploadController = {
     if (!file) {
       throw new ApiError(StatusCodes.BAD_REQUEST, "No image file uploaded");
     }
-    
+
     const ik = imagekit as unknown as ImageKitInstance;
     const result = await ik.upload({
       file: `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
@@ -53,7 +53,7 @@ export const uploadController = {
     if (!file) {
       throw new ApiError(StatusCodes.BAD_REQUEST, "No PDF file uploaded");
     }
-    
+
     const ik = imagekit as unknown as ImageKitInstance;
     const result = await ik.upload({
       file: `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
@@ -78,21 +78,36 @@ export const uploadController = {
       throw new ApiError(StatusCodes.BAD_REQUEST, "No video file uploaded");
     }
 
-    const uploadResult = await new Promise<UploadApiResponse>((resolve, reject) => {
-      const uploadStream = cloudinaryUploader.upload_stream(
-        { resource_type: "video", folder: "videos" },
-        (error: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
-          if (error) {
-            reject(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, "Cloudinary upload failed: " + error.message));
-          } else if (result) {
-            resolve(result);
-          } else {
-            reject(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, "Cloudinary upload failed with unknown error"));
-          }
-        }
-      );
-      Readable.from(file.buffer).pipe(uploadStream);
-    });
+    const uploadResult = await new Promise<UploadApiResponse>(
+      (resolve, reject) => {
+        const uploadStream = cloudinaryUploader.upload_stream(
+          { resource_type: "video", folder: "videos" },
+          (
+            error: UploadApiErrorResponse | undefined,
+            result: UploadApiResponse | undefined,
+          ) => {
+            if (error) {
+              reject(
+                new ApiError(
+                  StatusCodes.INTERNAL_SERVER_ERROR,
+                  "Cloudinary upload failed: " + error.message,
+                ),
+              );
+            } else if (result) {
+              resolve(result);
+            } else {
+              reject(
+                new ApiError(
+                  StatusCodes.INTERNAL_SERVER_ERROR,
+                  "Cloudinary upload failed with unknown error",
+                ),
+              );
+            }
+          },
+        );
+        Readable.from(file.buffer).pipe(uploadStream);
+      },
+    );
 
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
