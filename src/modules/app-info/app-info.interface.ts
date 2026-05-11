@@ -19,11 +19,11 @@ export interface IAppInfo extends Document {
   phone: string;
   address?: string;
   socialLinks?: {
-    facebook?: string;
-    twitter?: string;
-    linkedin?: string;
-    youtube?: string;
-    instagram?: string;
+    facebook?: string | undefined;
+    twitter?: string | undefined;
+    linkedin?: string | undefined;
+    youtube?: string | undefined;
+    instagram?: string | undefined;
   };
   clinicHours?: string;
   mapEmbedUrl?: string;
@@ -42,11 +42,11 @@ export interface UpdateAppInfoPayload {
   phone?: string;
   address?: string;
   socialLinks?: {
-    facebook?: string;
-    twitter?: string;
-    linkedin?: string;
-    youtube?: string;
-    instagram?: string;
+    facebook?: string | undefined;
+    twitter?: string | undefined;
+    linkedin?: string | undefined;
+    youtube?: string | undefined;
+    instagram?: string | undefined;
   };
   clinicHours?: string;
   mapEmbedUrl?: string;
