@@ -13,7 +13,9 @@ import usersRoutes from "@modules/users/users.routes";
 import uploadRoutes from "@modules/upload/upload.routes";
 
 const router = Router();
+import visitorRoutes from "@modules/visitor/visitor.routes";
 
+// Add after other route registrations
 const moduleRoutes = [
   { path: "/auth", route: authRoutes },
   { path: "/analytics", route: analyticsRoutes },
@@ -27,6 +29,7 @@ const moduleRoutes = [
   { path: "/search", route: searchRoutes },
   { path: "/users", route: usersRoutes },
   { path: "/upload", route: uploadRoutes },
+  { path: "/visitor", route: visitorRoutes },
 ];
 
 moduleRoutes.forEach((route) => {

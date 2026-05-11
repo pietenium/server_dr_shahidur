@@ -35,4 +35,14 @@ router.get(
   analyticsController.getPageStats,
 );
 
+// New: Get specific page statistics (admin only)
+router.get(
+  "/pages/:pageSlug",
+  analyticsLimiter,
+  authenticate,
+  authorize(ROLES.ADMIN, ROLES.MODERATOR),
+  analyticsValidator.pageSlug,
+  analyticsController.getSpecificPageStats,
+);
+
 export default router;

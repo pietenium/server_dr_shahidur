@@ -9,7 +9,10 @@ import {
 import { authorize } from "@middlewares/role.middleware";
 import { logActivity } from "@middlewares/activity-log.middleware";
 import { ROLES } from "@constants/roles.constant";
-import { globalLimiter } from "@middlewares/rate-limiter.middleware";
+import {
+  globalLimiter,
+  analyticsLimiter,
+} from "@middlewares/rate-limiter.middleware";
 import { uploadImage } from "@middlewares/upload.middleware";
 
 const router = Router();
@@ -20,7 +23,6 @@ const handleArticleFiles = (
   res: Response,
   next: NextFunction,
 ) => {
-  // Use uploadImage for both images (both are images)
   const upload = uploadImage.fields([
     { name: "featuredImage", maxCount: 1 },
     { name: "ogImage", maxCount: 1 },
@@ -83,6 +85,34 @@ router.get(
   globalLimiter,
   optionalAuthenticate,
   articleController.getBySlug,
+);
+
+// New: Featured articles (public)
+router.get("/featured", globalLimiter, articleController.getFeaturedArticles);
+
+// New: Top articles by category (public)
+router.get(
+  "/top-by-category",
+  globalLimiter,
+  articleController.getTopArticlesByCategory,
+);
+
+// New: Increase impressions (public with strict rate limiting)
+router.post(
+  "/impressions",
+  analyticsLimiter, // 60 requests per minute
+  articleValidator.increaseImpressions,
+  articleController.increaseImpressions,
+);
+
+// New: Batch get impressions (authenticated)
+router.post(
+  "/impressions/batch",
+  globalLimiter,
+  authenticate,
+  authorize(ROLES.ADMIN, ROLES.MODERATOR),
+  articleValidator.batchImpressions,
+  articleController.getMultipleImpressions,
 );
 
 // Admin routes

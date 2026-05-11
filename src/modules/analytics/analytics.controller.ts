@@ -61,4 +61,40 @@ export const analyticsController = {
       data,
     });
   }),
+
+  // New: Get specific page statistics
+  getSpecificPageStats: asyncHandler(async (req: Request, res: Response) => {
+    if (!req.user) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
+    }
+
+    const { pageSlug } = req.params;
+    const { startDate: startDateQuery, endDate: endDateQuery } = req.query;
+
+    const parseQueryParam = (value: unknown): string | undefined => {
+      if (Array.isArray(value)) {
+        return typeof value[0] === "string" ? value[0] : undefined;
+      }
+
+      return typeof value === "string" ? value : undefined;
+    };
+
+    const startDate = parseQueryParam(startDateQuery);
+    const endDate = parseQueryParam(endDateQuery);
+
+    const data = await analyticsService.getSpecificPageStats(
+      pageSlug as string,
+      {
+        startDate,
+        endDate,
+      },
+    );
+
+    ApiResponse(res, {
+      statusCode: StatusCodes.OK,
+      success: true,
+      message: ANALYTICS_MESSAGES.STATS_RETRIEVED,
+      data,
+    });
+  }),
 };

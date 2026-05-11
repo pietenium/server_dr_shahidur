@@ -100,4 +100,55 @@ export const articleValidator = {
     param("id").isMongoId().withMessage("Invalid article ID"),
     checkValidationResult,
   ],
+  increaseImpressions: [
+    body("articleId").isMongoId().withMessage("Invalid article ID"),
+    body("sessionId").notEmpty().withMessage("Session ID is required"),
+    body("visitorId").optional().isString(),
+    body("hoverDuration")
+      .optional()
+      .isInt({ min: 0, max: 30000 })
+      .withMessage("Hover duration must be between 0 and 30000 ms"),
+    checkValidationResult,
+  ],
+
+  // New: Batch impressions validation
+  batchImpressions: [
+    body("articleIds").isArray().withMessage("Article IDs must be an array"),
+    body("articleIds.*").isMongoId().withMessage("Invalid article ID in array"),
+    checkValidationResult,
+  ],
+
+  // New: Featured articles query validation
+  featuredQuery: [
+    query("limit")
+      .optional()
+      .isInt({ min: 1, max: 50 })
+      .toInt()
+      .withMessage("Limit must be between 1 and 50"),
+    query("minImpressions")
+      .optional()
+      .isInt({ min: 1 })
+      .toInt()
+      .withMessage("Minimum impressions must be at least 1"),
+    checkValidationResult,
+  ],
+
+  // New: Top by category query validation
+  topByCategoryQuery: [
+    query("categoryId")
+      .optional()
+      .isMongoId()
+      .withMessage("Invalid category ID"),
+    query("limit")
+      .optional()
+      .isInt({ min: 1, max: 20 })
+      .toInt()
+      .withMessage("Limit must be between 1 and 20"),
+    query("articleType")
+      .optional()
+      .toUpperCase()
+      .isIn(["MEDICAL", "POLITICAL"])
+      .withMessage("Article type must be MEDICAL or POLITICAL"),
+    checkValidationResult,
+  ],
 };

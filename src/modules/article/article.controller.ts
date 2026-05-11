@@ -8,6 +8,10 @@ import type {
   CreateArticlePayload,
   UpdateArticlePayload,
   ArticleFilterQuery,
+  FeaturedArticlesQuery,
+  TopArticlesByCategoryQuery,
+  ImpressionIncreasePayload,
+  ArticleType,
 } from "./article.interface";
 import { ARTICLE_MESSAGES, AUTH_MESSAGES } from "@constants/messages.constant";
 
@@ -148,6 +152,7 @@ export const articleController = {
         limit: query.limit || 10,
         total: result.totalDocs,
         totalPage: result.totalPages,
+        minImpressions: 0,
       },
     });
   }),
@@ -219,6 +224,126 @@ export const articleController = {
       success: true,
       message: ARTICLE_MESSAGES.DELETED,
       data: null,
+    });
+  }),
+
+  getFeaturedArticles: asyncHandler(async (req: Request, res: Response) => {
+    const limitParam = req.query.limit;
+    const minImpressionsParam = req.query.minImpressions;
+
+    const query: FeaturedArticlesQuery = {
+      limit: typeof limitParam === "string" ? parseInt(limitParam, 10) : 10,
+      minImpressions:
+        typeof minImpressionsParam === "string"
+          ? parseInt(minImpressionsParam, 10)
+          : 1000,
+    };
+
+    const result = await articleService.getFeaturedArticles(query);
+
+    ApiResponse(res, {
+      statusCode: StatusCodes.OK,
+      success: true,
+      message: "Featured articles fetched successfully",
+      data: result.articles,
+      meta: {
+        page: result.page,
+        limit: result.limit,
+        total: result.total,
+        totalPage: result.totalPage,
+        minImpressions: query.minImpressions as number,
+      },
+    });
+  }),
+
+  increaseImpressions: asyncHandler(async (req: Request, res: Response) => {
+    const {
+      articleId,
+      hoverDuration,
+      visitorId: bodyVisitorId,
+      sessionId: bodySessionId,
+    } = req.body as {
+      articleId?: string;
+      visitorId?: string;
+      sessionId?: string;
+      hoverDuration?: number;
+    };
+
+    const sessionId = (req.headers["x-session-id"] as string) || bodySessionId;
+    const visitorId = (req.headers["x-visitor-id"] as string) || bodyVisitorId;
+
+    if (!articleId) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, "Article ID is required");
+    }
+
+    if (!sessionId) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, "Session ID is required");
+    }
+
+    const payload: ImpressionIncreasePayload = {
+      articleId,
+      sessionId,
+      visitorId,
+      hoverDuration: hoverDuration || 0,
+    };
+
+    const result = await articleService.increaseImpressions(payload);
+
+    ApiResponse(res, {
+      statusCode: StatusCodes.OK,
+      success: result.success,
+      message: result.success ? "Impression counted" : "Impression not counted",
+      data: {
+        currentImpressions: result.currentImpressions,
+      },
+    });
+  }),
+
+  getTopArticlesByCategory: asyncHandler(
+    async (req: Request, res: Response) => {
+      const categoryIdParam = req.query.categoryId;
+      const limitParam = req.query.limit;
+      const articleTypeParam = req.query.articleType;
+
+      const query: TopArticlesByCategoryQuery = {
+        categoryId:
+          typeof categoryIdParam === "string" ? categoryIdParam : undefined,
+        limit: typeof limitParam === "string" ? parseInt(limitParam, 10) : 5,
+        articleType:
+          typeof articleTypeParam === "string"
+            ? (articleTypeParam as ArticleType)
+            : undefined,
+      };
+
+      const result = await articleService.getTopArticlesByCategory(query);
+
+      ApiResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: "Top articles by category fetched successfully",
+        data: result.categories,
+      });
+    },
+  ),
+
+  getMultipleImpressions: asyncHandler(async (req: Request, res: Response) => {
+    const { articleIds } = req.body as { articleIds: string[] };
+
+    if (!articleIds || !Array.isArray(articleIds) || articleIds.length === 0) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        "Article IDs array is required",
+      );
+    }
+
+    const result =
+      await articleService.getMultipleArticleImpressions(articleIds);
+
+    ApiResponse(res, {
+      statusCode: StatusCodes.OK,
+      success: true,
+      message: "Article impressions fetched successfully",
+      data: result,
     });
   }),
 };
