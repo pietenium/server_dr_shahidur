@@ -56,6 +56,26 @@ export interface ArticleFilterQuery {
   page?: number;
   limit?: number;
   sort?: string;
+  minImpressions?: number;
+}
+
+// New interfaces for featured and top articles
+export interface FeaturedArticlesQuery {
+  limit?: number;
+  minImpressions?: number;
+}
+
+export interface TopArticlesByCategoryQuery {
+  categoryId?: string;
+  limit?: number;
+  articleType?: ArticleType;
+}
+
+export interface ImpressionIncreasePayload {
+  articleId: string;
+  sessionId: string;
+  visitorId?: string;
+  hoverDuration?: number; // in milliseconds
 }
 
 // ArticleType is re-exported from @constants/status.constant

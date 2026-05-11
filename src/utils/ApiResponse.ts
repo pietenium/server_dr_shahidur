@@ -5,6 +5,7 @@ interface IMeta {
   limit: number;
   total: number;
   totalPage: number;
+  minImpressions?: number;
 }
 
 interface IApiResponse<T> {

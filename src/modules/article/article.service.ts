@@ -8,6 +8,9 @@ import type {
   CreateArticlePayload,
   UpdateArticlePayload,
   ArticleFilterQuery,
+  FeaturedArticlesQuery,
+  TopArticlesByCategoryQuery,
+  ImpressionIncreasePayload,
 } from "./article.interface";
 import { generateSlug } from "@utils/slugify";
 import { sanitizeContent } from "@utils/sanitizeHtml";
@@ -17,7 +20,6 @@ import {
   deleteCache,
   deleteCachePattern,
 } from "@utils/cache";
-
 export class ArticleService {
   public async getArticles(query: ArticleFilterQuery): Promise<{
     articles: IArticle[];
@@ -344,5 +346,211 @@ export class ArticleService {
     }
 
     return article;
+  }
+
+  public async getFeaturedArticles(query: FeaturedArticlesQuery = {}): Promise<{
+    articles: IArticle[];
+    total: number;
+    totalPage: number;
+    page: number;
+    limit: number;
+  }> {
+    const { limit = 10, minImpressions = 1000 } = query;
+    const page = 1; // Featured articles are always page 1
+
+    const cacheKey = `cache:featured-articles:${limit}:${minImpressions}`;
+    const cached = await getCache<{
+      articles: IArticle[];
+      total: number;
+      totalPage: number;
+      page: number;
+      limit: number;
+    }>(cacheKey);
+
+    if (cached) {
+      return cached;
+    }
+
+    const filter = {
+      status: "PUBLISHED",
+      impressions: { $gte: minImpressions },
+      publishedAt: { $lte: new Date() },
+    };
+
+    const [articles, total] = await Promise.all([
+      Article.find(filter)
+        .populate("category")
+        .sort({ impressions: -1, publishedAt: -1 })
+        .limit(limit)
+        .lean(),
+      Article.countDocuments(filter),
+    ]);
+
+    const data = {
+      articles: articles as IArticle[],
+      total,
+      totalPage: Math.ceil(total / limit),
+      page,
+      limit,
+    };
+
+    await setCache(cacheKey, data, 300); // Cache for 5 minutes
+
+    return data;
+  }
+
+  // New: Increase article impressions (with rate limiting per session)
+  public async increaseImpressions(
+    payload: ImpressionIncreasePayload,
+  ): Promise<{
+    success: boolean;
+    currentImpressions: number;
+  }> {
+    const { articleId, sessionId, hoverDuration = 0 } = payload;
+
+    // Validate hover duration (minimum 1 second to count as genuine read)
+    const MIN_HOVER_DURATION = 1000; // 1 second
+    if (hoverDuration < MIN_HOVER_DURATION) {
+      return {
+        success: false,
+        currentImpressions: 0,
+      };
+    }
+
+    // Check if this session has already counted impression for this article
+    const sessionKey = `impression:${articleId}:${sessionId}`;
+    const cached = await getCache<boolean>(sessionKey);
+
+    if (cached) {
+      // Already counted impression for this session
+      return {
+        success: false,
+        currentImpressions: 0,
+      };
+    }
+
+    // Update article impressions
+    const article = await Article.findByIdAndUpdate(
+      articleId,
+      { $inc: { impressions: 1 } },
+      { new: true },
+    );
+
+    if (!article) {
+      throw new ApiError(404, ARTICLE_MESSAGES.NOT_FOUND);
+    }
+
+    // Set cache to prevent duplicate impressions from same session (24 hours)
+    await setCache(sessionKey, true, 86400); // 24 hours
+
+    // Invalidate relevant caches
+    await deleteCachePattern("cache:featured-articles:*");
+    await deleteCachePattern("cache:top-category-articles:*");
+    await deleteCache(`cache:article:${article.slug}`);
+
+    return {
+      success: true,
+      currentImpressions: article.impressions,
+    };
+  }
+
+  // New: Get top articles by category (based on impressions)
+  public async getTopArticlesByCategory(
+    query: TopArticlesByCategoryQuery = {},
+  ): Promise<{
+    categories: Array<{
+      category: IArticleCategory;
+      articles: IArticle[];
+    }>;
+  }> {
+    const { categoryId, limit = 5, articleType } = query;
+
+    const cacheKey = `cache:top-category-articles:${categoryId || "all"}:${limit}:${articleType || "all"}`;
+    const cached = await getCache<{
+      categories: Array<{
+        category: IArticleCategory;
+        articles: IArticle[];
+      }>;
+    }>(cacheKey);
+
+    if (cached) {
+      return cached;
+    }
+
+    // Build filter for articles
+    const articleFilter: Record<string, unknown> = {
+      status: "PUBLISHED",
+      publishedAt: { $lte: new Date() },
+    };
+
+    if (articleType) {
+      articleFilter.articleType = articleType;
+    }
+
+    let categories: IArticleCategory[];
+
+    if (categoryId) {
+      // Get specific category
+      const category = await ArticleCategory.findById(categoryId);
+      if (!category) {
+        throw new ApiError(404, ARTICLE_MESSAGES.CATEGORY_NOT_FOUND);
+      }
+      categories = [category];
+      articleFilter.category = categoryId;
+    } else {
+      // Get all categories
+      categories = await ArticleCategory.find().sort({ name: 1 });
+    }
+
+    // Get top articles for each category
+    const categoriesWithArticles = await Promise.all(
+      categories.map(async (category) => {
+        const articles = await Article.find({
+          ...articleFilter,
+          category: category._id,
+        })
+          .sort({ impressions: -1, publishedAt: -1 })
+          .limit(limit)
+          .lean();
+
+        return {
+          category,
+          articles,
+        };
+      }),
+    );
+
+    // Filter out categories with no articles
+    const result = {
+      categories: categoriesWithArticles.filter(
+        (item) => item.articles.length > 0,
+      ),
+    };
+
+    await setCache(cacheKey, result, 600); // Cache for 10 minutes
+
+    return result;
+  }
+
+  // New: Bulk get article impressions
+  public async getMultipleArticleImpressions(articleIds: string[]): Promise<
+    Array<{
+      articleId: string;
+      impressions: number;
+      slug: string;
+      title: string;
+    }>
+  > {
+    const articles = await Article.find(
+      { _id: { $in: articleIds } },
+      { impressions: 1, slug: 1, title: 1 },
+    ).lean();
+
+    return articles.map((article) => ({
+      articleId: article._id.toString(),
+      impressions: article.impressions,
+      slug: article.slug,
+      title: article.title,
+    }));
   }
 }
