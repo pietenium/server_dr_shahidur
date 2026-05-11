@@ -7,10 +7,10 @@ import type {
   AppointmentChartData,
 } from "./appointment.interface";
 import { getGeoLocation } from "@utils/getGeoLocation";
-// import { sendWhatsAppMessage } from "@utils/sendWhatsApp";
+import { sendWhatsAppMessage } from "@utils/sendWhatsApp";
 import { sendEmail } from "@emails/sendEmail";
 import { appointmentConfirmationTemplate } from "@emails/templates/appointment-confirmation.template";
-// import { env } from "@config/env";
+import { env } from "@config/env";
 import dayjs from "dayjs";
 import { logger } from "@utils/logger";
 import { ApiError } from "@utils/ApiError";
@@ -69,24 +69,24 @@ export const appointmentService = {
         }
 
         //         // WhatsApp to Doctor
-        //         const whatsappMessage = `🗓 *New Appointment Request*
+        const whatsappMessage = `🗓 *New Appointment Request*
 
-        // 👤 *Patient:* ${payload.name}
-        // 📞 *Phone:* ${payload.phone}
-        // 📧 *Email:* ${payload.email || "Not provided"}
-        // 📅 *Preferred Date:* ${dayjs(payload.preferredDate).format("DD MMMM, YYYY")}
-        // ⏰ *Preferred Time:* ${payload.preferredTime}
-        // 💬 *Message:* ${payload.message || "No message"}
-        // 📍 *Location:* ${geo.city}, ${geo.country}
-        // 🕐 *Submitted:* ${dayjs().format("DD/MM/YYYY HH:mm")}
+        👤 *Patient:* ${payload.name}
+        📞 *Phone:* ${payload.phone}
+        📧 *Email:* ${payload.email || "Not provided"}
+        📅 *Preferred Date:* ${dayjs(payload.preferredDate).format("DD MMMM, YYYY")}
+        ⏰ *Preferred Time:* ${payload.preferredTime}
+        💬 *Message:* ${payload.message || "No message"}
+        📍 *Location:* ${geo.city}, ${geo.country}
+        🕐 *Submitted:* ${dayjs().format("DD/MM/YYYY HH:mm")}
 
-        // Manage via dashboard.`;
+        Manage via dashboard.`;
 
-        //         notificationPromises.push(
-        //           sendWhatsAppMessage(env.DOCTOR_WHATSAPP_NUMBER, whatsappMessage),
-        //         );
+        notificationPromises.push(
+          sendWhatsAppMessage(env.DOCTOR_WHATSAPP_NUMBER, whatsappMessage),
+        );
 
-        //         await Promise.allSettled(notificationPromises);
+        await Promise.allSettled(notificationPromises);
       } catch (error) {
         logger.error("Appointment background task error:", error);
       }
