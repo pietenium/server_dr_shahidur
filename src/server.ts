@@ -10,16 +10,13 @@ import { getRedisClient } from "@config/redis";
 
 const seedAdmin = async (): Promise<void> => {
   const { User } = await import("@modules/auth/auth.model");
-  const bcrypt = await import("bcrypt");
 
   const existingAdmin = await User.findOne({ email: env.ADMIN_SEED_EMAIL });
   if (!existingAdmin) {
-    const hashedPassword = await bcrypt.hash(env.ADMIN_SEED_PASSWORD, 10);
-
     await User.create({
       name: "Dr. Sahidur Rahman Khan",
       email: env.ADMIN_SEED_EMAIL,
-      password: hashedPassword,
+      password: env.ADMIN_SEED_PASSWORD,
       role: "ADMIN",
       isActive: true,
     });
@@ -49,7 +46,6 @@ const startServer = async (): Promise<void> => {
 
   // 4. Seed admin
   await seedAdmin();
-  logger.info(chalk.green("✓ Admin seed complete"));
 
   // 5. Initialize WhatsApp
   initWhatsApp();

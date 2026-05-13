@@ -3,17 +3,17 @@ import helmet from "helmet";
 import cors from "cors";
 import compression from "compression";
 import cookieParser from "cookie-parser";
-import mongoSanitize from "express-mongo-sanitize";
 import morgan from "morgan";
 import chalk from "chalk";
 import hpp from "hpp";
 import lusca from "lusca";
 import timeout from "connect-timeout";
 import { corsOptions } from "@config/cors";
-
+import { mongoSanitize } from "@middlewares/mongo-sanitize.middleware";
 import { errorHandler } from "@middlewares/error.middleware";
 import { ApiError } from "@utils/ApiError";
 import { StatusCodes } from "http-status-codes";
+import type { Request, Response } from "express";
 
 // Import routes
 import routes from "./routes";
@@ -63,7 +63,7 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 
 // 6. MongoDB sanitize
-app.use(mongoSanitize());
+app.use(mongoSanitize);
 
 // 7. HTTP Parameter Pollution
 app.use(hpp());
@@ -96,6 +96,33 @@ if (env.NODE_ENV === "development") {
 }
 
 // 10. Routes - mounted under /api/v1
+
+app.get("/", (_req: Request, res: Response) => {
+  res.status(200).json({
+    success: true,
+    message: "Dr. Md. Sahidur Rahman Khan - API Server",
+    version: "1.0.0",
+    environment: env.NODE_ENV,
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      public: "/api/v1",
+      dashboard: "/api/v1",
+      health: "/health",
+    },
+  });
+});
+
+// Health check route
+app.get("/health", (_req: Request, res: Response) => {
+  res.status(200).json({
+    success: true,
+    status: "healthy",
+    message: "Server is running",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+  });
+});
 
 app.use("/api/v1", routes);
 

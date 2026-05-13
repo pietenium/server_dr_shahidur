@@ -29,7 +29,7 @@ export const authLimiter = rateLimit({
   ...commonConfig,
 
   windowMs: 15 * 60 * 1000,
-  max: 10,
+  max: 50,
 
   message: {
     success: false,

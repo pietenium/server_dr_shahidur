@@ -61,7 +61,6 @@ const articleSchema = new Schema<IArticle>(
   { timestamps: true },
 );
 
-articleSchema.index({ slug: 1 });
 articleSchema.index({ status: 1, articleType: 1 });
 articleSchema.index({ category: 1 });
 articleSchema.index({ tags: 1 });
