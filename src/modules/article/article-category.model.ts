@@ -23,8 +23,6 @@ const articleCategorySchema = new Schema<IArticleCategory>(
   { timestamps: true },
 );
 
-articleCategorySchema.index({ slug: 1 });
-
 export const ArticleCategory = mongoose.model<IArticleCategory>(
   "ArticleCategory",
   articleCategorySchema,

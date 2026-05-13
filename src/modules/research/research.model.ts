@@ -54,7 +54,6 @@ const researchSchema = new Schema<IResearch>(
 
 researchSchema.plugin(mongoosePaginate);
 
-researchSchema.index({ slug: 1 });
 researchSchema.index({ status: 1, uploadType: 1 });
 researchSchema.index({ createdAt: -1 });
 researchSchema.index({ title: "text", description: "text" });

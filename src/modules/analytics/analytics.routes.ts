@@ -11,6 +11,7 @@ const router = Router();
 
 // Public route to track page views with rate limiting (60/min)
 router.post(
+  // for Public Web APP not for this Admin Panel
   "/track",
   analyticsLimiter,
   analyticsValidator.track,

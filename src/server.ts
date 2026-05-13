@@ -49,7 +49,6 @@ const startServer = async (): Promise<void> => {
 
   // 4. Seed admin
   await seedAdmin();
-  logger.info(chalk.green("✓ Admin seed complete"));
 
   // 5. Initialize WhatsApp
   initWhatsApp();
