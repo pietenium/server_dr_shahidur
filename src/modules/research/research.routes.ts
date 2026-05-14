@@ -1,16 +1,16 @@
-import { Router } from "express";
-import type { Request, Response, NextFunction } from "express";
-import { researchController } from "./research.controller";
-import { researchValidator } from "./research.validator";
+import { ROLES } from "@constants/roles.constant";
+import { logActivity } from "@middlewares/activity-log.middleware";
 import {
   authenticate,
   optionalAuthenticate,
 } from "@middlewares/auth.middleware";
-import { authorize } from "@middlewares/role.middleware";
-import { logActivity } from "@middlewares/activity-log.middleware";
-import { ROLES } from "@constants/roles.constant";
 import { globalLimiter } from "@middlewares/rate-limiter.middleware";
-import { uploadPDF, uploadImage } from "@middlewares/upload.middleware";
+import { authorize } from "@middlewares/role.middleware";
+import { uploadImage, uploadPDF } from "@middlewares/upload.middleware";
+import type { NextFunction, Request, Response } from "express";
+import { Router } from "express";
+import { researchController } from "./research.controller";
+import { researchValidator } from "./research.validator";
 
 const router = Router();
 
@@ -66,7 +66,7 @@ router.get(
 );
 
 router.get(
-  "/slug/:slug",
+  "/:slug",
   globalLimiter,
   optionalAuthenticate,
   researchController.getBySlug,

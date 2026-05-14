@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import type {
-  VisitorCookiePayload,
-  SetCookieResponse,
   GetCookieStatusResponse,
+  SetCookieResponse,
+  VisitorCookiePayload,
 } from "./visitor.interface";
 
 // Cookie names (constants)
@@ -101,7 +101,7 @@ export const visitorService = {
   },
 
   // POST - Decline cookies
-  declineCookies(req: Request, res: Response): void {
+  declineCookies(_req: Request, res: Response): void {
     const cookieData: VisitorCookiePayload = {
       visitorId: "", // No tracking IDs set
       sessionId: "",
