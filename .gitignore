@@ -3,5 +3,5 @@ dist/
 .env
 whatsapp-session/
 *.log
-.wwebjs_cache
+.wwebjs_cache/
 backend-completion-plan.md
