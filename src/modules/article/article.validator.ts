@@ -21,7 +21,11 @@ export const articleValidator = {
       .trim()
       .notEmpty()
       .withMessage("Author cannot be empty"),
-    body("tags").optional().isArray().withMessage("Tags must be an array"),
+    body("tags")
+      .optional()
+      .isString()
+      .trim()
+      .withMessage("Tags must be a string"),
     body("featuredImage").optional().isObject(),
     body("ogImage").optional().isObject(),
     checkValidationResult,
@@ -51,7 +55,7 @@ export const articleValidator = {
       .trim()
       .notEmpty()
       .withMessage("Author cannot be empty"),
-    body("tags").optional().isArray().withMessage("Tags must be an array"),
+    body("tags").optional().isString().trim().withMessage("Tags must be a string"),
     body("featuredImage").optional().isObject(),
     body("ogImage").optional().isObject(),
     body("publishedAt")
