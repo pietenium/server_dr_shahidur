@@ -1,6 +1,7 @@
 {
   "name": "shahidur-server",
   "version": "1.0.0",
+  "type": "module",
   "description": "This is the backend of dr. shahidur rahman protfoilo backend.",
   "keywords": [
     "Express",
