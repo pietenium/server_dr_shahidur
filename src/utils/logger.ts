@@ -6,7 +6,14 @@ const isDev = (): boolean => {
 };
 
 const sanitizeLogString = (value: string): string =>
-  value.replace(/[\r\n]+/g, " ");
+  value
+    .replace(/[\r\n\t]+/g, " ")
+    // eslint-disable-next-line no-control-regex
+    .replace(/\x1B\[[0-?]*[ -/]*[@-~]/g, "")
+    // eslint-disable-next-line no-control-regex
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
 
 const sanitizeLogArg = (arg: unknown): string => {
   if (typeof arg === "string") {
@@ -22,8 +29,7 @@ const sanitizeLogArg = (arg: unknown): string => {
         ? sanitizeLogArg((arg as Error & { cause?: unknown }).cause)
         : "";
     return sanitizeLogString(
-      `${safeName}: ${safeMessage}${safeStack ? ` | stack: ${safeStack}` : ""}${
-        safeCause ? ` | cause: ${safeCause}` : ""
+      `${safeName}: ${safeMessage}${safeStack ? ` | stack: ${safeStack}` : ""}${safeCause ? ` | cause: ${safeCause}` : ""
       }`,
     );
   }
