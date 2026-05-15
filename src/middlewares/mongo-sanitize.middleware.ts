@@ -36,6 +36,9 @@ export const mongoSanitize = (
     >;
     // Reassign query params individually
     Object.keys(sanitizedQuery).forEach((key) => {
+      if (FORBIDDEN_KEYS.includes(key)) {
+        return;
+      }
       (req.query as Record<string, unknown>)[key] = sanitizedQuery[key];
     });
   }
