@@ -6,12 +6,38 @@ import {
 } from "@middlewares/auth.middleware";
 import { globalLimiter } from "@middlewares/rate-limiter.middleware";
 import { authorize } from "@middlewares/role.middleware";
-import { uploadImage, uploadVideo } from "@middlewares/upload.middleware";
 import { Router } from "express";
+import type { Request, Response, NextFunction } from "express";
+import multer from "multer";
 import { testimonialController } from "./testimonial.controller";
 import { testimonialValidator } from "./testimonial.validator";
 
 const router = Router();
+
+// Single multer instance handling both image and video
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 100 * 1024 * 1024, // 100MB max for video
+  },
+}).fields([
+  { name: "image", maxCount: 1 },
+  { name: "video", maxCount: 1 },
+]);
+
+// Multer wrapper
+const handleUpload = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
+  upload(req, res, (err) => {
+    if (err) {
+      return next(err);
+    }
+    next();
+  });
+};
 
 // Public routes - only show visible testimonials
 router.get(
@@ -44,8 +70,7 @@ router.post(
   globalLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
-  uploadImage.single("image"), // Handle image upload
-  uploadVideo.single("video"), // Handle video upload
+  handleUpload,
   testimonialValidator.create,
   logActivity("testimonial"),
   testimonialController.create,
@@ -56,8 +81,7 @@ router.patch(
   globalLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
-  uploadImage.single("image"),
-  uploadVideo.single("video"),
+  handleUpload,
   testimonialValidator.update,
   logActivity("testimonial"),
   testimonialController.update,
