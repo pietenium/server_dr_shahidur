@@ -8,41 +8,42 @@ const isDev = (): boolean => {
 const sanitizeLogString = (value: string): string =>
   value.replace(/[\r\n]+/g, " ");
 
-const sanitizeLogArg = (arg: unknown): unknown => {
+const sanitizeLogArg = (arg: unknown): string => {
   if (typeof arg === "string") {
     return sanitizeLogString(arg);
   }
 
   if (arg instanceof Error) {
-    const sanitizedError = new Error(sanitizeLogString(arg.message));
-    sanitizedError.name = sanitizeLogString(arg.name);
-    if (arg.stack) {
-      sanitizedError.stack = sanitizeLogString(arg.stack);
-    }
-    if ("cause" in arg) {
-      (sanitizedError as Error & { cause?: unknown }).cause = sanitizeLogArg(
-        (arg as Error & { cause?: unknown }).cause,
-      );
-    }
-    return sanitizedError;
+    const safeName = sanitizeLogString(arg.name);
+    const safeMessage = sanitizeLogString(arg.message);
+    const safeStack = arg.stack ? sanitizeLogString(arg.stack) : "";
+    const safeCause =
+      "cause" in arg
+        ? sanitizeLogArg((arg as Error & { cause?: unknown }).cause)
+        : "";
+    return sanitizeLogString(
+      `${safeName}: ${safeMessage}${safeStack ? ` | stack: ${safeStack}` : ""}${
+        safeCause ? ` | cause: ${safeCause}` : ""
+      }`,
+    );
   }
 
   if (Array.isArray(arg)) {
-    return arg.map((item) => sanitizeLogArg(item));
+    return sanitizeLogString(JSON.stringify(arg.map((item) => sanitizeLogArg(item))));
   }
 
   if (arg && typeof arg === "object") {
-    const sanitized: Record<string, unknown> = {};
+    const sanitized: Record<string, string> = {};
     Object.entries(arg as Record<string, unknown>).forEach(([key, value]) => {
-      sanitized[key] = sanitizeLogArg(value);
+      sanitized[sanitizeLogString(key)] = sanitizeLogArg(value);
     });
-    return sanitized;
+    return sanitizeLogString(JSON.stringify(sanitized));
   }
 
-  return arg;
+  return sanitizeLogString(String(arg));
 };
 
-const sanitizeLogArgs = (args: unknown[]): unknown[] =>
+const sanitizeLogArgs = (args: unknown[]): string[] =>
   args.map((arg) => sanitizeLogArg(arg));
 
 export const logger = {
