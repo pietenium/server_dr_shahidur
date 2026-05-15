@@ -1,15 +1,15 @@
-import { Router } from "express";
-import { testimonialController } from "./testimonial.controller";
-import { testimonialValidator } from "./testimonial.validator";
+import { ROLES } from "@constants/roles.constant";
+import { logActivity } from "@middlewares/activity-log.middleware";
 import {
   authenticate,
   optionalAuthenticate,
 } from "@middlewares/auth.middleware";
-import { authorize } from "@middlewares/role.middleware";
-import { logActivity } from "@middlewares/activity-log.middleware";
-import { ROLES } from "@constants/roles.constant";
 import { globalLimiter } from "@middlewares/rate-limiter.middleware";
+import { authorize } from "@middlewares/role.middleware";
 import { uploadImage, uploadVideo } from "@middlewares/upload.middleware";
+import { Router } from "express";
+import { testimonialController } from "./testimonial.controller";
+import { testimonialValidator } from "./testimonial.validator";
 
 const router = Router();
 

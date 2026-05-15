@@ -1,7 +1,7 @@
-import type cors from "cors";
-import chalk from "chalk";
-import { env } from "./env";
 import { logger } from "@utils/logger";
+import chalk from "chalk";
+import type cors from "cors";
+import { env } from "./env";
 
 const allowedOrigins = [
   env.CLIENT_PUBLIC_URL,

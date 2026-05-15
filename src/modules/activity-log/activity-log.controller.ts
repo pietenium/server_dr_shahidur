@@ -1,14 +1,14 @@
+import { AUTH_MESSAGES, LOG_MESSAGES } from "@constants/messages.constant";
+import { ApiError } from "@utils/ApiError";
+import { ApiResponse } from "@utils/ApiResponse";
+import { asyncHandler } from "@utils/asyncHandler";
 import type { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { asyncHandler } from "@utils/asyncHandler";
-import { ApiResponse } from "@utils/ApiResponse";
-import { activityLogService } from "./activity-log.service";
-import { ApiError } from "@utils/ApiError";
 import type {
-  LogFilterQuery,
   BulkDeletePayload,
+  LogFilterQuery,
 } from "./activity-log.interface";
-import { LOG_MESSAGES, AUTH_MESSAGES } from "@constants/messages.constant";
+import { activityLogService } from "./activity-log.service";
 
 export const activityLogController = {
   getLogs: asyncHandler(async (req: Request, res: Response) => {

@@ -1,6 +1,6 @@
 import eslint from "@eslint/js";
-import tseslint from "typescript-eslint";
 import globals from "globals";
+import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   eslint.configs.recommended,
@@ -46,7 +46,7 @@ export default tseslint.config(
       // Discourage non-null assertions (!) that bypass type safety
       "@typescript-eslint/no-non-null-assertion": "warn",
 
-      // Underscore-prefixed vars are intentionally unused (e.g. _req, _next)
+      // Throw error on unused variables (except underscore-prefixed intentionally unused)
       "@typescript-eslint/no-unused-vars": [
         "error",
         {

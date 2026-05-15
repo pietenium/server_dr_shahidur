@@ -1,10 +1,10 @@
+import { ROLES } from "@constants/roles.constant";
+import { authenticate } from "@middlewares/auth.middleware";
+import { globalLimiter } from "@middlewares/rate-limiter.middleware";
+import { authorize } from "@middlewares/role.middleware";
 import { Router } from "express";
 import { activityLogController } from "./activity-log.controller";
 import { activityLogValidator } from "./activity-log.validator";
-import { authenticate } from "@middlewares/auth.middleware";
-import { authorize } from "@middlewares/role.middleware";
-import { ROLES } from "@constants/roles.constant";
-import { globalLimiter } from "@middlewares/rate-limiter.middleware";
 
 const router = Router();
 

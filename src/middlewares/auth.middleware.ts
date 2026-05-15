@@ -1,11 +1,11 @@
-import type { Request, Response, NextFunction, RequestHandler } from "express";
-import jwt from "jsonwebtoken";
 import { env } from "@config/env";
-import { ApiError } from "@utils/ApiError";
-import type { JwtAccessPayload } from "@modules/auth/auth.interface";
-import { AUTH_MESSAGES } from "@constants/messages.constant";
-import { StatusCodes } from "http-status-codes";
 import { getRedisClient } from "@config/redis";
+import { AUTH_MESSAGES } from "@constants/messages.constant";
+import type { JwtAccessPayload } from "@modules/auth/auth.interface";
+import { ApiError } from "@utils/ApiError";
+import type { NextFunction, Request, RequestHandler, Response } from "express";
+import { StatusCodes } from "http-status-codes";
+import jwt from "jsonwebtoken";
 
 // Extracts the Bearer token from the Authorization header.
 // Returns an empty string if not present or malformed — jwt.verify will

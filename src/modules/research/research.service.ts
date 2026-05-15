@@ -1,21 +1,21 @@
-import { Research } from "./research.model";
-import { ApiError } from "@utils/ApiError";
 import { RESEARCH_MESSAGES } from "@constants/messages.constant";
-import type {
-  IResearch,
-  CreateResearchPayload,
-  UpdateResearchPayload,
-  ResearchFilterQuery,
-} from "./research.interface";
-import { generateSlug } from "@utils/slugify";
-import { validateDOI, normalizeDOI } from "@utils/validateDOI";
+import { ApiError } from "@utils/ApiError";
 import {
-  getCache,
-  setCache,
   deleteCache,
   deleteCachePattern,
+  getCache,
+  setCache,
 } from "@utils/cache";
+import { generateSlug } from "@utils/slugify";
+import { normalizeDOI, validateDOI } from "@utils/validateDOI";
 import type { Types } from "mongoose";
+import type {
+  CreateResearchPayload,
+  IResearch,
+  ResearchFilterQuery,
+  UpdateResearchPayload,
+} from "./research.interface";
+import { Research } from "./research.model";
 
 export class ResearchService {
   private getSafeString(value: unknown): string | undefined {

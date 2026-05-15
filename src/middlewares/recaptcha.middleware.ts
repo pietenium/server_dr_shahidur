@@ -1,7 +1,7 @@
-import type { Request, Response, NextFunction, RequestHandler } from "express";
-import axios from "axios";
 import { env } from "@config/env";
 import { ApiError } from "@utils/ApiError";
+import axios from "axios";
+import type { NextFunction, Request, RequestHandler, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 
 interface RecaptchaVerifyResponse {

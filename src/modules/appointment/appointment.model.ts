@@ -1,7 +1,7 @@
+import { APPOINTMENT_STATUS } from "@constants/status.constant";
 import mongoose, { Schema } from "mongoose";
 import mongoosePaginate from "mongoose-paginate-v2";
 import type { IAppointment } from "./appointment.interface";
-import { APPOINTMENT_STATUS } from "@constants/status.constant";
 
 const appointmentSchema = new Schema<IAppointment>(
   {

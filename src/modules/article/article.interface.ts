@@ -1,5 +1,5 @@
-import type { Document, Types } from "mongoose";
 import type { ArticleType, ContentStatus } from "@constants/status.constant";
+import type { Document, Types } from "mongoose";
 
 export interface IArticleCategory extends Document {
   name: string;

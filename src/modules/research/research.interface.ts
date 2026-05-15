@@ -1,5 +1,5 @@
+import type { ContentStatus, UploadType } from "@constants/status.constant";
 import type { Document } from "mongoose";
-import type { UploadType, ContentStatus } from "@constants/status.constant";
 
 export interface IResearch extends Document {
   title: string;

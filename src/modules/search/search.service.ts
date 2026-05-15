@@ -1,17 +1,17 @@
-import { Article } from "@modules/article/article.model";
-import { Research } from "@modules/research/research.model";
-import { Testimonial } from "@modules/testimonial/testimonial.model";
 import type { IArticle } from "@modules/article/article.interface";
+import { Article } from "@modules/article/article.model";
 import type { IResearch } from "@modules/research/research.interface";
+import { Research } from "@modules/research/research.model";
 import type { ITestimonial } from "@modules/testimonial/testimonial.interface";
+import { Testimonial } from "@modules/testimonial/testimonial.model";
+import { logger } from "@utils/logger";
 import type {
-  SearchQuery,
-  UniversalSearchResult,
   ArticleSearchResult,
   ResearchSearchResult,
+  SearchQuery,
   TestimonialSearchResult,
+  UniversalSearchResult,
 } from "./search.interface";
-import { logger } from "@utils/logger";
 
 const escapeRegex = (str: string): string =>
   str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

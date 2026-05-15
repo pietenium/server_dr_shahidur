@@ -1,5 +1,5 @@
-import { body, param, query } from "express-validator";
 import { checkValidationResult } from "@utils/validation";
+import { body, param, query } from "express-validator";
 
 export const articleValidator = {
   create: [
@@ -55,7 +55,11 @@ export const articleValidator = {
       .trim()
       .notEmpty()
       .withMessage("Author cannot be empty"),
-    body("tags").optional().isString().trim().withMessage("Tags must be a string"),
+    body("tags")
+      .optional()
+      .isString()
+      .trim()
+      .withMessage("Tags must be a string"),
     body("featuredImage").optional().isObject(),
     body("ogImage").optional().isObject(),
     body("publishedAt")

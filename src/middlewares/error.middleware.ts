@@ -1,15 +1,15 @@
+import { env } from "@config/env";
+import { ApiError } from "@utils/ApiError";
+import { logger } from "@utils/logger";
 import type {
+  ErrorRequestHandler,
+  NextFunction,
   Request,
   Response,
-  NextFunction,
-  ErrorRequestHandler,
 } from "express";
 import { StatusCodes } from "http-status-codes";
 import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import mongoose from "mongoose";
-import { ApiError } from "@utils/ApiError";
-import { env } from "@config/env";
-import { logger } from "@utils/logger";
 
 export const errorHandler: ErrorRequestHandler = (
   err: Error,

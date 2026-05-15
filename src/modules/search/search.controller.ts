@@ -1,10 +1,10 @@
+import { SEARCH_MESSAGES } from "@constants/messages.constant";
+import { ApiResponse } from "@utils/ApiResponse";
+import { asyncHandler } from "@utils/asyncHandler";
 import type { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { asyncHandler } from "@utils/asyncHandler";
-import { ApiResponse } from "@utils/ApiResponse";
-import { searchService } from "./search.service";
 import type { SearchQuery } from "./search.interface";
-import { SEARCH_MESSAGES } from "@constants/messages.constant";
+import { searchService } from "./search.service";
 
 export const searchController = {
   universalSearch: asyncHandler(async (req: Request, res: Response) => {

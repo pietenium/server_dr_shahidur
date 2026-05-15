@@ -1,5 +1,5 @@
-import { body, param } from "express-validator";
 import { checkValidationResult } from "@utils/validation";
+import { body, param } from "express-validator";
 
 export const testimonialValidator = {
   create: [

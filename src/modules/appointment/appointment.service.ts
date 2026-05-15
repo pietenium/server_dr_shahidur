@@ -1,21 +1,21 @@
-import type mongoose from "mongoose";
-import { Appointment } from "./appointment.model";
-import type {
-  IAppointment,
-  CreateAppointmentPayload,
-  AppointmentFilterQuery,
-  AppointmentChartData,
-} from "./appointment.interface";
-import { getGeoLocation } from "@utils/getGeoLocation";
-import { sendWhatsAppMessage } from "@utils/sendWhatsApp";
+import { env } from "@config/env";
 import { sendEmail } from "@emails/sendEmail";
 import { appointmentConfirmationTemplate } from "@emails/templates/appointment-confirmation.template";
-import { env } from "@config/env";
-import dayjs from "dayjs";
-import { logger } from "@utils/logger";
 import { ApiError } from "@utils/ApiError";
+import { getGeoLocation } from "@utils/getGeoLocation";
+import { logger } from "@utils/logger";
+import { sendWhatsAppMessage } from "@utils/sendWhatsApp";
+import dayjs from "dayjs";
 import { StatusCodes } from "http-status-codes";
+import type mongoose from "mongoose";
 import type { PaginateModel } from "mongoose";
+import type {
+  AppointmentChartData,
+  AppointmentFilterQuery,
+  CreateAppointmentPayload,
+  IAppointment,
+} from "./appointment.interface";
+import { Appointment } from "./appointment.model";
 
 interface AppointmentFilter {
   status?: string;

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/require-await */
-import type { Request, Response } from "express";
-import { asyncHandler } from "@utils/asyncHandler";
 import { ApiResponse } from "@utils/ApiResponse";
+import { asyncHandler } from "@utils/asyncHandler";
+import type { Request, Response } from "express";
 import { visitorService } from "./visitor.service";
 
 export const visitorController = {

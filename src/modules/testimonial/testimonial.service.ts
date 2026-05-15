@@ -1,12 +1,12 @@
-import { Testimonial } from "./testimonial.model";
-import { ApiError } from "@utils/ApiError";
 import { TESTIMONIAL_MESSAGES } from "@constants/messages.constant";
+import { ApiError } from "@utils/ApiError";
+import { deleteCache, getCache, setCache } from "@utils/cache";
 import type {
-  ITestimonial,
   CreateTestimonialPayload,
+  ITestimonial,
   UpdateTestimonialPayload,
 } from "./testimonial.interface";
-import { getCache, setCache, deleteCache } from "@utils/cache";
+import { Testimonial } from "./testimonial.model";
 
 export class TestimonialService {
   public async getTestimonials(
