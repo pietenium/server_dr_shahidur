@@ -15,12 +15,14 @@ interface ImageKitUploadResponse {
 }
 
 interface ImageKitInstance {
-  upload(params: {
-    file: string | Buffer;
-    fileName: string;
-    folder?: string;
-    [key: string]: unknown;
-  }): Promise<ImageKitUploadResponse>;
+  files: {
+    upload(params: {
+      file: string | Buffer;
+      fileName: string;
+      folder?: string;
+      [key: string]: unknown;
+    }): Promise<ImageKitUploadResponse>;
+  };
 }
 
 export const uploadController = {
@@ -31,7 +33,7 @@ export const uploadController = {
     }
 
     const ik = imagekit as unknown as ImageKitInstance;
-    const result = await ik.upload({
+    const result = await ik.files.upload({
       file: `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
       fileName: file.originalname,
       folder: "/images",
@@ -55,7 +57,7 @@ export const uploadController = {
     }
 
     const ik = imagekit as unknown as ImageKitInstance;
-    const result = await ik.upload({
+    const result = await ik.files.upload({
       file: `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
       fileName: file.originalname,
       folder: "/pdfs",
