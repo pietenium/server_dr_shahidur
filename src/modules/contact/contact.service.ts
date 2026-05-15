@@ -1,17 +1,17 @@
-import type mongoose from "mongoose";
-import { Contact } from "./contact.model";
-import type {
-  IContact,
-  CreateContactPayload,
-  ContactFilterQuery,
-} from "./contact.interface";
-import { ApiError } from "@utils/ApiError";
-import { StatusCodes } from "http-status-codes";
-import { getGeoLocation } from "@utils/getGeoLocation";
-import { sendTelegramMessage, formatContactMessage } from "@utils/sendTelegram";
 import { sendEmail } from "@emails/sendEmail";
 import { contactConfirmationTemplate } from "@emails/templates/contact-confirmation.template";
+import { ApiError } from "@utils/ApiError";
+import { getGeoLocation } from "@utils/getGeoLocation";
 import { logger } from "@utils/logger";
+import { formatContactMessage, sendTelegramMessage } from "@utils/sendTelegram";
+import { StatusCodes } from "http-status-codes";
+import type mongoose from "mongoose";
+import type {
+  ContactFilterQuery,
+  CreateContactPayload,
+  IContact,
+} from "./contact.interface";
+import { Contact } from "./contact.model";
 
 export const contactService = {
   create: async (

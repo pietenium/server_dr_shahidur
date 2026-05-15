@@ -1,14 +1,14 @@
-import type { Request, Response } from "express";
-import { StatusCodes } from "http-status-codes";
-import { asyncHandler } from "@utils/asyncHandler";
-import { ApiResponse } from "@utils/ApiResponse";
-import { ApiError } from "@utils/ApiError";
-import { analyticsService } from "./analytics.service";
-import type { TrackPageViewPayload } from "./analytics.interface";
 import {
   ANALYTICS_MESSAGES,
   AUTH_MESSAGES,
 } from "@constants/messages.constant";
+import { ApiError } from "@utils/ApiError";
+import { ApiResponse } from "@utils/ApiResponse";
+import { asyncHandler } from "@utils/asyncHandler";
+import type { Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
+import type { TrackPageViewPayload } from "./analytics.interface";
+import { analyticsService } from "./analytics.service";
 
 export const analyticsController = {
   track: asyncHandler((req: Request, res: Response) => {

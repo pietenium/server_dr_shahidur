@@ -1,14 +1,14 @@
-import type { Request, Response } from "express";
-import { StatusCodes } from "http-status-codes";
-import { asyncHandler } from "@utils/asyncHandler";
-import { ApiResponse } from "@utils/ApiResponse";
-import { ApiError } from "@utils/ApiError";
-import { appointmentService } from "./appointment.service";
-import type { CreateAppointmentPayload } from "./appointment.interface";
 import {
   APPOINTMENT_MESSAGES,
   AUTH_MESSAGES,
 } from "@constants/messages.constant";
+import { ApiError } from "@utils/ApiError";
+import { ApiResponse } from "@utils/ApiResponse";
+import { asyncHandler } from "@utils/asyncHandler";
+import type { Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
+import type { CreateAppointmentPayload } from "./appointment.interface";
+import { appointmentService } from "./appointment.service";
 
 export const appointmentController = {
   create: asyncHandler(async (req: Request, res: Response) => {

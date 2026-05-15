@@ -1,11 +1,11 @@
+import { APP_INFO_MESSAGES, AUTH_MESSAGES } from "@constants/messages.constant";
+import { ApiError } from "@utils/ApiError";
+import { ApiResponse } from "@utils/ApiResponse";
+import { asyncHandler } from "@utils/asyncHandler";
 import type { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { asyncHandler } from "@utils/asyncHandler";
-import { ApiResponse } from "@utils/ApiResponse";
-import { ApiError } from "@utils/ApiError";
 import type { UpdateAppInfoPayload } from "./app-info.interface";
 import { AppInfoService } from "./app-info.service";
-import { APP_INFO_MESSAGES, AUTH_MESSAGES } from "@constants/messages.constant";
 
 const appInfoService = new AppInfoService();
 

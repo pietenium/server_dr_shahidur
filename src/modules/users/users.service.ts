@@ -1,20 +1,20 @@
-import { User } from "@modules/auth/auth.model";
-import type { PaginateModel } from "mongoose";
-import type { IUser } from "@modules/auth/auth.interface";
-import type {
-  UpdateProfilePayload,
-  ChangePasswordPayload,
-  InviteModeratorPayload,
-  UserFilterQuery,
-} from "./users.interface";
+import { env } from "@config/env";
 import { ROLES } from "@constants/roles.constant";
-import { ApiError } from "@utils/ApiError";
-import { StatusCodes } from "http-status-codes";
-import crypto from "crypto";
 import { sendEmail } from "@emails/sendEmail";
 import { moderatorInviteTemplate } from "@emails/templates/moderator-invite.template";
-import { env } from "@config/env";
+import type { IUser } from "@modules/auth/auth.interface";
+import { User } from "@modules/auth/auth.model";
 import type { PaginatedResult } from "@types-app/global.types";
+import { ApiError } from "@utils/ApiError";
+import crypto from "crypto";
+import { StatusCodes } from "http-status-codes";
+import type { PaginateModel } from "mongoose";
+import type {
+  ChangePasswordPayload,
+  InviteModeratorPayload,
+  UpdateProfilePayload,
+  UserFilterQuery,
+} from "./users.interface";
 
 type SafeUser = Omit<IUser, "password">;
 

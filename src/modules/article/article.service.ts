@@ -1,25 +1,25 @@
-import { Article } from "./article.model";
-import { ArticleCategory } from "./article-category.model";
-import { ApiError } from "@utils/ApiError";
 import { ARTICLE_MESSAGES } from "@constants/messages.constant";
-import type {
-  IArticle,
-  IArticleCategory,
-  CreateArticlePayload,
-  UpdateArticlePayload,
-  ArticleFilterQuery,
-  FeaturedArticlesQuery,
-  TopArticlesByCategoryQuery,
-  ImpressionIncreasePayload,
-} from "./article.interface";
-import { generateSlug } from "@utils/slugify";
-import { sanitizeContent } from "@utils/sanitizeHtml";
+import { ApiError } from "@utils/ApiError";
 import {
-  getCache,
-  setCache,
   deleteCache,
   deleteCachePattern,
+  getCache,
+  setCache,
 } from "@utils/cache";
+import { sanitizeContent } from "@utils/sanitizeHtml";
+import { generateSlug } from "@utils/slugify";
+import { ArticleCategory } from "./article-category.model";
+import type {
+  ArticleFilterQuery,
+  CreateArticlePayload,
+  FeaturedArticlesQuery,
+  IArticle,
+  IArticleCategory,
+  ImpressionIncreasePayload,
+  TopArticlesByCategoryQuery,
+  UpdateArticlePayload,
+} from "./article.interface";
+import { Article } from "./article.model";
 export class ArticleService {
   public async getArticles(query: ArticleFilterQuery): Promise<{
     articles: IArticle[];

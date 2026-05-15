@@ -1,11 +1,11 @@
+import { ROLES } from "@constants/roles.constant";
+import { logActivity } from "@middlewares/activity-log.middleware";
+import { authenticate } from "@middlewares/auth.middleware";
+import { globalLimiter } from "@middlewares/rate-limiter.middleware";
+import { authorize } from "@middlewares/role.middleware";
 import { Router } from "express";
 import { usersController } from "./users.controller";
 import { usersValidator } from "./users.validator";
-import { authenticate } from "@middlewares/auth.middleware";
-import { authorize } from "@middlewares/role.middleware";
-import { logActivity } from "@middlewares/activity-log.middleware";
-import { globalLimiter } from "@middlewares/rate-limiter.middleware";
-import { ROLES } from "@constants/roles.constant";
 
 const router = Router();
 

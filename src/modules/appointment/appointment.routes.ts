@@ -1,15 +1,15 @@
-import { Router } from "express";
-import { appointmentController } from "./appointment.controller";
-import { appointmentValidator } from "./appointment.validator";
+import { ROLES } from "@constants/roles.constant";
+import { logActivity } from "@middlewares/activity-log.middleware";
+import { authenticate } from "@middlewares/auth.middleware";
 import {
   appointmentLimiter,
   globalLimiter,
 } from "@middlewares/rate-limiter.middleware";
-import { authenticate } from "@middlewares/auth.middleware";
-import { authorize } from "@middlewares/role.middleware";
-import { logActivity } from "@middlewares/activity-log.middleware";
 import { verifyRecaptcha } from "@middlewares/recaptcha.middleware";
-import { ROLES } from "@constants/roles.constant";
+import { authorize } from "@middlewares/role.middleware";
+import { Router } from "express";
+import { appointmentController } from "./appointment.controller";
+import { appointmentValidator } from "./appointment.validator";
 
 const router = Router();
 

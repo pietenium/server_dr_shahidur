@@ -1,5 +1,5 @@
-import { transporter } from "@config/nodemailer";
 import { env } from "@config/env";
+import { transporter } from "@config/nodemailer";
 import { logger } from "@utils/logger";
 
 interface SendEmailOptions {

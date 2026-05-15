@@ -1,5 +1,5 @@
-import type { Document } from "mongoose";
 import type { GeoLocation } from "@types-app/global.types";
+import type { Document } from "mongoose";
 
 export interface IAppointment extends Document {
   name: string;

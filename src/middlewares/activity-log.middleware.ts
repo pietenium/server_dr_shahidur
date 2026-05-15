@@ -1,6 +1,6 @@
-import type { Request, Response, NextFunction, RequestHandler } from "express";
-import { activityLogService } from "@modules/activity-log/activity-log.service";
 import type { CreateLogPayload } from "@modules/activity-log/activity-log.interface";
+import { activityLogService } from "@modules/activity-log/activity-log.service";
+import type { NextFunction, Request, RequestHandler, Response } from "express";
 
 export const logActivity = (module: string): RequestHandler => {
   return (req: Request, res: Response, next: NextFunction): void => {

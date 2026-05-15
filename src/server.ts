@@ -1,12 +1,11 @@
-import chalk from "chalk";
-import { logger } from "@utils/logger";
 import { connectDB } from "@config/db";
-import { connectRedis } from "@config/redis";
 import { env } from "@config/env";
-import { initWhatsApp, getWhatsAppClient } from "@utils/sendWhatsApp";
-import app from "./app";
+import { connectRedis, getRedisClient } from "@config/redis";
+import { logger } from "@utils/logger";
+import { getWhatsAppClient, initWhatsApp } from "@utils/sendWhatsApp";
+import chalk from "chalk";
 import mongoose from "mongoose";
-import { getRedisClient } from "@config/redis";
+import app from "./app";
 
 const seedAdmin = async (): Promise<void> => {
   const { User } = await import("@modules/auth/auth.model");

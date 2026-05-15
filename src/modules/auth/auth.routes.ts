@@ -1,9 +1,9 @@
+import { logActivity } from "@middlewares/activity-log.middleware";
+import { authenticate } from "@middlewares/auth.middleware";
+import { authLimiter } from "@middlewares/rate-limiter.middleware";
 import { Router } from "express";
 import { authController } from "./auth.controller";
 import { authValidator } from "./auth.validator";
-import { authenticate } from "@middlewares/auth.middleware";
-import { logActivity } from "@middlewares/activity-log.middleware";
-import { authLimiter } from "@middlewares/rate-limiter.middleware";
 
 const router = Router();
 

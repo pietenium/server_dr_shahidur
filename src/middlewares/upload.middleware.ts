@@ -1,8 +1,8 @@
+import { ApiError } from "@utils/ApiError";
+import type { Request } from "express";
+import { StatusCodes } from "http-status-codes";
 import type { FileFilterCallback } from "multer";
 import multer from "multer";
-import type { Request } from "express";
-import { ApiError } from "@utils/ApiError";
-import { StatusCodes } from "http-status-codes";
 
 const ALLOWED_IMAGE_TYPES: readonly string[] = [
   "image/jpeg",

@@ -1,31 +1,31 @@
 import bcrypt from "bcrypt";
-import { v4 as uuidv4 } from "uuid";
 import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
+import { v4 as uuidv4 } from "uuid";
 
-import { User } from "./auth.model";
-import { ApiError } from "@utils/ApiError";
+import { env } from "@config/env";
 import { getRedisClient } from "@config/redis";
+import { sendEmail } from "@emails/sendEmail";
+import { magicLoginTemplate } from "@emails/templates/magic-login.template";
+import { passwordChangedTemplate } from "@emails/templates/password-changed.template";
+import { ApiError } from "@utils/ApiError";
 import { generateOTP } from "@utils/generateOTP";
 import {
   generateAccessToken,
   generateRefreshToken,
   generateTokenJti,
 } from "@utils/generateToken";
-import { sendEmail } from "@emails/sendEmail";
-import { magicLoginTemplate } from "@emails/templates/magic-login.template";
-import { passwordChangedTemplate } from "@emails/templates/password-changed.template";
-import { env } from "@config/env";
+import { User } from "./auth.model";
 
 import type {
-  IUser,
-  LoginPayload,
+  AuthTokens,
   ForgotPasswordPayload,
-  VerifyOtpPayload,
+  IUser,
+  JwtRefreshPayload,
+  LoginPayload,
   MagicLoginPayload,
   ResetPasswordPayload,
-  AuthTokens,
-  JwtRefreshPayload,
+  VerifyOtpPayload,
 } from "./auth.interface";
 
 export const authService = {

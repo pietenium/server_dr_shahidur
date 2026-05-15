@@ -1,15 +1,15 @@
-import { Router } from "express";
-import { uploadController } from "./upload.controller";
+import { ROLES } from "@constants/roles.constant";
+import { logActivity } from "@middlewares/activity-log.middleware";
+import { authenticate } from "@middlewares/auth.middleware";
+import { globalLimiter } from "@middlewares/rate-limiter.middleware";
+import { authorize } from "@middlewares/role.middleware";
 import {
   uploadImage,
   uploadPDF,
   uploadVideo,
 } from "@middlewares/upload.middleware";
-import { authenticate } from "@middlewares/auth.middleware";
-import { authorize } from "@middlewares/role.middleware";
-import { ROLES } from "@constants/roles.constant";
-import { globalLimiter } from "@middlewares/rate-limiter.middleware";
-import { logActivity } from "@middlewares/activity-log.middleware";
+import { Router } from "express";
+import { uploadController } from "./upload.controller";
 
 const router = Router();
 

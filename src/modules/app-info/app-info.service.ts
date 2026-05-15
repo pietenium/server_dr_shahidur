@@ -1,8 +1,8 @@
-import { AppInfo } from "./app-info.model";
-import { ApiError } from "@utils/ApiError";
 import { APP_INFO_MESSAGES } from "@constants/messages.constant";
-import type { UpdateAppInfoPayload, IAppInfo } from "./app-info.interface";
-import { getCache, setCache, deleteCache } from "@utils/cache";
+import { ApiError } from "@utils/ApiError";
+import { deleteCache, getCache, setCache } from "@utils/cache";
+import type { IAppInfo, UpdateAppInfoPayload } from "./app-info.interface";
+import { AppInfo } from "./app-info.model";
 
 export class AppInfoService {
   public async getAppInfo(): Promise<IAppInfo> {

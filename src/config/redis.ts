@@ -1,7 +1,7 @@
-import Redis from "ioredis";
-import chalk from "chalk";
-import { env } from "./env";
 import { logger } from "@utils/logger";
+import chalk from "chalk";
+import Redis from "ioredis";
+import { env } from "./env";
 
 let redisClient: Redis;
 
@@ -37,7 +37,12 @@ export const connectRedis = async (): Promise<void> => {
 
     await redisClient.ping();
   } catch (error) {
-    logger.warn(chalk.yellow("Redis unavailable.", error instanceof Error ? error.message : error));
+    logger.warn(
+      chalk.yellow(
+        "Redis unavailable.",
+        error instanceof Error ? error.message : error,
+      ),
+    );
   }
 };
 

@@ -1,5 +1,5 @@
-import { body, query, param } from "express-validator";
 import { checkValidationResult } from "@utils/validation";
+import { body, param, query } from "express-validator";
 
 export const usersValidator = {
   updateProfile: [

@@ -1,14 +1,14 @@
-import type mongoose from "mongoose";
-import { ActivityLog } from "./activity-log.model";
-import type { Types } from "mongoose";
-import type {
-  IActivityLog,
-  CreateLogPayload,
-  LogFilterQuery,
-} from "./activity-log.interface";
+import { ROLES } from "@constants/roles.constant";
 import { ApiError } from "@utils/ApiError";
 import { StatusCodes } from "http-status-codes";
-import { ROLES } from "@constants/roles.constant";
+import type mongoose from "mongoose";
+import type { Types } from "mongoose";
+import type {
+  CreateLogPayload,
+  IActivityLog,
+  LogFilterQuery,
+} from "./activity-log.interface";
+import { ActivityLog } from "./activity-log.model";
 
 export const activityLogService = {
   create: async (payload: CreateLogPayload): Promise<IActivityLog> => {

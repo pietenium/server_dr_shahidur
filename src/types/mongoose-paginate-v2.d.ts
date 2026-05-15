@@ -1,10 +1,10 @@
 declare module "mongoose-paginate-v2" {
   import type {
-    Schema,
-    Model,
     Document,
     FilterQuery,
+    Model,
     QueryOptions,
+    Schema,
   } from "mongoose";
 
   interface PaginateOptions {
@@ -54,5 +54,5 @@ declare module "mongoose-paginate-v2" {
   function paginate<T extends Document>(schema: Schema<T>): void;
 
   export default paginate;
-  export { PaginateResult, PaginateOptions, PaginateModel };
+  export { PaginateModel, PaginateOptions, PaginateResult };
 }

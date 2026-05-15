@@ -1,15 +1,15 @@
-import { Analytics } from "./analytics.model";
+import { getGeoLocation } from "@utils/getGeoLocation";
+import { logger } from "@utils/logger";
+import { UAParser } from "ua-parser-js";
 import type {
-  TrackPageViewPayload,
+  DateRangeQuery,
   GeoAggregationResult,
   PageViewAggregationResult,
   PipelineStage,
   SpecificPageStatsResult,
-  DateRangeQuery,
+  TrackPageViewPayload,
 } from "./analytics.interface";
-import { getGeoLocation } from "@utils/getGeoLocation";
-import { UAParser } from "ua-parser-js";
-import { logger } from "@utils/logger";
+import { Analytics } from "./analytics.model";
 
 export const analyticsService = {
   trackPageView: async (

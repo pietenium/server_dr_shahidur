@@ -1,23 +1,23 @@
+import { corsOptions } from "@config/cors";
+import { errorHandler } from "@middlewares/error.middleware";
+import { mongoSanitize } from "@middlewares/mongo-sanitize.middleware";
+import { ApiError } from "@utils/ApiError";
+import chalk from "chalk";
+import compression from "compression";
+import timeout from "connect-timeout";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import type { Request, Response } from "express";
 import express from "express";
 import helmet from "helmet";
-import cors from "cors";
-import compression from "compression";
-import cookieParser from "cookie-parser";
-import morgan from "morgan";
-import chalk from "chalk";
 import hpp from "hpp";
-import lusca from "lusca";
-import timeout from "connect-timeout";
-import { corsOptions } from "@config/cors";
-import { mongoSanitize } from "@middlewares/mongo-sanitize.middleware";
-import { errorHandler } from "@middlewares/error.middleware";
-import { ApiError } from "@utils/ApiError";
 import { StatusCodes } from "http-status-codes";
-import type { Request, Response } from "express";
+import lusca from "lusca";
+import morgan from "morgan";
 
 // Import routes
-import routes from "./routes";
 import { env } from "./config/env";
+import routes from "./routes";
 
 const app = express();
 

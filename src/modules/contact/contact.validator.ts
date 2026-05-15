@@ -1,5 +1,5 @@
-import { body, query } from "express-validator";
 import { checkValidationResult } from "@utils/validation";
+import { body, query } from "express-validator";
 
 export const contactValidator = {
   create: [

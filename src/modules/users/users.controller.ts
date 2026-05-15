@@ -1,15 +1,15 @@
-import type { Request, Response } from "express";
-import { asyncHandler } from "@utils/asyncHandler";
-import { ApiResponse } from "@utils/ApiResponse";
-import { StatusCodes } from "http-status-codes";
-import { usersService } from "./users.service";
+import { AUTH_MESSAGES, USER_MESSAGES } from "@constants/messages.constant";
 import { ApiError } from "@utils/ApiError";
+import { ApiResponse } from "@utils/ApiResponse";
+import { asyncHandler } from "@utils/asyncHandler";
+import type { Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
 import type {
-  UpdateProfilePayload,
   ChangePasswordPayload,
   InviteModeratorPayload,
+  UpdateProfilePayload,
 } from "./users.interface";
-import { USER_MESSAGES, AUTH_MESSAGES } from "@constants/messages.constant";
+import { usersService } from "./users.service";
 
 export const usersController = {
   getMe: asyncHandler(async (req: Request, res: Response) => {

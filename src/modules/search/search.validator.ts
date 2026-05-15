@@ -1,5 +1,5 @@
-import { query } from "express-validator";
 import { checkValidationResult } from "@utils/validation";
+import { query } from "express-validator";
 
 export const searchValidator = {
   query: [

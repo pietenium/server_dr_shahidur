@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-import chalk from "chalk";
-import { env } from "./env";
 import { logger } from "@utils/logger";
+import chalk from "chalk";
+import mongoose from "mongoose";
+import { env } from "./env";
 
 export const connectDB = async (): Promise<void> => {
   try {

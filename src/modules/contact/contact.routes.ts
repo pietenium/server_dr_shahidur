@@ -1,12 +1,12 @@
+import { ROLES } from "@constants/roles.constant";
+import { logActivity } from "@middlewares/activity-log.middleware";
+import { authenticate } from "@middlewares/auth.middleware";
+import { globalLimiter } from "@middlewares/rate-limiter.middleware";
+import { verifyRecaptcha } from "@middlewares/recaptcha.middleware";
+import { authorize } from "@middlewares/role.middleware";
 import { Router } from "express";
 import { contactController } from "./contact.controller";
 import { contactValidator } from "./contact.validator";
-import { authenticate } from "@middlewares/auth.middleware";
-import { authorize } from "@middlewares/role.middleware";
-import { logActivity } from "@middlewares/activity-log.middleware";
-import { ROLES } from "@constants/roles.constant";
-import { globalLimiter } from "@middlewares/rate-limiter.middleware";
-import { verifyRecaptcha } from "@middlewares/recaptcha.middleware";
 
 const router = Router();
 

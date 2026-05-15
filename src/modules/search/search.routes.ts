@@ -1,7 +1,7 @@
+import { searchLimiter } from "@middlewares/rate-limiter.middleware";
 import { Router } from "express";
 import { searchController } from "./search.controller";
 import { searchValidator } from "./search.validator";
-import { searchLimiter } from "@middlewares/rate-limiter.middleware";
 
 const router = Router();
 

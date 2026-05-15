@@ -1,8 +1,8 @@
+import { ROLES } from "@constants/roles.constant";
+import bcrypt from "bcrypt";
 import mongoose, { Schema } from "mongoose";
 import mongoosePaginate from "mongoose-paginate-v2";
-import bcrypt from "bcrypt";
 import type { IUser, IUserMethods, UserModel } from "./auth.interface";
-import { ROLES } from "@constants/roles.constant";
 
 const userSchema = new Schema<IUser, UserModel, IUserMethods>(
   {
