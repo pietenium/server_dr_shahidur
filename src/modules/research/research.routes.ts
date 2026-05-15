@@ -1,59 +1,42 @@
-import { ROLES } from "@constants/roles.constant";
-import { logActivity } from "@middlewares/activity-log.middleware";
+import { Router } from "express";
+import type { Request, Response, NextFunction } from "express";
+import { researchController } from "./research.controller";
+import { researchValidator } from "./research.validator";
 import {
   authenticate,
   optionalAuthenticate,
 } from "@middlewares/auth.middleware";
-import { globalLimiter } from "@middlewares/rate-limiter.middleware";
 import { authorize } from "@middlewares/role.middleware";
-import { uploadImage, uploadPDF } from "@middlewares/upload.middleware";
-import type { NextFunction, Request, Response } from "express";
-import { Router } from "express";
-import { researchController } from "./research.controller";
-import { researchValidator } from "./research.validator";
+import { logActivity } from "@middlewares/activity-log.middleware";
+import { ROLES } from "@constants/roles.constant";
+import { globalLimiter } from "@middlewares/rate-limiter.middleware";
+import multer from "multer";
 
 const router = Router();
 
-// Custom middleware for handling research file uploads
-const handleResearchFiles = (
+// Single multer setup for research: PDF + optional thumbnail
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 20 * 1024 * 1024, // 20MB max
+  },
+}).fields([
+  { name: "pdfFile", maxCount: 1 },
+  { name: "thumbnailImage", maxCount: 1 },
+]);
+
+// Multer wrapper middleware
+const handleUpload = (
   req: Request,
   res: Response,
   next: NextFunction,
-) => {
-  // Create promises for both uploads
-  const uploadPromises: Promise<void>[] = [];
-
-  // Handle PDF upload if present
-  const uploadType = (req.body as { uploadType?: string }).uploadType;
-  if (uploadType === "PDF" || req.method === "PATCH") {
-    const pdfPromise = new Promise<void>((resolve, reject) => {
-      uploadPDF.single("pdfFile")(req, res, (err) => {
-        if (err) {
-          reject(err instanceof Error ? err : new Error(String(err)));
-        } else {
-          resolve();
-        }
-      });
-    });
-    uploadPromises.push(pdfPromise);
-  }
-
-  // Handle thumbnail upload if present
-  const imagePromise = new Promise<void>((resolve, reject) => {
-    uploadImage.single("thumbnailImage")(req, res, (err) => {
-      if (err) {
-        reject(err instanceof Error ? err : new Error(String(err)));
-      } else {
-        resolve();
-      }
-    });
+): void => {
+  upload(req, res, (err) => {
+    if (err) {
+      return next(err);
+    }
+    next();
   });
-  uploadPromises.push(imagePromise);
-
-  // Wait for all uploads to complete
-  Promise.all(uploadPromises)
-    .then(() => next())
-    .catch((err) => next(err));
 };
 
 // Public routes
@@ -66,7 +49,7 @@ router.get(
 );
 
 router.get(
-  "/:slug",
+  "/slug/:slug",
   globalLimiter,
   optionalAuthenticate,
   researchController.getBySlug,
@@ -83,12 +66,13 @@ router.get(
   researchController.getResearchList,
 );
 
+// IMPORTANT: handleUpload runs BEFORE validator so req.body is populated
 router.post(
   "/",
   globalLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
-  handleResearchFiles,
+  handleUpload,
   researchValidator.create,
   logActivity("research"),
   researchController.create,
@@ -99,7 +83,7 @@ router.patch(
   globalLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
-  handleResearchFiles,
+  handleUpload,
   researchValidator.update,
   logActivity("research"),
   researchController.update,

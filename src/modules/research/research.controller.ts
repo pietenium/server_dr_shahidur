@@ -1,16 +1,16 @@
-import { AUTH_MESSAGES, RESEARCH_MESSAGES } from "@constants/messages.constant";
-import { ApiError } from "@utils/ApiError";
-import { ApiResponse } from "@utils/ApiResponse";
-import { asyncHandler } from "@utils/asyncHandler";
 import type { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import type { Types } from "mongoose";
+import { asyncHandler } from "@utils/asyncHandler";
+import { ApiResponse } from "@utils/ApiResponse";
+import { ApiError } from "@utils/ApiError";
+import { ResearchService } from "./research.service";
 import type {
   CreateResearchPayload,
-  ResearchFilterQuery,
   UpdateResearchPayload,
+  ResearchFilterQuery,
 } from "./research.interface";
-import { ResearchService } from "./research.service";
+import { RESEARCH_MESSAGES, AUTH_MESSAGES } from "@constants/messages.constant";
+import type { Types } from "mongoose";
 
 const researchService = new ResearchService();
 
@@ -21,10 +21,13 @@ export const researchController = {
     }
 
     const payload = req.body as CreateResearchPayload;
-    const pdfFile = req.file as Express.Multer.File;
-    // If you have multiple file uploads for thumbnail
-    const thumbnailImage = (req.files as { thumbnail?: Express.Multer.File[] })
-      ?.thumbnail?.[0];
+
+    // When using multer().fields(), files come as req.files with named keys
+    const files = req.files as
+      | { [fieldname: string]: Express.Multer.File[] }
+      | undefined;
+    const pdfFile = files?.pdfFile?.[0];
+    const thumbnailImage = files?.thumbnailImage?.[0];
 
     const research = await researchService.createResearch(
       payload,
@@ -99,11 +102,14 @@ export const researchController = {
 
     const { id } = req.params;
     const payload = req.body as UpdateResearchPayload;
-    const pdfFile = req.file as Express.Multer.File;
-    const thumbnailImage = (req.files as { thumbnail?: Express.Multer.File[] })
-      ?.thumbnail?.[0];
 
-    // First get the research by id to get its slug
+    // When using multer().fields(), files come as req.files with named keys
+    const files = req.files as
+      | { [fieldname: string]: Express.Multer.File[] }
+      | undefined;
+    const pdfFile = files?.pdfFile?.[0];
+    const thumbnailImage = files?.thumbnailImage?.[0];
+
     const existingResearch = await researchService.getResearchById(
       id as unknown as Types.ObjectId,
     );
