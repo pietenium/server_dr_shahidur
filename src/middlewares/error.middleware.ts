@@ -1,10 +1,15 @@
-import type { Request, Response, NextFunction, ErrorRequestHandler } from "express";
+import { env } from "@config/env";
+import { ApiError } from "@utils/ApiError";
+import { logger } from "@utils/logger";
+import type {
+  ErrorRequestHandler,
+  NextFunction,
+  Request,
+  Response,
+} from "express";
 import { StatusCodes } from "http-status-codes";
 import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import mongoose from "mongoose";
-import { ApiError } from "@utils/ApiError";
-import { env } from "@config/env";
-import { logger } from "@utils/logger";
 
 export const errorHandler: ErrorRequestHandler = (
   err: Error,
@@ -48,8 +53,9 @@ export const errorHandler: ErrorRequestHandler = (
     success: false,
     statusCode,
     message:
+      env.NODE_ENV === "production" &&
       // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
-      env.NODE_ENV === "production" && statusCode === (StatusCodes.INTERNAL_SERVER_ERROR)
+      statusCode === StatusCodes.INTERNAL_SERVER_ERROR
         ? "Internal Server Error"
         : message,
     errors,

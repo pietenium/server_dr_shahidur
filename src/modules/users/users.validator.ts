@@ -1,5 +1,5 @@
-import { body, query, param } from "express-validator";
 import { checkValidationResult } from "@utils/validation";
+import { body, param, query } from "express-validator";
 
 export const usersValidator = {
   updateProfile: [
@@ -23,7 +23,9 @@ export const usersValidator = {
     body("newPassword")
       .isLength({ min: 8 })
       .withMessage("New password must be at least 8 characters long")
-      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+      )
       .withMessage(
         "New password must contain uppercase, lowercase, number and special character",
       ),

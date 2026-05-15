@@ -1,23 +1,23 @@
-import type { Request, Response } from "express";
-import { StatusCodes } from "http-status-codes";
-import { asyncHandler } from "@utils/asyncHandler";
-import { ApiResponse } from "@utils/ApiResponse";
-import { ApiError } from "@utils/ApiError";
-import { authService } from "./auth.service";
-import type {
-  LoginPayload,
-  ForgotPasswordPayload,
-  VerifyOtpPayload,
-  MagicLoginPayload,
-  ResetPasswordPayload,
-} from "./auth.interface";
 import { env } from "@config/env";
 import { AUTH_MESSAGES } from "@constants/messages.constant";
+import { ApiError } from "@utils/ApiError";
+import { ApiResponse } from "@utils/ApiResponse";
+import { asyncHandler } from "@utils/asyncHandler";
+import type { Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
+import type {
+  ForgotPasswordPayload,
+  LoginPayload,
+  MagicLoginPayload,
+  ResetPasswordPayload,
+  VerifyOtpPayload,
+} from "./auth.interface";
+import { authService } from "./auth.service";
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: env.NODE_ENV === "production",
-  sameSite: "strict" as const,
+  sameSite: "lax" as const,
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 };
 

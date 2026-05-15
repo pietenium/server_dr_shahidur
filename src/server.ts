@@ -1,25 +1,21 @@
-import chalk from "chalk";
-import { logger } from "@utils/logger";
 import { connectDB } from "@config/db";
-import { connectRedis } from "@config/redis";
 import { env } from "@config/env";
-import { initWhatsApp, getWhatsAppClient } from "@utils/sendWhatsApp";
-import app from "./app";
+import { connectRedis, getRedisClient } from "@config/redis";
+import { logger } from "@utils/logger";
+import { getWhatsAppClient, initWhatsApp } from "@utils/sendWhatsApp";
+import chalk from "chalk";
 import mongoose from "mongoose";
-import { getRedisClient } from "@config/redis";
+import app from "./app";
 
 const seedAdmin = async (): Promise<void> => {
   const { User } = await import("@modules/auth/auth.model");
-  const bcrypt = await import("bcrypt");
 
   const existingAdmin = await User.findOne({ email: env.ADMIN_SEED_EMAIL });
   if (!existingAdmin) {
-    const hashedPassword = await bcrypt.hash(env.ADMIN_SEED_PASSWORD, 12);
-
     await User.create({
       name: "Dr. Sahidur Rahman Khan",
       email: env.ADMIN_SEED_EMAIL,
-      password: hashedPassword,
+      password: env.ADMIN_SEED_PASSWORD,
       role: "ADMIN",
       isActive: true,
     });
@@ -49,7 +45,6 @@ const startServer = async (): Promise<void> => {
 
   // 4. Seed admin
   await seedAdmin();
-  logger.info(chalk.green("✓ Admin seed complete"));
 
   // 5. Initialize WhatsApp
   initWhatsApp();
@@ -65,41 +60,47 @@ const startServer = async (): Promise<void> => {
 
   // 7. Graceful Shutdown
   const gracefulShutdown = (signal: string) => {
-    logger.info(chalk.yellow(`\n${signal} received. Starting graceful shutdown...`));
-    
+    logger.info(
+      chalk.yellow(`\n${signal} received. Starting graceful shutdown...`),
+    );
+
     server.close(() => {
       void (async () => {
-      logger.info(chalk.blue("HTTP server closed."));
-      
-      try {
-        // Close MongoDB
-        await mongoose.connection.close();
-        logger.info(chalk.blue("MongoDB connection closed."));
-        
-        // Close Redis
-        const redis = getRedisClient();
-        await redis.quit();
-        logger.info(chalk.blue("Redis connection closed."));
+        logger.info(chalk.blue("HTTP server closed."));
 
-        // Close WhatsApp client if it exists
-        const waClient = getWhatsAppClient();
-        if (waClient) {
-          await waClient.destroy();
-          logger.info(chalk.blue("WhatsApp client destroyed."));
+        try {
+          // Close MongoDB
+          await mongoose.connection.close();
+          logger.info(chalk.blue("MongoDB connection closed."));
+
+          // Close Redis
+          const redis = getRedisClient();
+          await redis.quit();
+          logger.info(chalk.blue("Redis connection closed."));
+
+          // Close WhatsApp client if it exists
+          const waClient = getWhatsAppClient();
+          if (waClient) {
+            await waClient.destroy();
+            logger.info(chalk.blue("WhatsApp client destroyed."));
+          }
+
+          logger.info(chalk.green("Graceful shutdown complete. Exiting."));
+          process.exit(0);
+        } catch (err) {
+          logger.error(chalk.red("Error during graceful shutdown:"), err);
+          process.exit(1);
         }
-        
-        logger.info(chalk.green("Graceful shutdown complete. Exiting."));
-        process.exit(0);
-      } catch (err) {
-        logger.error(chalk.red("Error during graceful shutdown:"), err);
-        process.exit(1);
-      }
-    })();
-  });
+      })();
+    });
 
     // Force close if it takes too long
     setTimeout(() => {
-      logger.error(chalk.red("Could not close connections in time, forcefully shutting down"));
+      logger.error(
+        chalk.red(
+          "Could not close connections in time, forcefully shutting down",
+        ),
+      );
       process.exit(1);
     }, 10000);
   };

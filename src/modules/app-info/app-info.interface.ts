@@ -1,4 +1,5 @@
-import type { Document } from "mongoose";
+import { type Document } from "mongoose";
+
 export interface IAppInfo extends Document {
   siteName: string;
   siteDescription?: string;
@@ -7,22 +8,22 @@ export interface IAppInfo extends Document {
   doctorSpecialty: string;
   doctorBio?: string;
   doctorImage?: {
-    url: string;
-    fileId: string;
+    url: string | undefined;
+    fileId: string | undefined;
   };
   ogImage?: {
-    url: string;
-    fileId: string;
+    url: string | undefined;
+    fileId: string | undefined;
   };
   email: string;
   phone: string;
   address?: string;
   socialLinks?: {
-    facebook?: string;
-    twitter?: string;
-    linkedin?: string;
-    youtube?: string;
-    instagram?: string;
+    facebook?: string | undefined;
+    twitter?: string | undefined;
+    linkedin?: string | undefined;
+    youtube?: string | undefined;
+    instagram?: string | undefined;
   };
   clinicHours?: string;
   mapEmbedUrl?: string;
@@ -37,23 +38,15 @@ export interface UpdateAppInfoPayload {
   doctorTitle?: string;
   doctorSpecialty?: string;
   doctorBio?: string;
-  doctorImage?: {
-    url: string;
-    fileId: string;
-  };
-  ogImage?: {
-    url: string;
-    fileId: string;
-  };
   email?: string;
   phone?: string;
   address?: string;
   socialLinks?: {
-    facebook?: string;
-    twitter?: string;
-    linkedin?: string;
-    youtube?: string;
-    instagram?: string;
+    facebook?: string | undefined;
+    twitter?: string | undefined;
+    linkedin?: string | undefined;
+    youtube?: string | undefined;
+    instagram?: string | undefined;
   };
   clinicHours?: string;
   mapEmbedUrl?: string;

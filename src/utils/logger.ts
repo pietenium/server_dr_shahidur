@@ -5,44 +5,52 @@ const isDev = (): boolean => {
   return env === "development" || env === "test";
 };
 
-const sanitizeLogString = (value: string): string => value.replace(/[\r\n]+/g, " ");
+const sanitizeLogString = (value: string): string =>
+  value
+    .replace(/[\r\n\t]+/g, " ")
+    // eslint-disable-next-line no-control-regex
+    .replace(/\x1B\[[0-?]*[ -/]*[@-~]/g, "")
+    // eslint-disable-next-line no-control-regex
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
 
-const sanitizeLogArg = (arg: unknown): unknown => {
+const sanitizeLogArg = (arg: unknown): string => {
   if (typeof arg === "string") {
     return sanitizeLogString(arg);
   }
 
   if (arg instanceof Error) {
-    const sanitizedError = new Error(sanitizeLogString(arg.message));
-    sanitizedError.name = sanitizeLogString(arg.name);
-    if (arg.stack) {
-      sanitizedError.stack = sanitizeLogString(arg.stack);
-    }
-    if ("cause" in arg) {
-      (sanitizedError as Error & { cause?: unknown }).cause = sanitizeLogArg(
-        (arg as Error & { cause?: unknown }).cause,
-      );
-    }
-    return sanitizedError;
+    const safeName = sanitizeLogString(arg.name);
+    const safeMessage = sanitizeLogString(arg.message);
+    const safeStack = arg.stack ? sanitizeLogString(arg.stack) : "";
+    const safeCause =
+      "cause" in arg
+        ? sanitizeLogArg((arg as Error & { cause?: unknown }).cause)
+        : "";
+    return sanitizeLogString(
+      `${safeName}: ${safeMessage}${safeStack ? ` | stack: ${safeStack}` : ""}${safeCause ? ` | cause: ${safeCause}` : ""
+      }`,
+    );
   }
 
   if (Array.isArray(arg)) {
-    return arg.map((item) => sanitizeLogArg(item));
+    return sanitizeLogString(JSON.stringify(arg.map((item) => sanitizeLogArg(item))));
   }
 
   if (arg && typeof arg === "object") {
-    const sanitized: Record<string, unknown> = {};
+    const sanitized: Record<string, string> = {};
     Object.entries(arg as Record<string, unknown>).forEach(([key, value]) => {
-      sanitized[key] = sanitizeLogArg(value);
+      sanitized[sanitizeLogString(key)] = sanitizeLogArg(value);
     });
-    return sanitized;
+    return sanitizeLogString(JSON.stringify(sanitized));
   }
 
-  return arg;
+  return sanitizeLogString(String(arg));
 };
 
-const sanitizeLogArgs = (args: unknown[]): unknown[] => args.map((arg) => sanitizeLogArg(arg));
-
+const sanitizeLogArgs = (args: unknown[]): string[] =>
+  args.map((arg) => sanitizeLogArg(arg));
 
 export const logger = {
   log: (...args: unknown[]): void => {

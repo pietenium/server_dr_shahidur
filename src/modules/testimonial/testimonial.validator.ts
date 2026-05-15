@@ -1,5 +1,5 @@
-import { body, param } from "express-validator";
 import { checkValidationResult } from "@utils/validation";
+import { body, param } from "express-validator";
 
 export const testimonialValidator = {
   create: [
@@ -9,7 +9,7 @@ export const testimonialValidator = {
       .withMessage("Name is required")
       .isString()
       .withMessage("Name must be a string"),
-    
+
     body("designation")
       .optional()
       .trim()
@@ -40,17 +40,11 @@ export const testimonialValidator = {
       .isBoolean()
       .withMessage("isVisible must be a boolean"),
 
-    body("image")
-      .optional()
-      .isObject()
-      .withMessage("Image must be an object"),
+    body("image").optional().isObject().withMessage("Image must be an object"),
     body("image.url").optional().isString(),
     body("image.fileId").optional().isString(),
 
-    body("video")
-      .optional()
-      .isObject()
-      .withMessage("Video must be an object"),
+    body("video").optional().isObject().withMessage("Video must be an object"),
     body("video.url").optional().isString(),
     body("video.fileId").optional().isString(),
 
@@ -97,17 +91,11 @@ export const testimonialValidator = {
       .isBoolean()
       .withMessage("isVisible must be a boolean"),
 
-    body("image")
-      .optional()
-      .isObject()
-      .withMessage("Image must be an object"),
+    body("image").optional().isObject().withMessage("Image must be an object"),
     body("image.url").optional().isString(),
     body("image.fileId").optional().isString(),
 
-    body("video")
-      .optional()
-      .isObject()
-      .withMessage("Video must be an object"),
+    body("video").optional().isObject().withMessage("Video must be an object"),
     body("video.url").optional().isString(),
     body("video.fileId").optional().isString(),
 

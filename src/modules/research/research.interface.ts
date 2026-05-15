@@ -1,5 +1,5 @@
+import type { ContentStatus, UploadType } from "@constants/status.constant";
 import type { Document } from "mongoose";
-import type { UploadType, ContentStatus } from "@constants/status.constant";
 
 export interface IResearch extends Document {
   title: string;
@@ -7,14 +7,14 @@ export interface IResearch extends Document {
   description?: string;
   uploadType: UploadType;
   pdfFile?: {
-    url: string;
-    fileId: string;
+    url: string | undefined;
+    fileId: string | undefined;
   };
   doiUrl?: string;
   doiNumber?: string;
   thumbnailImage?: {
-    url: string;
-    fileId: string;
+    url: string | undefined;
+    fileId: string | undefined;
   };
   status: ContentStatus;
   publishedAt?: Date;

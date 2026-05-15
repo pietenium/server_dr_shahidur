@@ -1,6 +1,6 @@
+import { getRedisClient, isRedisReady } from "@config/redis";
 import chalk from "chalk";
 import { logger } from "./logger";
-import { getRedisClient, isRedisReady } from "@config/redis";
 
 export const getCache = async <T>(key: string): Promise<T | null> => {
   try {

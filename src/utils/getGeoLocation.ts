@@ -1,5 +1,5 @@
-import axios from "axios";
 import type { GeoLocation } from "@types-app/global.types";
+import axios from "axios";
 
 interface IpWhoResponse {
   ip: string;

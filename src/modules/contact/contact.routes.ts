@@ -1,12 +1,12 @@
+import { ROLES } from "@constants/roles.constant";
+import { logActivity } from "@middlewares/activity-log.middleware";
+import { authenticate } from "@middlewares/auth.middleware";
+import { globalLimiter } from "@middlewares/rate-limiter.middleware";
+import { verifyRecaptcha } from "@middlewares/recaptcha.middleware";
+import { authorize } from "@middlewares/role.middleware";
 import { Router } from "express";
 import { contactController } from "./contact.controller";
 import { contactValidator } from "./contact.validator";
-import { authenticate } from "@middlewares/auth.middleware";
-import { authorize } from "@middlewares/role.middleware";
-import { logActivity } from "@middlewares/activity-log.middleware";
-import { ROLES } from "@constants/roles.constant";
-import { globalLimiter } from "@middlewares/rate-limiter.middleware";
-import { verifyRecaptcha } from "@middlewares/recaptcha.middleware";
 
 const router = Router();
 
@@ -20,9 +20,18 @@ router.post(
 );
 
 // Admin routes
-router.use(globalLimiter, authenticate, authorize(ROLES.ADMIN, ROLES.MODERATOR));
+router.use(
+  globalLimiter,
+  authenticate,
+  authorize(ROLES.ADMIN, ROLES.MODERATOR),
+);
 
-router.get("/", logActivity("contact"), contactValidator.query, contactController.getMessages);
+router.get(
+  "/",
+  logActivity("contact"),
+  contactValidator.query,
+  contactController.getMessages,
+);
 
 router.get("/:id", logActivity("contact"), contactController.getMessageById);
 

@@ -27,7 +27,10 @@ activityLogSchema.plugin(mongoosePaginate);
 // Indexes for efficient filtering and TTL auto-expiry after 90 days
 activityLogSchema.index({ user: 1 });
 activityLogSchema.index({ module: 1 });
-activityLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 90 });
+activityLogSchema.index(
+  { createdAt: 1 },
+  { expireAfterSeconds: 60 * 60 * 24 * 90 },
+);
 
 export const ActivityLog = mongoose.model<
   IActivityLog,

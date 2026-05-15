@@ -1,11 +1,11 @@
-import type { Request, Response, NextFunction, RequestHandler } from "express";
-import jwt from "jsonwebtoken";
 import { env } from "@config/env";
-import { ApiError } from "@utils/ApiError";
-import type { JwtAccessPayload } from "@modules/auth/auth.interface";
-import { AUTH_MESSAGES } from "@constants/messages.constant";
-import { StatusCodes } from "http-status-codes";
 import { getRedisClient } from "@config/redis";
+import { AUTH_MESSAGES } from "@constants/messages.constant";
+import type { JwtAccessPayload } from "@modules/auth/auth.interface";
+import { ApiError } from "@utils/ApiError";
+import type { NextFunction, Request, RequestHandler, Response } from "express";
+import { StatusCodes } from "http-status-codes";
+import jwt from "jsonwebtoken";
 
 // Extracts the Bearer token from the Authorization header.
 // Returns an empty string if not present or malformed — jwt.verify will
@@ -37,13 +37,18 @@ const isJtiBlacklisted = async (jti: string): Promise<boolean> => {
 
 // Verifies the token and returns a decoded payload or throws.
 // All error paths — empty token, bad signature, expired, blacklisted — throw an ApiError.
-const verifyAndDecodeToken = async (token: string): Promise<JwtAccessPayload> => {
+const verifyAndDecodeToken = async (
+  token: string,
+): Promise<JwtAccessPayload> => {
   // jwt.verify throws JsonWebTokenError for empty/invalid tokens,
   // so we never need to check the token value ourselves.
   const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as JwtAccessPayload;
 
   if (await isJtiBlacklisted(decoded.jti)) {
-    throw new ApiError(StatusCodes.UNAUTHORIZED, "Session has been invalidated. Please log in again.");
+    throw new ApiError(
+      StatusCodes.UNAUTHORIZED,
+      "Session has been invalidated. Please log in again.",
+    );
   }
 
   return decoded;
@@ -69,7 +74,9 @@ export const authenticate: RequestHandler = (
       if (error instanceof ApiError) {
         next(error);
       } else {
-        next(new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED));
+        next(
+          new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED),
+        );
       }
     });
 };

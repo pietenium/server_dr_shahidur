@@ -6,7 +6,7 @@ const testimonialSchema = new Schema<ITestimonial>(
   {
     name: {
       type: String,
-      required: true,
+      required: [true, "Name is required"],
       trim: true,
     },
     designation: {
@@ -19,44 +19,36 @@ const testimonialSchema = new Schema<ITestimonial>(
     },
     content: {
       type: String,
-      required: true,
-      trim: true,
+      required: [true, "Content is required"],
+      maxlength: [1000, "Content cannot exceed 1000 characters"],
     },
     image: {
-      url: String,
-      fileId: String,
+      url: { type: String },
+      fileId: { type: String },
     },
     video: {
-      url: String,
-      fileId: String,
+      url: { type: String },
+      fileId: { type: String },
     },
     rating: {
       type: Number,
-      required: true,
-      min: 1,
-      max: 5,
+      required: [true, "Rating is required"],
+      min: [1, "Minimum rating is 1"],
+      max: [5, "Maximum rating is 5"],
     },
     isVisible: {
       type: Boolean,
       default: true,
+      index: true,
     },
   },
-  {
-    timestamps: true,
-    toJSON: {
-      transform: (_, ret) => {
-        delete (ret as Record<string, unknown>).__v;
-        return ret;
-      },
-    },
-  },
+  { timestamps: true },
 );
 
-testimonialSchema.plugin(mongoosePaginate);
-
-// Index for visibility and creation date
 testimonialSchema.index({ isVisible: 1, createdAt: -1 });
-testimonialSchema.index({ name: "text", content: "text", company: "text" });
+testimonialSchema.index({ rating: -1 });
+
+testimonialSchema.plugin(mongoosePaginate);
 
 export const Testimonial = mongoose.model<
   ITestimonial,

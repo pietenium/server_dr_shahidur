@@ -1,5 +1,5 @@
-import { body, query, param } from "express-validator";
 import { checkValidationResult } from "@utils/validation";
+import { body, param, query } from "express-validator";
 
 export const researchValidator = {
   create: [
@@ -122,7 +122,7 @@ export const researchValidator = {
       .optional()
       .isIn(["DRAFT", "PUBLISHED"])
       .withMessage("Invalid status filter"),
-    
+
     query("uploadType")
       .optional()
       .isIn(["PDF", "DOI"])

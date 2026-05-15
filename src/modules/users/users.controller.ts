@@ -1,15 +1,15 @@
-import type { Request, Response } from "express";
-import { asyncHandler } from "@utils/asyncHandler";
-import { ApiResponse } from "@utils/ApiResponse";
-import { StatusCodes } from "http-status-codes";
-import { usersService } from "./users.service";
+import { AUTH_MESSAGES, USER_MESSAGES } from "@constants/messages.constant";
 import { ApiError } from "@utils/ApiError";
+import { ApiResponse } from "@utils/ApiResponse";
+import { asyncHandler } from "@utils/asyncHandler";
+import type { Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
 import type {
-  UpdateProfilePayload,
   ChangePasswordPayload,
   InviteModeratorPayload,
+  UpdateProfilePayload,
 } from "./users.interface";
-import { USER_MESSAGES, AUTH_MESSAGES } from "@constants/messages.constant";
+import { usersService } from "./users.service";
 
 export const usersController = {
   getMe: asyncHandler(async (req: Request, res: Response) => {
@@ -29,7 +29,10 @@ export const usersController = {
     if (!req.user) {
       throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
     }
-    const user = await usersService.updateMe(req.user._id, req.body as UpdateProfilePayload);
+    const user = await usersService.updateMe(
+      req.user._id,
+      req.body as UpdateProfilePayload,
+    );
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
@@ -42,7 +45,10 @@ export const usersController = {
     if (!req.user) {
       throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
     }
-    await usersService.changePassword(req.user._id, req.body as ChangePasswordPayload);
+    await usersService.changePassword(
+      req.user._id,
+      req.body as ChangePasswordPayload,
+    );
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
@@ -68,7 +74,9 @@ export const usersController = {
     if (!req.user) {
       throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
     }
-    const moderator = await usersService.inviteModerator(req.body as InviteModeratorPayload);
+    const moderator = await usersService.inviteModerator(
+      req.body as InviteModeratorPayload,
+    );
     ApiResponse(res, {
       statusCode: StatusCodes.CREATED,
       success: true,
@@ -81,7 +89,10 @@ export const usersController = {
     if (!req.user) {
       throw new ApiError(StatusCodes.UNAUTHORIZED, AUTH_MESSAGES.UNAUTHORIZED);
     }
-    const user = await usersService.toggleUserActive(req.user._id, req.params.id as string);
+    const user = await usersService.toggleUserActive(
+      req.user._id,
+      req.params.id as string,
+    );
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,

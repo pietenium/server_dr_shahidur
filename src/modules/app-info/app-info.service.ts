@@ -1,85 +1,157 @@
-import { AppInfo } from "./app-info.model";
+import { APP_INFO_MESSAGES } from "@constants/messages.constant";
+import { ApiError } from "@utils/ApiError";
+import { deleteCache, getCache, setCache } from "@utils/cache";
 import type { IAppInfo, UpdateAppInfoPayload } from "./app-info.interface";
-import { getCache, setCache, deleteCache } from "@utils/cache";
-import { imagekit } from "@config/imagekit";
+import { AppInfo } from "./app-info.model";
 
-const CACHE_KEY = "cache:app-info";
-const CACHE_TTL = 3600; // 1 hour - this data changes rarely
+export class AppInfoService {
+  public async getAppInfo(): Promise<IAppInfo> {
+    const cacheKey = "cache:app-info";
+    const cached = await getCache<IAppInfo>(cacheKey);
 
-export const appInfoService = {
-  getAppInfo: async (): Promise<IAppInfo | null> => {
-    // Try cache
-    const cached = await getCache<IAppInfo>(CACHE_KEY);
     if (cached) {
       return cached;
     }
 
-    // Get from database - consistently target the newest document
-    const appInfo = await AppInfo.findOne().sort({ createdAt: -1 });
+    let appInfo = await AppInfo.findOne();
 
-    if (appInfo) {
-      void setCache(CACHE_KEY, appInfo, CACHE_TTL);
+    if (!appInfo) {
+      // Create default singleton if it doesn't exist
+      // Include ALL required fields from the model
+      appInfo = await AppInfo.create({
+        siteName: "Dr. Sahidur Rahman Khan",
+        siteDescription:
+          "Official website of Dr. Md. Sahidur Rahman Khan, Orthopedic Surgeon",
+        doctorName: "Dr. Md. Sahidur Rahman Khan",
+        doctorTitle: "Orthopedic Surgeon",
+        doctorSpecialty: "Orthopedic Surgery",
+        doctorBio:
+          "Experienced orthopedic surgeon specializing in joint replacement and trauma surgery.",
+        email: "contact@domain.com",
+        phone: "+8103882343424",
+        address: "Dhaka, Bangladesh",
+        clinicHours: "Saturday to Thursday: 9:00 AM - 5:00 PM",
+        socialLinks: {
+          facebook: "",
+          twitter: "",
+          linkedin: "",
+          youtube: "",
+          instagram: "",
+        },
+      });
     }
 
+    const appInfoData = appInfo.toJSON() as IAppInfo;
+    await setCache(cacheKey, appInfoData, 3600);
     return appInfo;
-  },
+  }
 
-  updateAppInfo: async (payload: UpdateAppInfoPayload): Promise<IAppInfo> => {
-    // Get existing to check for image changes
-    const appInfoExists = await AppInfo.findOne().sort({ createdAt: -1 });
+  public async updateAppInfo(
+    payload: UpdateAppInfoPayload,
+    files?: {
+      doctorImage?: Express.Multer.File;
+      ogImage?: Express.Multer.File;
+    },
+  ): Promise<IAppInfo> {
+    const appInfo = await AppInfo.findOne();
 
-    // Build a sanitized update object from allowlisted fields only.
-    const allowedKeys: ReadonlyArray<keyof UpdateAppInfoPayload> = [
-      "siteName",
-      "siteDescription",
-      "doctorName",
-      "doctorTitle",
-      "doctorSpecialty",
-      "doctorBio",
-      "doctorImage",
-      "ogImage",
-      "email",
-      "phone",
-      "address",
-      "socialLinks",
-      "clinicHours",
-      "mapEmbedUrl",
-    ];
-
-    const sanitizedPayload: Partial<UpdateAppInfoPayload> = {};
-    for (const key of allowedKeys) {
-      const value = payload[key];
-      if (value !== undefined) {
-        Object.assign(sanitizedPayload, { [key]: value });
-      }
+    if (!appInfo) {
+      throw new ApiError(
+        404,
+        APP_INFO_MESSAGES.UPDATED.replace("updated", "not found"),
+      );
     }
 
-    // FIX 15: Delete old images from ImageKit if they are being replaced
-    if (appInfoExists) {
-      if (sanitizedPayload.doctorImage && appInfoExists.doctorImage?.fileId) {
-        void imagekit.files.delete(appInfoExists.doctorImage.fileId).catch(() => {});
-      }
-      if (sanitizedPayload.ogImage && appInfoExists.ogImage?.fileId) {
-        void imagekit.files.delete(appInfoExists.ogImage.fileId).catch(() => {});
-      }
+    // Handle doctor image upload
+    if (files?.doctorImage) {
+      const { imagekit } = await import("@config/imagekit");
+      const uploadResult = await imagekit.files.upload({
+        file: files.doctorImage.buffer.toString("base64"),
+        fileName: `doctor-image-${Date.now()}`,
+        folder: "/doctor-images",
+      });
+      appInfo.doctorImage = {
+        url: uploadResult.url,
+        fileId: uploadResult.fileId,
+      };
     }
 
-    // FIX 16: Consistent document targeting using sort
-    const appInfo = await AppInfo.findOneAndUpdate(
-      {},
-      { $set: sanitizedPayload },
-      {
-        sort: { createdAt: -1 },
-        new: true,
-        upsert: true,
-        runValidators: true,
-        setDefaultsOnInsert: true,
+    // Handle OG image upload
+    if (files?.ogImage) {
+      const { imagekit } = await import("@config/imagekit");
+      const uploadResult = await imagekit.files.upload({
+        file: files.ogImage.buffer.toString("base64"),
+        fileName: `og-image-${Date.now()}`,
+        folder: "/og-images",
+      });
+      appInfo.ogImage = {
+        url: uploadResult.url,
+        fileId: uploadResult.fileId,
+      };
+    }
+
+    // Update only the fields that are provided
+    if (payload.siteName !== undefined) {
+      appInfo.siteName = payload.siteName;
+    }
+    if (payload.siteDescription !== undefined) {
+      appInfo.siteDescription = payload.siteDescription;
+    }
+    if (payload.doctorName !== undefined) {
+      appInfo.doctorName = payload.doctorName;
+    }
+    if (payload.doctorTitle !== undefined) {
+      appInfo.doctorTitle = payload.doctorTitle;
+    }
+    if (payload.doctorSpecialty !== undefined) {
+      appInfo.doctorSpecialty = payload.doctorSpecialty;
+    }
+    if (payload.doctorBio !== undefined) {
+      appInfo.doctorBio = payload.doctorBio;
+    }
+    if (payload.email !== undefined) {
+      appInfo.email = payload.email;
+    }
+    if (payload.phone !== undefined) {
+      appInfo.phone = payload.phone;
+    }
+    if (payload.address !== undefined) {
+      appInfo.address = payload.address;
+    }
+    if (payload.socialLinks) {
+      // Initialize socialLinks if it doesn't exist
+      if (!appInfo.socialLinks) {
+        appInfo.socialLinks = {};
       }
-    );
+
+      if (payload.socialLinks.facebook !== undefined) {
+        appInfo.socialLinks.facebook = payload.socialLinks.facebook;
+      }
+      if (payload.socialLinks.twitter !== undefined) {
+        appInfo.socialLinks.twitter = payload.socialLinks.twitter;
+      }
+      if (payload.socialLinks.linkedin !== undefined) {
+        appInfo.socialLinks.linkedin = payload.socialLinks.linkedin;
+      }
+      if (payload.socialLinks.youtube !== undefined) {
+        appInfo.socialLinks.youtube = payload.socialLinks.youtube;
+      }
+      if (payload.socialLinks.instagram !== undefined) {
+        appInfo.socialLinks.instagram = payload.socialLinks.instagram;
+      }
+    }
+    if (payload.clinicHours !== undefined) {
+      appInfo.clinicHours = payload.clinicHours;
+    }
+    if (payload.mapEmbedUrl !== undefined) {
+      appInfo.mapEmbedUrl = payload.mapEmbedUrl;
+    }
+
+    await appInfo.save();
 
     // Invalidate cache
-    void deleteCache(CACHE_KEY);
+    await deleteCache("cache:app-info");
 
     return appInfo;
-  },
-};
+  }
+}

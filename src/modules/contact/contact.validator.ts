@@ -1,5 +1,5 @@
-import { body, query } from "express-validator";
 import { checkValidationResult } from "@utils/validation";
+import { body, query } from "express-validator";
 
 export const contactValidator = {
   create: [
@@ -9,10 +9,7 @@ export const contactValidator = {
       .withMessage("Name is required")
       .isLength({ max: 100 })
       .withMessage("Name must not exceed 100 characters"),
-    body("email")
-      .trim()
-      .isEmail()
-      .withMessage("Valid email is required"),
+    body("email").trim().isEmail().withMessage("Valid email is required"),
     body("phone").optional().trim(),
     body("subject")
       .trim()

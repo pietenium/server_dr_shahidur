@@ -1,18 +1,13 @@
+import { logActivity } from "@middlewares/activity-log.middleware";
+import { authenticate } from "@middlewares/auth.middleware";
+import { authLimiter } from "@middlewares/rate-limiter.middleware";
 import { Router } from "express";
 import { authController } from "./auth.controller";
 import { authValidator } from "./auth.validator";
-import { authenticate } from "@middlewares/auth.middleware";
-import { logActivity } from "@middlewares/activity-log.middleware";
-import { authLimiter } from "@middlewares/rate-limiter.middleware";
 
 const router = Router();
 
-router.post(
-  "/login",
-  authLimiter,
-  authValidator.login,
-  authController.login,
-);
+router.post("/login", authLimiter, authValidator.login, authController.login);
 
 router.post(
   "/forgot-password",
@@ -42,11 +37,7 @@ router.post(
   authController.resetPassword,
 );
 
-router.post(
-  "/refresh-token",
-  authLimiter,
-  authController.refreshToken,
-);
+router.post("/refresh-token", authLimiter, authController.refreshToken);
 
 router.post(
   "/logout",

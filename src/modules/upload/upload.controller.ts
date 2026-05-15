@@ -1,12 +1,12 @@
+import { cloudinaryUploader } from "@config/cloudinary";
+import { imagekit } from "@config/imagekit";
+import { ApiError } from "@utils/ApiError";
+import { ApiResponse } from "@utils/ApiResponse";
+import { asyncHandler } from "@utils/asyncHandler";
+import type { UploadApiErrorResponse, UploadApiResponse } from "cloudinary";
 import type { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { imagekit } from "@config/imagekit";
-import { cloudinaryUploader } from "@config/cloudinary";
-import { ApiError } from "@utils/ApiError";
-import { asyncHandler } from "@utils/asyncHandler";
-import { ApiResponse } from "@utils/ApiResponse";
 import { Readable } from "stream";
-import type { UploadApiResponse, UploadApiErrorResponse } from "cloudinary";
 
 interface ImageKitUploadResponse {
   url: string;
@@ -15,12 +15,14 @@ interface ImageKitUploadResponse {
 }
 
 interface ImageKitInstance {
-  upload(params: {
-    file: string | Buffer;
-    fileName: string;
-    folder?: string;
-    [key: string]: unknown;
-  }): Promise<ImageKitUploadResponse>;
+  files: {
+    upload(params: {
+      file: string | Buffer;
+      fileName: string;
+      folder?: string;
+      [key: string]: unknown;
+    }): Promise<ImageKitUploadResponse>;
+  };
 }
 
 export const uploadController = {
@@ -29,9 +31,9 @@ export const uploadController = {
     if (!file) {
       throw new ApiError(StatusCodes.BAD_REQUEST, "No image file uploaded");
     }
-    
+
     const ik = imagekit as unknown as ImageKitInstance;
-    const result = await ik.upload({
+    const result = await ik.files.upload({
       file: `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
       fileName: file.originalname,
       folder: "/images",
@@ -53,9 +55,9 @@ export const uploadController = {
     if (!file) {
       throw new ApiError(StatusCodes.BAD_REQUEST, "No PDF file uploaded");
     }
-    
+
     const ik = imagekit as unknown as ImageKitInstance;
-    const result = await ik.upload({
+    const result = await ik.files.upload({
       file: `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
       fileName: file.originalname,
       folder: "/pdfs",
@@ -78,21 +80,36 @@ export const uploadController = {
       throw new ApiError(StatusCodes.BAD_REQUEST, "No video file uploaded");
     }
 
-    const uploadResult = await new Promise<UploadApiResponse>((resolve, reject) => {
-      const uploadStream = cloudinaryUploader.upload_stream(
-        { resource_type: "video", folder: "videos" },
-        (error: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
-          if (error) {
-            reject(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, "Cloudinary upload failed: " + error.message));
-          } else if (result) {
-            resolve(result);
-          } else {
-            reject(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, "Cloudinary upload failed with unknown error"));
-          }
-        }
-      );
-      Readable.from(file.buffer).pipe(uploadStream);
-    });
+    const uploadResult = await new Promise<UploadApiResponse>(
+      (resolve, reject) => {
+        const uploadStream = cloudinaryUploader.upload_stream(
+          { resource_type: "video", folder: "videos" },
+          (
+            error: UploadApiErrorResponse | undefined,
+            result: UploadApiResponse | undefined,
+          ) => {
+            if (error) {
+              reject(
+                new ApiError(
+                  StatusCodes.INTERNAL_SERVER_ERROR,
+                  "Cloudinary upload failed: " + error.message,
+                ),
+              );
+            } else if (result) {
+              resolve(result);
+            } else {
+              reject(
+                new ApiError(
+                  StatusCodes.INTERNAL_SERVER_ERROR,
+                  "Cloudinary upload failed with unknown error",
+                ),
+              );
+            }
+          },
+        );
+        Readable.from(file.buffer).pipe(uploadStream);
+      },
+    );
 
     ApiResponse(res, {
       statusCode: StatusCodes.OK,

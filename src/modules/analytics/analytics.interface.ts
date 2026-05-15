@@ -34,5 +34,35 @@ export interface PageViewAggregationResult {
   page: string;
 }
 
+// New interfaces for specific page analytics
+export interface SpecificPageStatsResult {
+  page: string;
+  totalViews: number;
+  uniqueVisitors: number;
+  averageTimeOnPage?: number;
+  lastViewedAt?: Date | null;
+  dailyViews: Array<{
+    date: string;
+    count: number;
+  }>;
+  referrers: Array<{
+    source: string;
+    count: number;
+  }>;
+  devices: Array<{
+    type: string;
+    count: number;
+  }>;
+  browsers: Array<{
+    name: string;
+    count: number;
+  }>;
+}
+
+export interface DateRangeQuery {
+  startDate?: string;
+  endDate?: string;
+}
+
 // Re-export PipelineStage for convenience in service
 export type { PipelineStage };

@@ -1,9 +1,14 @@
-import type cors from "cors";
-import chalk from "chalk";
-import { env } from "./env";
 import { logger } from "@utils/logger";
+import chalk from "chalk";
+import type cors from "cors";
+import { env } from "./env";
 
-const allowedOrigins = [env.CLIENT_PUBLIC_URL, env.CLIENT_DASHBOARD_URL];
+const allowedOrigins = [
+  env.CLIENT_PUBLIC_URL,
+  env.CLIENT_DASHBOARD_URL,
+  "http://localhost:5173",
+  "http://localhost:3000",
+];
 
 export const corsOptions: cors.CorsOptions = {
   origin: (

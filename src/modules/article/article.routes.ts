@@ -1,13 +1,40 @@
+import { ROLES } from "@constants/roles.constant";
+import { logActivity } from "@middlewares/activity-log.middleware";
+import {
+  authenticate,
+  optionalAuthenticate,
+} from "@middlewares/auth.middleware";
+import {
+  analyticsLimiter,
+  globalLimiter,
+} from "@middlewares/rate-limiter.middleware";
+import { authorize } from "@middlewares/role.middleware";
+import { uploadImage } from "@middlewares/upload.middleware";
+import type { NextFunction, Request, Response } from "express";
 import { Router } from "express";
 import { articleController } from "./article.controller";
 import { articleValidator } from "./article.validator";
-import { authenticate, optionalAuthenticate } from "@middlewares/auth.middleware";
-import { authorize } from "@middlewares/role.middleware";
-import { logActivity } from "@middlewares/activity-log.middleware";
-import { ROLES } from "@constants/roles.constant";
-import { globalLimiter } from "@middlewares/rate-limiter.middleware";
 
 const router = Router();
+
+// Custom middleware for handling article file uploads (featuredImage and ogImage)
+const handleArticleFiles = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const upload = uploadImage.fields([
+    { name: "featuredImage", maxCount: 1 },
+    { name: "ogImage", maxCount: 1 },
+  ]);
+
+  upload(req, res, (err) => {
+    if (err) {
+      return next(err);
+    }
+    next();
+  });
+};
 
 // --- Category Routes ---
 router.get("/categories", globalLimiter, articleController.getCategories);
@@ -45,8 +72,48 @@ router.delete(
 // --- Article Routes ---
 
 // Public listing and detail
-router.get("/", globalLimiter, optionalAuthenticate, articleValidator.query, articleController.getArticles);
-router.get("/slug/:slug", globalLimiter, optionalAuthenticate, articleValidator.validateSlug, articleController.getBySlug);
+router.get(
+  "/",
+  globalLimiter,
+  optionalAuthenticate,
+  articleValidator.query,
+  articleController.getArticles,
+);
+
+router.get(
+  "/:slug",
+  globalLimiter,
+  optionalAuthenticate,
+  articleController.getBySlug,
+);
+
+// New: Featured articles (public)
+router.get("/featured", globalLimiter, articleController.getFeaturedArticles);
+
+// New: Top articles by category (public)
+router.get(
+  "/top-by-category",
+  globalLimiter,
+  articleController.getTopArticlesByCategory,
+);
+
+// New: Increase impressions (public with strict rate limiting)
+router.post(
+  "/impressions",
+  analyticsLimiter, // 60 requests per minute
+  articleValidator.increaseImpressions,
+  articleController.increaseImpressions,
+);
+
+// New: Batch get impressions (authenticated)
+router.post(
+  "/impressions/batch",
+  globalLimiter,
+  authenticate,
+  authorize(ROLES.ADMIN, ROLES.MODERATOR),
+  articleValidator.batchImpressions,
+  articleController.getMultipleImpressions,
+);
 
 // Admin routes
 router.get(
@@ -55,7 +122,6 @@ router.get(
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
   articleValidator.query,
-  logActivity("article"),
   articleController.getArticles,
 );
 
@@ -64,6 +130,7 @@ router.post(
   globalLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
+  handleArticleFiles,
   articleValidator.create,
   logActivity("article"),
   articleController.create,
@@ -74,6 +141,7 @@ router.patch(
   globalLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
+  handleArticleFiles,
   articleValidator.update,
   logActivity("article"),
   articleController.update,

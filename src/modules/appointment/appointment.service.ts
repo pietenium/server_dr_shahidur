@@ -1,22 +1,21 @@
-import type mongoose from "mongoose";
-import { Appointment } from "./appointment.model";
-import type {
-  IAppointment,
-  CreateAppointmentPayload,
-  AppointmentFilterQuery,
-  AppointmentChartData,
-} from "./appointment.interface";
-import { getGeoLocation } from "@utils/getGeoLocation";
-import { sendWhatsAppMessage } from "@utils/sendWhatsApp";
+import { env } from "@config/env";
 import { sendEmail } from "@emails/sendEmail";
 import { appointmentConfirmationTemplate } from "@emails/templates/appointment-confirmation.template";
-import { env } from "@config/env";
-import dayjs from "dayjs";
-import { logger } from "@utils/logger";
 import { ApiError } from "@utils/ApiError";
+import { getGeoLocation } from "@utils/getGeoLocation";
+import { logger } from "@utils/logger";
+import { sendWhatsAppMessage } from "@utils/sendWhatsApp";
+import dayjs from "dayjs";
 import { StatusCodes } from "http-status-codes";
+import type mongoose from "mongoose";
 import type { PaginateModel } from "mongoose";
-
+import type {
+  AppointmentChartData,
+  AppointmentFilterQuery,
+  CreateAppointmentPayload,
+  IAppointment,
+} from "./appointment.interface";
+import { Appointment } from "./appointment.model";
 
 interface AppointmentFilter {
   status?: string;
@@ -31,7 +30,10 @@ interface AppointmentFilter {
 }
 
 export const appointmentService = {
-  create: async (payload: CreateAppointmentPayload, ip: string): Promise<IAppointment> => {
+  create: async (
+    payload: CreateAppointmentPayload,
+    ip: string,
+  ): Promise<IAppointment> => {
     // 1. Save appointment first
     const appointment = await Appointment.create({
       ...payload,
@@ -57,28 +59,32 @@ export const appointmentService = {
               subject: "Appointment Request Received - Dr. Sahidur Rahman Khan",
               html: appointmentConfirmationTemplate({
                 name: payload.name,
-                preferredDate: dayjs(payload.preferredDate).format("DD MMMM, YYYY"),
+                preferredDate: dayjs(payload.preferredDate).format(
+                  "DD MMMM, YYYY",
+                ),
                 preferredTime: payload.preferredTime,
               }),
             }),
           );
         }
 
-        // WhatsApp to Doctor
+        //         // WhatsApp to Doctor
         const whatsappMessage = `🗓 *New Appointment Request*
 
-👤 *Patient:* ${payload.name}
-📞 *Phone:* ${payload.phone}
-📧 *Email:* ${payload.email || "Not provided"}
-📅 *Preferred Date:* ${dayjs(payload.preferredDate).format("DD MMMM, YYYY")}
-⏰ *Preferred Time:* ${payload.preferredTime}
-💬 *Message:* ${payload.message || "No message"}
-📍 *Location:* ${geo.city}, ${geo.country}
-🕐 *Submitted:* ${dayjs().format("DD/MM/YYYY HH:mm")}
+        👤 *Patient:* ${payload.name}
+        📞 *Phone:* ${payload.phone}
+        📧 *Email:* ${payload.email || "Not provided"}
+        📅 *Preferred Date:* ${dayjs(payload.preferredDate).format("DD MMMM, YYYY")}
+        ⏰ *Preferred Time:* ${payload.preferredTime}
+        💬 *Message:* ${payload.message || "No message"}
+        📍 *Location:* ${geo.city}, ${geo.country}
+        🕐 *Submitted:* ${dayjs().format("DD/MM/YYYY HH:mm")}
 
-Manage via dashboard.`;
+        Manage via dashboard.`;
 
-        notificationPromises.push(sendWhatsAppMessage(env.DOCTOR_WHATSAPP_NUMBER, whatsappMessage));
+        notificationPromises.push(
+          sendWhatsAppMessage(env.DOCTOR_WHATSAPP_NUMBER, whatsappMessage),
+        );
 
         await Promise.allSettled(notificationPromises);
       } catch (error) {
@@ -89,7 +95,9 @@ Manage via dashboard.`;
     return appointment;
   },
 
-  get: async (query: AppointmentFilterQuery): Promise<mongoose.PaginateResult<IAppointment>> => {
+  get: async (
+    query: AppointmentFilterQuery,
+  ): Promise<mongoose.PaginateResult<IAppointment>> => {
     const { status, startDate, endDate, search, page = 1, limit = 10 } = query;
     const filter: AppointmentFilter = {};
 
@@ -132,7 +140,10 @@ Manage via dashboard.`;
     return appointment;
   },
 
-  updateStatus: async (id: string, status: "CONFIRMED" | "CANCELLED"): Promise<IAppointment> => {
+  updateStatus: async (
+    id: string,
+    status: "CONFIRMED" | "CANCELLED",
+  ): Promise<IAppointment> => {
     const appointment = await Appointment.findByIdAndUpdate(
       id,
       { status: status.toUpperCase() },
@@ -148,39 +159,45 @@ Manage via dashboard.`;
 
   getCharts: async (): Promise<AppointmentChartData> => {
     const thirtyDaysAgo = dayjs().subtract(30, "days").toDate();
-    const twelveMonthsAgo = dayjs().subtract(12, "months").startOf("month").toDate();
+    const twelveMonthsAgo = dayjs()
+      .subtract(12, "months")
+      .startOf("month")
+      .toDate();
 
-    const [dailyCounts, monthlyCounts, statusDistribution, totalCount] = await Promise.all([
-      Appointment.aggregate([
-        { $match: { createdAt: { $gte: thirtyDaysAgo } } },
-        {
-          $group: {
-            _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-            count: { $sum: 1 },
+    const [dailyCounts, monthlyCounts, statusDistribution, totalCount] =
+      await Promise.all([
+        Appointment.aggregate([
+          { $match: { createdAt: { $gte: thirtyDaysAgo } } },
+          {
+            $group: {
+              _id: {
+                $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+              },
+              count: { $sum: 1 },
+            },
           },
-        },
-        { $sort: { _id: 1 } },
-      ]) as unknown as Promise<Array<{ _id: string; count: number }>>,
-      Appointment.aggregate([
-        { $match: { createdAt: { $gte: twelveMonthsAgo } } },
-        {
-          $group: {
-            _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
-            count: { $sum: 1 },
+          { $sort: { _id: 1 } },
+        ]) as unknown as Promise<Array<{ _id: string; count: number }>>,
+        Appointment.aggregate([
+          { $match: { createdAt: { $gte: twelveMonthsAgo } } },
+          {
+            $group: {
+              _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
+              count: { $sum: 1 },
+            },
           },
-        },
-        { $sort: { _id: 1 } },
-      ]) as unknown as Promise<Array<{ _id: string; count: number }>>,
-      Appointment.aggregate([
-        {
-          $group: {
-            _id: "$status",
-            count: { $sum: 1 },
+          { $sort: { _id: 1 } },
+        ]) as unknown as Promise<Array<{ _id: string; count: number }>>,
+        Appointment.aggregate([
+          {
+            $group: {
+              _id: "$status",
+              count: { $sum: 1 },
+            },
           },
-        },
-      ]) as unknown as Promise<Array<{ _id: string; count: number }>>,
-      Appointment.countDocuments(),
-    ]);
+        ]) as unknown as Promise<Array<{ _id: string; count: number }>>,
+        Appointment.countDocuments(),
+      ]);
 
     return {
       dailyCounts,

@@ -1,8 +1,8 @@
-import { Client, LocalAuth } from "whatsapp-web.js";
-import qrcode from "qrcode-terminal";
-import chalk from "chalk";
-import { logger } from "./logger";
 import { env } from "@config/env";
+import chalk from "chalk";
+import qrcode from "qrcode-terminal";
+import { Client, LocalAuth } from "whatsapp-web.js";
+import { logger } from "./logger";
 
 let client: Client | null = null;
 let isReady = false;

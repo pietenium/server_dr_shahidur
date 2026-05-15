@@ -1,6 +1,6 @@
-import { logger } from "../utils/logger";
-import { z } from "zod";
 import dotenv from "dotenv";
+import { z } from "zod";
+import { logger } from "../utils/logger";
 
 dotenv.config();
 
@@ -36,6 +36,7 @@ const envSchema = z.object({
   TELEGRAM_CHAT_ID: z.string(),
   ADMIN_SEED_EMAIL: z.string().email(),
   ADMIN_SEED_PASSWORD: z.string().min(8),
+  TEMP_PASS: z.string().min(8),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

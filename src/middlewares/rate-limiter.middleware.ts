@@ -1,84 +1,101 @@
 import rateLimit from "express-rate-limit";
 import RedisStore from "rate-limit-redis";
+
 import { getRedisClient, isRedisReady } from "@config/redis";
 import { StatusCodes } from "http-status-codes";
 
-// Helper to get store
-const getStore = () => {
+const createStore = () => {
+  if (!isRedisReady()) {
+    console.warn("Redis not ready. Using memory store.");
+    return undefined;
+  }
+
+  const client = getRedisClient();
+
   return new RedisStore({
-    // @ts-expect-error - Known typing issue with rate-limit-redis and ioredis
+    // @ts-expect-error ioredis typing issue
     sendCommand: (...args: string[]) => {
-      const client = getRedisClient();
-      if (isRedisReady()) {
-        return client.call(...(args as [string, ...string[]]));
-      }
-      return Promise.reject(new Error("Redis not ready"));
+      return client.call(...(args as [string, ...string[]]));
     },
   });
 };
 
-export const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10,
+const commonConfig = {
   standardHeaders: true,
   legacyHeaders: false,
+};
+
+export const authLimiter = rateLimit({
+  ...commonConfig,
+
+  windowMs: 15 * 60 * 1000,
+  max: 50,
+
   message: {
     success: false,
     statusCode: StatusCodes.TOO_MANY_REQUESTS,
     message: "Too many authentication requests, please try again later.",
   },
-  store: getStore(),
+
+  store: createStore(),
 });
 
 export const analyticsLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
+  ...commonConfig,
+
+  windowMs: 60 * 1000,
   max: 60,
-  standardHeaders: true,
-  legacyHeaders: false,
+
   message: {
     success: false,
     statusCode: StatusCodes.TOO_MANY_REQUESTS,
     message: "Too many tracking requests, please try again later.",
   },
-  store: getStore(),
+
+  store: createStore(),
 });
 
 export const searchLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
+  ...commonConfig,
+
+  windowMs: 60 * 1000,
   max: 30,
-  standardHeaders: true,
-  legacyHeaders: false,
+
   message: {
     success: false,
     statusCode: StatusCodes.TOO_MANY_REQUESTS,
     message: "Too many search requests, please try again later.",
   },
-  store: getStore(),
+
+  store: createStore(),
 });
 
 export const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  ...commonConfig,
+
+  windowMs: 15 * 60 * 1000,
   max: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
+
   message: {
     success: false,
     statusCode: StatusCodes.TOO_MANY_REQUESTS,
     message: "Too many requests from this IP, please try again later.",
   },
-  store: getStore(),
+
+  store: createStore(),
 });
 
 export const appointmentLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5,
-  standardHeaders: true,
-  legacyHeaders: false,
+  ...commonConfig,
+
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+
   message: {
     success: false,
     statusCode: StatusCodes.TOO_MANY_REQUESTS,
     message: "Too many appointment requests, please try again later.",
   },
-  store: getStore(),
-});
 
+  store: createStore(),
+});

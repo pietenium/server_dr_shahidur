@@ -1,17 +1,20 @@
+import { AUTH_MESSAGES, CONTACT_MESSAGES } from "@constants/messages.constant";
+import { ApiError } from "@utils/ApiError";
+import { ApiResponse } from "@utils/ApiResponse";
+import { asyncHandler } from "@utils/asyncHandler";
 import type { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { asyncHandler } from "@utils/asyncHandler";
-import { ApiResponse } from "@utils/ApiResponse";
-import { ApiError } from "@utils/ApiError";
+import type {
+  ContactFilterQuery,
+  CreateContactPayload,
+} from "./contact.interface";
 import { contactService } from "./contact.service";
-import type { CreateContactPayload, ContactFilterQuery } from "./contact.interface";
-import { CONTACT_MESSAGES, AUTH_MESSAGES } from "@constants/messages.constant";
 
 export const contactController = {
   create: asyncHandler(async (req: Request, res: Response) => {
     const payload = req.body as CreateContactPayload;
     const ip = req.ip || "unknown";
-    
+
     const contact = await contactService.create(payload, ip);
 
     ApiResponse(res, {

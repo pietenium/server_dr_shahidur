@@ -2,6 +2,8 @@ node_modules/
 dist/
 .env
 whatsapp-session/
+.wwebjs_cache/
 *.log
-
+.wwebjs_cache/
 backend-completion-plan.md
+.wwebjs_cache/

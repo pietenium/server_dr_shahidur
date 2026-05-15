@@ -1,7 +1,7 @@
-import type { Request, Response, NextFunction, RequestHandler } from "express";
-import axios from "axios";
 import { env } from "@config/env";
 import { ApiError } from "@utils/ApiError";
+import axios from "axios";
+import type { NextFunction, Request, RequestHandler, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 
 interface RecaptchaVerifyResponse {
@@ -25,10 +25,14 @@ export const verifyRecaptcha: RequestHandler = async (
   try {
     const body = req.body as RecaptchaRequestBody;
     const token =
-      body.recaptchaToken ?? (req.headers["x-recaptcha-token"] as string | undefined);
+      body.recaptchaToken ??
+      (req.headers["x-recaptcha-token"] as string | undefined);
 
     if (!token) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, "reCAPTCHA token is required");
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        "reCAPTCHA token is required",
+      );
     }
 
     const response = await axios.post<RecaptchaVerifyResponse>(
@@ -56,7 +60,9 @@ export const verifyRecaptcha: RequestHandler = async (
     if (error instanceof ApiError) {
       next(error);
     } else {
-      next(new ApiError(StatusCodes.BAD_REQUEST, "reCAPTCHA verification failed"));
+      next(
+        new ApiError(StatusCodes.BAD_REQUEST, "reCAPTCHA verification failed"),
+      );
     }
   }
 };

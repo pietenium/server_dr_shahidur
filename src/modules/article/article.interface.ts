@@ -1,5 +1,5 @@
-import type { Document, Types } from "mongoose";
 import type { ArticleType, ContentStatus } from "@constants/status.constant";
+import type { Document, Types } from "mongoose";
 
 export interface IArticleCategory extends Document {
   name: string;
@@ -15,16 +15,16 @@ export interface IArticle extends Document {
   content: string;
   excerpt?: string;
   featuredImage?: {
-    url: string;
-    fileId: string;
+    url: string | undefined;
+    fileId: string | undefined;
   };
   category: Types.ObjectId | IArticleCategory;
   articleType: ArticleType;
   status: ContentStatus;
   impressions: number;
   ogImage?: {
-    url: string;
-    fileId: string;
+    url: string | undefined;
+    fileId: string | undefined;
   };
   author?: string;
   tags?: string[];
@@ -56,6 +56,26 @@ export interface ArticleFilterQuery {
   page?: number;
   limit?: number;
   sort?: string;
+  minImpressions?: number;
+}
+
+// New interfaces for featured and top articles
+export interface FeaturedArticlesQuery {
+  limit?: number;
+  minImpressions?: number;
+}
+
+export interface TopArticlesByCategoryQuery {
+  categoryId?: string;
+  limit?: number;
+  articleType?: ArticleType;
+}
+
+export interface ImpressionIncreasePayload {
+  articleId: string;
+  sessionId: string;
+  visitorId?: string;
+  hoverDuration?: number; // in milliseconds
 }
 
 // ArticleType is re-exported from @constants/status.constant

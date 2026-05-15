@@ -1,7 +1,7 @@
+import { CONTACT_REASON } from "@constants/status.constant";
 import mongoose, { Schema } from "mongoose";
 import mongoosePaginate from "mongoose-paginate-v2";
 import type { IContact } from "./contact.interface";
-import { CONTACT_REASON } from "@constants/status.constant";
 
 const contactSchema = new Schema<IContact>(
   {
