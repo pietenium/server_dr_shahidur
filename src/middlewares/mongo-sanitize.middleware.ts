@@ -1,5 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 
+const FORBIDDEN_KEYS = ["__proto__", "constructor", "prototype"];
+
 const sanitizeValue = (value: unknown): unknown => {
   if (typeof value === "string" && value.startsWith("$")) {
     return value.replace(/^\$/, "");
@@ -8,6 +10,9 @@ const sanitizeValue = (value: unknown): unknown => {
     const sanitized: Record<string, unknown> = {};
     for (const [key, val] of Object.entries(value as Record<string, unknown>)) {
       const sanitizedKey = key.startsWith("$") ? key.replace(/^\$/, "") : key;
+      if (FORBIDDEN_KEYS.includes(sanitizedKey)) {
+        continue;
+      }
       sanitized[sanitizedKey] = sanitizeValue(val);
     }
     return sanitized;

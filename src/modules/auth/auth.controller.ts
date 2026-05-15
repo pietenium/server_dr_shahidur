@@ -89,7 +89,14 @@ export const authController = {
   }),
 
   resetPassword: asyncHandler(async (req: Request, res: Response) => {
-    await authService.resetPassword(req.body as ResetPasswordPayload);
+    const user = await authService.resetPassword(req.body as ResetPasswordPayload);
+
+    req.user = {
+      _id: user._id.toString(),
+      role: user.role,
+      email: user.email,
+      name: user.name,
+    };
 
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
