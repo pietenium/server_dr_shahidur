@@ -6,7 +6,12 @@ const isDev = (): boolean => {
 };
 
 const sanitizeLogString = (value: string): string =>
-  value.replace(/[\r\n]+/g, " ");
+  value
+    .replace(/[\r\n\t]+/g, " ")
+    .replace(/\x1B\[[0-?]*[ -/]*[@-~]/g, "")
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
 
 const sanitizeLogArg = (arg: unknown): string => {
   if (typeof arg === "string") {
