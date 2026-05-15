@@ -13,7 +13,7 @@ const router = Router();
 router.use(globalLimiter);
 router.use(authenticate);
 
-router.get("/me", logActivity("users"), usersController.getMe);
+router.get("/me", usersController.getMe);
 router.patch(
   "/me",
   usersValidator.updateProfile,
@@ -32,7 +32,6 @@ router.use(authorize(ROLES.ADMIN));
 
 router.get(
   "/",
-  logActivity("users"),
   usersValidator.getAllUsers,
   usersController.getAllUsers,
 );
