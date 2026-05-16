@@ -155,7 +155,7 @@ export const usersService = {
     });
 
     // Send invite email (non-blocking)
-    void sendEmail({
+    void await sendEmail({
       to: payload.email,
       subject: "Invitation to Join as Moderator",
       html: moderatorInviteTemplate({
