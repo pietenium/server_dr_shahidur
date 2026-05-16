@@ -8,6 +8,7 @@ import {
 } from "@utils/cache";
 import { sanitizeContent } from "@utils/sanitizeHtml";
 import { generateSlug } from "@utils/slugify";
+import { Types } from "mongoose";
 import { ArticleCategory } from "./article-category.model";
 import type {
   ArticleFilterQuery,
@@ -407,6 +408,10 @@ export class ArticleService {
     currentImpressions: number;
   }> {
     const { articleId, sessionId, hoverDuration = 0 } = payload;
+
+    if (!Types.ObjectId.isValid(articleId)) {
+      throw new ApiError(400, "Invalid article ID");
+    }
 
     // Validate hover duration (minimum 1 second to count as genuine read)
     const MIN_HOVER_DURATION = 1000; // 1 second

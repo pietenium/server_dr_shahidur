@@ -26,16 +26,11 @@ router.use(
   authorize(ROLES.ADMIN, ROLES.MODERATOR),
 );
 
-router.get(
-  "/",
-  logActivity("contact"),
-  contactValidator.query,
-  contactController.getMessages,
-);
+router.get("/", contactValidator.query, contactController.getMessages);
 
-router.get("/:id", logActivity("contact"), contactController.getMessageById);
+router.get("/:id", contactController.getMessageById);
 
-router.patch("/:id/read", logActivity("contact"), contactController.markAsRead);
+router.patch("/:id/read", contactController.markAsRead);
 
 router.delete("/:id", logActivity("contact"), contactController.delete);
 

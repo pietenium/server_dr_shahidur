@@ -11,9 +11,7 @@ const appInfoService = new AppInfoService();
 
 export const appInfoController = {
   getAppInfo: asyncHandler(async (_req: Request, res: Response) => {
-    const appInfo = await (
-      appInfoService as { getAppInfo: () => Promise<unknown> }
-    ).getAppInfo();
+    const appInfo = await appInfoService.getAppInfo();
 
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
@@ -29,7 +27,18 @@ export const appInfoController = {
     }
 
     const payload = req.body as UpdateAppInfoPayload;
-    const appInfo = await appInfoService.updateAppInfo(payload);
+
+    // Get uploaded files
+    const files = req.files as
+      | { [fieldname: string]: Express.Multer.File[] }
+      | undefined;
+    const doctorImage = files?.doctorImage?.[0];
+    const ogImage = files?.ogImage?.[0];
+
+    const appInfo = await appInfoService.updateAppInfo(payload, {
+      doctorImage,
+      ogImage,
+    });
 
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
