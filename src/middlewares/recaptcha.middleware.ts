@@ -29,6 +29,10 @@ export const verifyRecaptcha: RequestHandler = async (
       (req.headers["x-recaptcha-token"] as string | undefined);
 
     if (!token) {
+      if (env.NODE_ENV !== "production") {
+        console.warn("reCAPTCHA token missing — bypassing verification in development mode.");
+        return next();
+      }
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
         "reCAPTCHA token is required",
