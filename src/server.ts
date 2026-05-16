@@ -6,6 +6,7 @@ import { getWhatsAppClient, initWhatsApp } from "@utils/sendWhatsApp";
 import chalk from "chalk";
 import mongoose from "mongoose";
 import app from "./app";
+import { transporter } from "@config/nodemailer";
 
 const seedAdmin = async (): Promise<void> => {
   const { User } = await import("@modules/auth/auth.model");
@@ -35,6 +36,14 @@ const startServer = async (): Promise<void> => {
   await connectDB();
   logger.info(chalk.green("✓ MongoDB connected"));
 
+  transporter.verify((error, success) => {
+    if (error) {
+      logger.info(chalk.green(" X SMTP ERROR: " + error.message));
+    } else {
+      logger.info(chalk.green("✓ SMTP validated"+(success ? " (Connection successful)" : " (Connection failed)")));
+    }
+  });
+  
   // 3. Connect to Redis (non-fatal)
   try {
     await connectRedis();
