@@ -17,8 +17,9 @@ import { authService } from "./auth.service";
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: env.NODE_ENV === "production",
-  sameSite: "lax" as const,
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  sameSite:
+    env.NODE_ENV === "production" ? ("none" as const) : ("lax" as const),
+  maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
 };
 
 export const authController = {
@@ -89,7 +90,9 @@ export const authController = {
   }),
 
   resetPassword: asyncHandler(async (req: Request, res: Response) => {
-    const user = await authService.resetPassword(req.body as ResetPasswordPayload);
+    const user = await authService.resetPassword(
+      req.body as ResetPasswordPayload,
+    );
 
     req.user = {
       _id: user._id.toString(),
