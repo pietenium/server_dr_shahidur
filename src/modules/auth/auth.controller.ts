@@ -16,8 +16,9 @@ import { authService } from "./auth.service";
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: true,
-  sameSite: "none" as const,
-  maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
+  sameSite: "none" as const, // ✅ "lax" works since same domain now
+  maxAge: 14 * 24 * 60 * 60 * 1000,
+  path: "/",
 };
 
 export const authController = {
