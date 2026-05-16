@@ -28,10 +28,10 @@ export class ResearchService {
     totalPages: number;
     currentPage: number;
   }> {
-    const page = query.page || 1;
-    const limit = query.limit || 10;
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 10;
 
-    const cacheKey = `cache:research:${JSON.stringify(query)}`;
+    const cacheKey = `cache:research:${JSON.stringify({ ...query, page, limit })}`;
     const cached = await getCache<{
       papers: IResearch[];
       totalDocs: number;
@@ -47,12 +47,12 @@ export class ResearchService {
 
     const safeStatus = this.getSafeString(query.status);
     if (safeStatus) {
-      filter.status = { $eq: safeStatus };
+      filter.status = safeStatus;
     }
 
     const safeUploadType = this.getSafeString(query.uploadType);
     if (safeUploadType) {
-      filter.uploadType = { $eq: safeUploadType };
+      filter.uploadType = safeUploadType;
     }
 
     const safeSearch = this.getSafeString(query.search);

@@ -44,19 +44,28 @@ export const researchController = {
   }),
 
   getResearchList: asyncHandler(async (req: Request, res: Response) => {
-    const query = req.query as unknown as ResearchFilterQuery;
+    const {
+      page,
+      limit,
+      search,
+      uploadType,
+      status: queryStatus,
+    } = req.query as Record<string, string | undefined>;
 
     const isAdmin = !!(
       req.user &&
       (req.user.role === "ADMIN" || req.user.role === "MODERATOR")
     );
 
-    // If not admin, only show published papers
-    if (!isAdmin) {
-      query.status = "PUBLISHED";
-    }
+    const filterQuery: ResearchFilterQuery = {
+      page: page ? Number(page) : undefined,
+      limit: limit ? Number(limit) : undefined,
+      search,
+      uploadType,
+      status: isAdmin ? queryStatus : "PUBLISHED",
+    };
 
-    const result = await researchService.getResearchList(query);
+    const result = await researchService.getResearchList(filterQuery);
 
     ApiResponse(res, {
       statusCode: StatusCodes.OK,
@@ -65,7 +74,7 @@ export const researchController = {
       data: result.papers,
       meta: {
         page: result.currentPage,
-        limit: query.limit || 10,
+        limit: filterQuery.limit || 10,
         total: result.totalDocs,
         totalPage: result.totalPages,
       },
