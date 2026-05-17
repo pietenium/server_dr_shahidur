@@ -16,7 +16,7 @@ import type {
   IAppointment,
 } from "./appointment.interface";
 import { Appointment } from "./appointment.model";
-
+import { notifyNewAppointment } from "@config/socket";
 interface AppointmentFilter {
   status?: string;
   preferredDate?: {
@@ -50,7 +50,17 @@ export const appointmentService = {
         await appointment.save();
 
         const notificationPromises = [];
-
+        notifyNewAppointment({
+          _id: appointment._id.toString(),
+          name: appointment.name,
+          phone: appointment.phone,
+          email: appointment.email,
+          preferredDate: appointment.preferredDate,
+          preferredTime: appointment.preferredTime,
+          message: appointment.message,
+          status: appointment.status,
+          createdAt: appointment.createdAt,
+        });
         // Patient Email Confirmation
         if (payload.email) {
           notificationPromises.push(

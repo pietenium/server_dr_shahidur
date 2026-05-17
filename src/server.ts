@@ -1,6 +1,8 @@
+import http from "http";
 import { connectDB } from "@config/db";
 import { env } from "@config/env";
 import { connectRedis, getRedisClient } from "@config/redis";
+import { initializeSocket } from "@config/socket";
 import { logger } from "@utils/logger";
 import { getWhatsAppClient, initWhatsApp } from "@utils/sendWhatsApp";
 import chalk from "chalk";
@@ -36,9 +38,10 @@ const startServer = async (): Promise<void> => {
   await connectDB();
   logger.info(chalk.green("✓ MongoDB connected"));
 
+  // 3. Check email connection (non-fatal)
   await checkEmailConnection();
 
-  // 3. Connect to Redis (non-fatal)
+  // 4. Connect to Redis (non-fatal)
   try {
     await connectRedis();
     logger.info(chalk.green("✓ Redis connected"));
@@ -46,22 +49,30 @@ const startServer = async (): Promise<void> => {
     logger.warn(chalk.yellow("Redis unavailable. Continuing without cache."));
   }
 
-  // 4. Seed admin
+  // 5. Seed admin
   await seedAdmin();
 
-  // 5. Initialize WhatsApp
+  // 6. Initialize WhatsApp
   initWhatsApp();
   logger.info(chalk.green("✓ WhatsApp client initializing"));
 
-  // 6. Start server
-  const server = app.listen(env.PORT, () => {
+  // 7. Create HTTP server and attach Socket.IO
+  const server = http.createServer(app);
+
+  // Initialize Socket.IO
+  initializeSocket(server);
+  logger.info(chalk.green("✓ Socket.IO initialized"));
+
+  // 8. Start server
+  server.listen(env.PORT, () => {
     logger.info(chalk.cyan(`\n🚀 Server running on port ${env.PORT}`));
     logger.info(chalk.cyan(`Environment: ${env.NODE_ENV}`));
     logger.info(chalk.cyan(`Public URL: ${env.CLIENT_PUBLIC_URL}`));
-    logger.info(chalk.cyan(`Dashboard URL: ${env.CLIENT_DASHBOARD_URL}\n`));
+    logger.info(chalk.cyan(`Dashboard URL: ${env.CLIENT_DASHBOARD_URL}`));
+    logger.info(chalk.cyan(`WebSocket: Enabled\n`));
   });
 
-  // 7. Graceful Shutdown
+  // 9. Graceful Shutdown
   const gracefulShutdown = (signal: string) => {
     logger.info(
       chalk.yellow(`\n${signal} received. Starting graceful shutdown...`),

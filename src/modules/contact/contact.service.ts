@@ -12,7 +12,7 @@ import type {
   IContact,
 } from "./contact.interface";
 import { Contact } from "./contact.model";
-
+import { notifyNewContactMessage } from "@config/socket";
 export const contactService = {
   create: async (
     payload: CreateContactPayload,
@@ -22,6 +22,18 @@ export const contactService = {
     const contact = await Contact.create({
       ...payload,
       ipAddress: ip,
+    });
+
+    notifyNewContactMessage({
+      _id: contact._id.toString(),
+      name: contact.name,
+      email: contact.email,
+      phone: contact.phone,
+      subject: contact.subject,
+      message: contact.message,
+      reason: contact.reason,
+      isRead: contact.isRead,
+      createdAt: contact.createdAt,
     });
 
     // Resolve geolocation asynchronously (non-blocking) — same pattern as appointment service
