@@ -28,6 +28,7 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
+    "@getbrevo/brevo": "^5.0.4",
     "@imagekit/nodejs": "^7.5.0",
     "axios": "^1.15.2",
     "bcrypt": "^6.0.0",
