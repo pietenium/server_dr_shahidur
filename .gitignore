@@ -7,3 +7,5 @@ whatsapp-session/
 .wwebjs_cache/
 backend-completion-plan.md
 .wwebjs_cache/
+
+package-lock.json

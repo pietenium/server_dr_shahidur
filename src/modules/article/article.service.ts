@@ -373,7 +373,7 @@ export class ArticleService {
     }
 
     const filter = {
-      status: "PUBLISHED",
+      status: "PUBLISHED" as const,
       impressions: { $gte: minImpressions },
       publishedAt: { $lte: new Date() },
     };
