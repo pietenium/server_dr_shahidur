@@ -1,3 +1,4 @@
+import { APPOINTMENT_DAYS } from "@constants/status.constant";
 import mongoose, { Schema } from "mongoose";
 import mongoosePaginate from "mongoose-paginate-v2";
 import type { IAChembers } from "./chembers.interface";
@@ -10,6 +11,7 @@ const chemberSchema = new Schema<IAChembers>(
       {
         activeDay: {
           type: String,
+          enum: Object.values(APPOINTMENT_DAYS),
           required: true,
         },
         startTime: {
@@ -35,6 +37,7 @@ chemberSchema.set("toJSON", {
 
 chemberSchema.plugin(mongoosePaginate);
 
+// Index for chamber name search
 chemberSchema.index({ chemberName: 1 });
 
 export const Chember = mongoose.model<IAChembers>("Chember", chemberSchema);
