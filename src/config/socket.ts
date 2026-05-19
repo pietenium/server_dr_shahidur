@@ -123,6 +123,7 @@ export const initializeSocket = (server: HttpServer): SocketServer => {
 /**
  * Get the Socket.IO server instance
  */
+
 export const getIO = (): SocketServer | null => {
   return io;
 };
