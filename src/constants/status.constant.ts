@@ -5,7 +5,7 @@ export const APPOINTMENT_STATUS = {
 } as const;
 
 export const APPOINTMENT_DAYS = {
-  SATERDAY: "SATERDAY",
+  SATURDAY: "SATURDAY",
   SUNDAY: "SUNDAY",
   MONDAY: "MONDAY",
   TUESDAY: "TUESDAY",
