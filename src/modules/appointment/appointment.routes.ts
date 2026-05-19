@@ -59,4 +59,24 @@ router.patch(
   appointmentController.updateStatus,
 );
 
+router.delete(
+  "/bulk",
+  globalLimiter,
+  authenticate,
+  authorize(ROLES.ADMIN, ROLES.MODERATOR),
+  appointmentValidator.bulkDelete,
+  logActivity("appointment"),
+  appointmentController.bulkDelete,
+);
+
+router.delete(
+  "/:id",
+  globalLimiter,
+  authenticate,
+  authorize(ROLES.ADMIN, ROLES.MODERATOR),
+  appointmentValidator.validateId,
+  logActivity("appointment"),
+  appointmentController.deleteById,
+);
+
 export default router;
