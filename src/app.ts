@@ -1,3 +1,5 @@
+import http from "http";
+import { initializeSocket } from "@config/socket";
 import { corsOptions } from "@config/cors";
 import { errorHandler } from "@middlewares/error.middleware";
 import { mongoSanitize } from "@middlewares/mongo-sanitize.middleware";
@@ -125,6 +127,12 @@ app.get("/health", (_req: Request, res: Response) => {
 });
 
 app.use("/api/v1", routes);
+
+export const createServer = (): http.Server => {
+  const server = http.createServer(app);
+  initializeSocket(server);
+  return server;
+};
 
 // 11. 404 handler
 app.use((_req, _res, next) => {

@@ -1,4 +1,3 @@
-import { env } from "@config/env";
 import { AUTH_MESSAGES } from "@constants/messages.constant";
 import { ApiError } from "@utils/ApiError";
 import { ApiResponse } from "@utils/ApiResponse";
@@ -16,10 +15,10 @@ import { authService } from "./auth.service";
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: env.NODE_ENV === "production",
-  sameSite:
-    env.NODE_ENV === "production" ? ("none" as const) : ("lax" as const),
-  maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
+  secure: true,
+  sameSite: "none" as const, // ✅ "lax" works since same domain now
+  maxAge: 14 * 24 * 60 * 60 * 1000,
+  path: "/",
 };
 
 export const authController = {

@@ -54,8 +54,8 @@ export const visitorService = {
 
     res.cookie(COOKIE_NAME, cookieValue, {
       httpOnly: false, // Allow JavaScript access (frontend needs it)
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
       path: "/",
       // No maxAge/expires = session cookie (deleted when browser closes)
     });

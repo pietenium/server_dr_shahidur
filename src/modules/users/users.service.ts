@@ -145,17 +145,8 @@ export const usersService = {
     }
 
     const temporaryPassword = crypto.randomBytes(8).toString("hex");
-
-    const moderator = await User.create({
-      name: payload.name,
-      email: payload.email,
-      password: temporaryPassword,
-      role: ROLES.MODERATOR,
-      isActive: true,
-    });
-
     // Send invite email (non-blocking)
-    void sendEmail({
+    void (await sendEmail({
       to: payload.email,
       subject: "Invitation to Join as Moderator",
       html: moderatorInviteTemplate({
@@ -164,6 +155,13 @@ export const usersService = {
         temporaryPassword,
         dashboardUrl: env.CLIENT_DASHBOARD_URL,
       }),
+    }));
+    const moderator = await User.create({
+      name: payload.name,
+      email: payload.email,
+      password: temporaryPassword,
+      role: ROLES.MODERATOR,
+      isActive: true,
     });
 
     const { password: _, ...userObj } = moderator.toObject();
