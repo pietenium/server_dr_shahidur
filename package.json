@@ -22,13 +22,13 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/server.ts",
-    "build": "tsc",
     "start": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/server.ts",
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
+    "@getbrevo/brevo": "^5.0.4",
     "@imagekit/nodejs": "^7.5.0",
     "axios": "^1.15.2",
     "bcrypt": "^6.0.0",
@@ -61,6 +61,7 @@
     "qrcode-terminal": "^0.12.0",
     "rate-limit-redis": "^4.3.1",
     "slugify": "^1.6.9",
+    "socket.io": "^4.8.3",
     "ua-parser-js": "^2.0.9",
     "uuid": "^14.0.0",
     "whatsapp-web.js": "^1.34.7",

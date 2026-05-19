@@ -15,6 +15,11 @@ export const appointmentValidator = {
       .isEmail()
       .withMessage("Invalid email format")
       .normalizeEmail(),
+    body("chemberId")
+      .notEmpty()
+      .withMessage("Chamber is required")
+      .isMongoId()
+      .withMessage("Invalid chamber ID"),
     body("preferredDate")
       .notEmpty()
       .withMessage("Date is required")
@@ -36,6 +41,7 @@ export const appointmentValidator = {
       .optional()
       .toUpperCase()
       .isIn(["PENDING", "CONFIRMED", "CANCELLED"]),
+    query("chemberId").optional().isMongoId().withMessage("Invalid chamber ID"),
     query("startDate").optional().isISO8601(),
     query("endDate").optional().isISO8601(),
     query("page").optional().isInt({ min: 1 }).toInt(),
@@ -55,6 +61,19 @@ export const appointmentValidator = {
 
   validateId: [
     param("id").isMongoId().withMessage("Invalid appointment ID"),
+    checkValidationResult,
+  ],
+
+  bulkDelete: [
+    body("ids")
+      .isArray({ min: 1 })
+      .withMessage("ids must be a non-empty array"),
+    body("ids.*").isMongoId().withMessage("Each id must be valid"),
+    body("status")
+      .optional()
+      .toUpperCase()
+      .isIn(["CANCELLED", "CONFIRMED"])
+      .withMessage("Status filter must be CANCELLED or CONFIRMED"),
     checkValidationResult,
   ],
 };

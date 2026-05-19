@@ -117,7 +117,7 @@ router.post(
 
 // Admin routes
 router.get(
-  "/admin",
+  "/admin/all",
   globalLimiter,
   authenticate,
   authorize(ROLES.ADMIN, ROLES.MODERATOR),

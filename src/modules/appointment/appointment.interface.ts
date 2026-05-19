@@ -1,11 +1,13 @@
 import type { GeoLocation } from "@types-app/global.types";
-import type { Document } from "mongoose";
+import type { Document, Types } from "mongoose";
+import type { IAChembers } from "@modules/Chembers/chembers.interface";
 
 export interface IAppointment extends Document {
   name: string;
   phone: string;
   email?: string;
   message?: string;
+  chemberId: Types.ObjectId | IAChembers;
   preferredDate: Date;
   preferredTime: string;
   status: "PENDING" | "CONFIRMED" | "CANCELLED";
@@ -20,12 +22,14 @@ export interface CreateAppointmentPayload {
   phone: string;
   email?: string;
   message?: string;
+  chemberId: string;
   preferredDate: string;
   preferredTime: string;
 }
 
 export interface AppointmentFilterQuery {
   status?: string;
+  chemberId?: string;
   startDate?: string;
   endDate?: string;
   search?: string;
@@ -38,4 +42,9 @@ export interface AppointmentChartData {
   monthlyCounts: Array<{ _id: string; count: number }>;
   totalCount: number;
   statusDistribution: Array<{ _id: string; count: number }>;
+}
+
+export interface BulkDeletePayload {
+  ids: string[];
+  status?: "CANCELLED" | "CONFIRMED";
 }

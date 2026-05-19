@@ -1,3 +1,5 @@
+import { Router } from "express";
+
 import activityLogRoutes from "@modules/activity-log/activity-log.routes";
 import analyticsRoutes from "@modules/analytics/analytics.routes";
 import appInfoRoutes from "@modules/app-info/app-info.routes";
@@ -11,8 +13,7 @@ import testimonialRoutes from "@modules/testimonial/testimonial.routes";
 import uploadRoutes from "@modules/upload/upload.routes";
 import usersRoutes from "@modules/users/users.routes";
 import visitorRoutes from "@modules/visitor/visitor.routes";
-import { Router } from "express";
-
+import chamberRoute from "@modules/Chembers/chembers.routes";
 const router = Router();
 
 // Add after other route registrations
@@ -30,6 +31,7 @@ const moduleRoutes = [
   { path: "/users", route: usersRoutes },
   { path: "/upload", route: uploadRoutes },
   { path: "/visitor", route: visitorRoutes },
+  { path: "/chambers", route: chamberRoute },
 ];
 
 moduleRoutes.forEach((route) => {

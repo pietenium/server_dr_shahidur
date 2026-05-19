@@ -9,6 +9,11 @@ const appointmentSchema = new Schema<IAppointment>(
     phone: { type: String, required: true },
     email: { type: String },
     message: { type: String },
+    chemberId: {
+      type: Schema.Types.ObjectId,
+      ref: "Chember",
+      required: true,
+    },
     preferredDate: { type: Date, required: true },
     preferredTime: { type: String, required: true },
     status: {
@@ -38,9 +43,9 @@ appointmentSchema.set("toJSON", {
 
 appointmentSchema.plugin(mongoosePaginate);
 
-// Indexes for admin list and date-range queries
 appointmentSchema.index({ status: 1, createdAt: -1 });
 appointmentSchema.index({ preferredDate: 1 });
+appointmentSchema.index({ chemberId: 1 });
 
 export const Appointment = mongoose.model<IAppointment>(
   "Appointment",

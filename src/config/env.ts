@@ -37,6 +37,7 @@ const envSchema = z.object({
   ADMIN_SEED_EMAIL: z.string().email(),
   ADMIN_SEED_PASSWORD: z.string().min(8),
   TEMP_PASS: z.string().min(8),
+  BREVO_API_KEY: z.string().min(32),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
